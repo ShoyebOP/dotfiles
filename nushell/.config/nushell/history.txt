@@ -1,0 +1,419 @@
+ls
+ls -a
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+config nu --doc | nu-highlight | less -R
+ls
+config nu --doc | nu-highlight | less -R
+ls
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+sudo pacman -S starship
+cat dotfiles/zsh/.zshrc
+nvim ~/dotfiles/nushell/.config/nushell/login.nu
+nvim ~/dotfiles/nushell/.config/nushell/env.nu
+ls dotfiles/nushell/
+ls -a dotfiles/nushell/
+zoxide init nushell | save -f ~/dotfiles/nushell/.zoxide.nu
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+ls
+ll
+ls
+c
+v
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+cd dotfiles/
+ls
+stow nushell
+ls
+cd .
+cd
+ls
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+ls dotfiles/nushell/
+ls -a dotfiles/nushell/
+ls -la dotfiles/nushell/
+mv dotfiles/nushell/.zoxide.nu dotfiles/nushell/.config/
+cd dotfiles/
+stow nushell
+cd dotfiles/
+stow --restow nushell/
+mv dotfiles/nushell/.zoxide.nu dotfiles/nushell/.config/
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+zoxide init nushell | save -f ~/dotfiles/nushell/.config/nushell/scripts/zoxide.nu<\n>uv generate-shell-completion nushell | save -f ~/dotfiles/nushell/.config/nushell/scripts/uv.nu
+mkdir -p ~/dotfiles/nushell/.config/nushell/scripts
+mkdir ~/dotfiles/nushell/.config/nushell/scripts
+zoxide init nushell | save -f ~/dotfiles/nushell/.config/nushell/scripts/zoxide.nu<\n>uv generate-shell-completion nushell | save -f ~/dotfiles/nushell/.config/nushell/scripts/uv.nu
+uv
+zoxide init nushell | save -f ~/dotfiles/nushell/.config/nushell/scripts/zoxide.nu
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+cd dotfiles
+ls
+cd zsh
+cd
+cd zsh
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+nvim ~/dotfiles/nushell/.config/nushell/scripts/catppuccin.nu
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+cd dotfiles
+stow --restow nushell/
+cd dotfiles
+ls
+nvim ~/dotfiles/nushell/.config/nushell/scripts/zoxide.nu
+cd ~/dotfiles/nushell/
+cd
+cd nus
+z nus
+cd
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+job unfreeze
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+pacman -S starship
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+ls
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+cd nus
+cd ls
+cd Abdullah/
+ls
+cd
+zoxide nus
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+cd nus
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+cd nus
+ls
+cd
+c
+ls
+c
+ls
+c
+ls
+c
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+ls
+c
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+c
+ls
+c
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+ls
+c
+echo $PATH
+echo $env.PATH
+hackw
+zsh
+v dotfiles/nushell/.config/nushell/env.nu
+echo $env.PATH
+hackw
+zsh
+hackw
+uv -h
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+c
+uv generate-shell-completion nushell | save -f dotfiles/nushell/.config/nushell/scripts/uv.nu
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+mkdir ~/dotfiles/starship/.config/
+nvim ~/dotfiles/starship/.config/starship.toml
+cd dotfiles
+cd starship
+cd .config
+cd dotfiles
+ls
+stow .
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+nvim ~/dotfiles/nushell/.config/nushell/env.nu
+nvim ~/dotfiles/nushell/.config/nushell/config.nu
+nvim ~/dotfiles/starship/.config/starship.toml
+nvim ~/dotfiles/nushell/.config/nushell/env.nu
+sudo pacman -Rns starship
+v dotfiles/nushell/.config/nushell/env.nu
+v dotfiles/nushell/.config/nushell/config.nu
+ls
+cd
+v dotfiles/nushell/.config/nushell/config.nu
+ls
+v dotfiles/nushell/.config/nushell/config.nu
+ls
+c
+cd dotfiles
+ls
+stow -D zsh
+ls -la dotfiles/nushell/
+cd
+c
+ls -la dotfiles/nushell/
+c
+cd dotfiles
+stow starship
+ls
+kill starship
+killall starship
+v dotfiles/nushell/.config/nushell/config.nu
+ls
+starship preset catppuccin-powerline -o ~/.config/starship.toml
+c
+ls
+cd
+ls
+cd dotfiles
+ls
+cd
+v .config/starship.toml
+c
+v .config/starship.toml
+cd dotfiles
+starship explain
+cd
+starship explain
+v .config/starship.toml
+c
+v .config/starship.toml
+ls
+c
+v .config/alacratty/
+v .config/alacratty/alacritty.toml
+v dotfiles/alacritty/.config/alacratty/alacritty.toml
+v dotfiles/alacritty/.config/alacritty/alacritty.toml
+v .config/starship.toml
+c
+v .config/starship.toml
+c
+v .config/starship.toml
+v dotfiles/alacritty/.config/alacritty/alacritty.toml
+v .config/starship.toml
+c
+cd dotfiles
+ls
+cd
+cd d
+ls
+c
+ls
+# Remove Oh My Zsh (if installed)<\n>rm -rf ~/.oh-my-zsh<\n><\n># Remove Zinit (the one from your previous .zshrc)<\n>rm -rf ~/.local/share/zinit<\n><\n># Remove any old Antigen or Zplug folders<\n>rm -rf ~/.antigen<\n>rm -rf ~/.zplug
+ls
+cd
+ls
+ls -l
+ls -a
+# Remove completion cache (Zsh will regenerate a clean one on next launch)<\n>rm -f ~/.zcompdump*<\n><\n># Remove any old p10k (Powerlevel10k) cache<\n>rm -rf ~/.cache/p10k-*<\n>rm -f ~/.p10k.zsh<\n><\n># Optional: Clear your history if it's full of "failed" experiment commands<\n># Warning: This deletes your command history!<\n># rm -f ~/.zsh_history
+v .config/starship.toml
+ls
+c
+sudo pacman -S keyd
+sudo systemctl enable --now keyd
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+sudo systemctl status keyd
+sudo keyd reload
+c
+cat -v
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+sudo keyd monitor
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+sudo keyd monitor
+sudo nvim /etc/keyd/default.conf
+sudo keyd monitor
+sudo keyd reload
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+sudo keyd monitor
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+v .config/starship.toml
+ls
+c
+sudo journalctl -eu keyd<\n><\n><\n>
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+sudo pacman -Rns keyd
+c
+sudo systemctl stop keyd
+sudo systemctl disable keyd
+ls
+c
+sudo pacman -S kanata
+yay -S kanata
+yay -S kanata-bin
+mkdir -p ~/.config/kanata<\n>nvim ~/.config/kanata/config.kbd
+cd do
+ls
+stow kanata/
+sudo kanata -c ~/.config/kanata/config.kbd
+ls /dev/input/by-path/
+sudo kanata -c ~/.config/kanata/config.kbd
+kanata --help
+sudo pacman -S tmux
+sudo kanata -c ~/.config/kanata/config.kbd
+cd do
+stow --restow kanata/
+systemctl --user daemon-reload
+systemctl --user enable --now kanata.service
+systemctl status kanata
+systemctl --user enable --now kanata.service
+systemctl status kanata
+systemctl --user status kanata
+systemctl --user stop kanata
+systemctl --user disable kanata
+ls
+cd do
+ls
+c
+ls
+cd kanata
+ls
+ls -la
+cd .config/
+ls
+rm -rf systemd/
+ls
+cd ..
+;s
+ls
+c
+ls
+v kanata.service
+ls
+c
+sudo cp kanata.service /etc/systemd/
+sudo systemctl daemon-reload
+c
+sudo systemctl enable --now kanata
+grep
+find
+c
+ls /etc/systemd/system/ | find anata
+ls /etc/systemd/system/ | find kanata
+ls /etc/systemd/system/
+ls /etc/systemd/ | find kanata 
+ls /etc/systemd/ | find kanata | get name
+rm (ls /etc/systemd/ | find kanata | get name)
+rm *(ls /etc/systemd/ | find kanata | get name)
+rm /etc/systemd/kanata.service
+sudo rm /etc/systemd/kanata.service
+sudo cp kanata.service /etc/systemd/system/
+ls
+c
+sudo systemctl enable --now kanata
+ls nushell/
+ls -a nushell/
+cat dotfiles/nushell/.config/nushell/login.nu
+cat dotfiles/nushell/.config/nushell/config.nu
+sudo systemctl stop kanata
+sudo systemctl disable kanata
+cat dotfiles/nushell/.config/nushell/env.nu
+v dotfiles/nushell/.config/nushell/config.nu
+cat dotfiles/nushell/.config/nushell/login.nu
+tailon
+echo $env.PATH
+v dotfiles/nushell/.config/nushell/env.nu
+echo $env.PATH
+tailon
+hackw
+sudo tailscale up
+sudo systemctl start tailscaled
+sudo tailscale up
+c
+tailscale status
+tailscale down
+sudo systemctl stop tailscaled
+config nu
+config enc
+config env
+shutdown
+cat dotfiles/nushell/.config/nushell/login.nu
+v dotfiles/nushell/.config/nushell/env.nu
+v .config/starship.toml
+sudo systemctl stop kanata
+sudo systemctl disable kanata
+# 2. Remove Kanata<\n>sudo pacman -Rns kanata<\n><\n>
+# 2. Remove Kanata<\n>sudo pacman -Rns kanata-bin<\n><\n>
+sudo pacman -S keyd
+sudo systemctl enable --now keyd
+sudo nvim /etc/keyd/default.conf
+sudo keyd reload
+sudo EDITOR=nvim visudo
+cd dotfile
+ls
+stow -D kanata/
+stow -D kanata.service
+rm -rf kanata*
+ls
+c
+mkdir ~/dotfiles/keyd/etc/keyd<\n>
+ls
+sudo stow --adopt -t / keyd
+ls -a keyd/etc/keyd/
+ls -la keyd/etc/keyd/
+stow -D keyd
+c
+sudo mv /etc/keyd/default.conf keyd/etc/keyd/
+ls
+ls keyd
+ls keyd/etc/keyd/
+c
+sudo stow -t / keyd
+ls /etc/keyd/
+sudo keyd reload
+ls
+c
+v usage.md
+ls
+mkdir ~/dotfiles/nushell/.local/bin
+ls
+systemctl is-active keyd | str trim
+v ~/dotfiles/nushell/.local/bin/toogle-keyd.nu
+chmod +x ~nushell/.local/bin/toggle-keyd.nu
+chmod +x nushell/.local/bin/toggle-keyd.nu
+chmod +x nushell/.local/bin/toogle-keyd.nu
+mv nushell/.local/bin/toogle-keyd.nu nushell/.local/bin/toggle-keyd.nu
+ls
+stow --restow nushell/
+toggle-keyd
+s
+chmod +x ~/.local/bin/toggle-keyd.nu
+toggle-keyd
+ls
+c
+nu ~/.local/bin/toggle-keyd.nu
+nvim ~/.config/hypr/hyprland.conf
+hyprctl reload
+nvim ~/.config/hypr/hyprland.conf
+hyprctl reload
+nvim ~/.config/hypr/hyprland.conf
+hyprctl reload
+cat .local/bin/toggle-keyd.nu
+nvim ~/.config/hypr/hyprland.conf
+hyprctl reload
+nu ~/.local/bin/toggle-keyd.nu
+sudo systemctl stop keyd
+systemctl stop keyd
+v ~/dotfiles/nushell/.local/bin/toogle-keyd.nu
+v ~/dotfiles/nushell/.local/bin/toggle-keyd.nu
+sudo -l
+sudo EDITOR=nvim visudo
+sudo -l
+v ~/dotfiles/nushell/.local/bin/toggle-keyd.nu
+nvim ~/.config/hypr/hyprland.conf
+hyprctl reload
+nvim ~/.config/hypr/hyprland.conf
+c
+hyprctl reload
+c
+cd dotfile
