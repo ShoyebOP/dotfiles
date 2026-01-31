@@ -417,3 +417,21 @@ c
 hyprctl reload
 c
 cd dotfile
+lazygit
+v dotfiles/nushell/.config/nushell/config.nu
+cd
+v dotfiles/nushell/.config/nushell/config.nu
+nvim ~/.config/hypr/hyprland.conf
+cd do
+ls
+mkdir hyprland/.config/hyper
+ls
+v dotfiles/nushell/.config/nushell/config.nu
+cd
+v dotfiles/nushell/.config/nushell/config.nu
+find nvim
+grep nvim
+c
+tmux
+c
+cd dotfiles

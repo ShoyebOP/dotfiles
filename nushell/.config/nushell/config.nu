@@ -45,10 +45,49 @@ $env.config = {
 
     # 3. SMART HISTORY MENU
     menus: [
+        # --- 1. COMPLETION MENU (Tab) ---
+        
+
+        # --- 2. HISTORY MENU (Ctrl+R) ---
+        {
+            name: history_menu
+            only_buffer_difference: true
+            marker: "? "
+            type: {
+                layout: list
+                page_size: 10
+            }
+            style: {
+                text: cyan
+                selected_text: { fg: "magenta" attr: "b" }
+                description_text: yellow
+            }
+        }
+
+        # --- 3. HELP MENU (F1) ---
+        {
+            name: help_menu
+            only_buffer_difference: true
+            marker: "? "
+            type: {
+                layout: description
+                columns: 4  # <--- FIXED: Must be an Integer, not a list
+                col_width: 20
+                col_padding: 2
+                selection_rows: 4
+                page_size: 10
+            }
+            style: {
+                text: cyan
+                selected_text: { fg: "magenta" attr: "b" }
+                description_text: yellow
+            }
+        }
+
+        # --- 4. SMART HISTORY (Ctrl+Shift+Up) ---
         {
             name: smart_history
-            # CRITICAL FIX: Disable auto-filtering so our custom logic applies 100%
-            only_buffer_difference: false 
+            only_buffer_difference: false
             marker: "? " 
             type: {
                 layout: list
@@ -56,11 +95,10 @@ $env.config = {
             }
             style: {
                 text: cyan
-                selected_text: cyan_reverse
+                selected_text: { fg: "magenta" attr: "b" }
                 description_text: yellow
             }
             source: { |buffer, position|
-                # 1. PARSE INPUT: Get the "Main Command" from what you typed
                 let raw_parts = ($buffer | str trim | split row " ")
                 let main_cmd = if ($raw_parts | get 0) == "sudo" { 
                     $raw_parts | get 1? 
@@ -68,21 +106,17 @@ $env.config = {
                     $raw_parts | get 0 
                 }
 
-                # 2. QUERY: If buffer is empty, show nothing (or recent history)
                 if ($main_cmd | is-empty) { 
                     history | get command | reverse | uniq | first 10 | each { {value: $in} }
                 } else {
-                    # 3. FILTER: Strict check against history
                     history
                     | get command
                     | where { |line| 
-                        # Strip 'sudo' from the history entry to compare apples-to-apples
                         let clean_line = if ($line | str starts-with "sudo ") { 
                             $line | str substring 5.. 
                         } else { 
                             $line 
                         }
-                        # Does this line start with the command we are typing?
                         $clean_line | str starts-with $main_cmd
                     }
                     | reverse
@@ -94,8 +128,10 @@ $env.config = {
         }
     ]
 
+
     # 4. KEYBINDINGS
     keybindings: [
+
         # Keep Ctrl+Up working (updated for vi modes)
         {
             name: smart_history_up
