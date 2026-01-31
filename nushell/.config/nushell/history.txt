@@ -435,3 +435,28 @@ c
 tmux
 c
 cd dotfiles
+lazygit
+rm -rf ~/.config/nvim
+rm -rf ~/.cache/nvim<\n>
+rm -rf ~/.local/state/nvim<\n>
+rm -rf ~/.local/share/nvim<\n>
+rm -rf ~/.vim ~/.vimrc<\n>
+cd
+mkdir ~/dotfiles/nvim/.config/nvim<\n>
+cd dotfiles
+ls
+stow nvim/
+c
+git clone https://github.com/LazyVim/starter ~/.config/nvim
+rm -rf ~/.config/nvim/.git
+nvim
+cd
+ls
+cd migration_backup/Code/my-n8n/
+ls
+nvim README.md
+cd
+ls
+c
+cd dotfiles
+ls
