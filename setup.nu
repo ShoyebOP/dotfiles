@@ -23,6 +23,25 @@ def main [] {
 
     let mode = (get-mode)
     print $"Selected mode: ($mode)"
+
+    let deps = (get-deps $distro $mode)
+    print $"Dependencies for ($distro) in ($mode) mode defined."
+}
+
+def get-deps [distro, mode] {
+    let common = ["stow" "neovim" "starship" "git" "zoxide" "fzf" "ripgrep" "bat" "eza"]
+    
+    let gui = match $distro {
+        "arch" | "cachyos" => ["hyprland" "alacritty" "wofi" "keyd" "waybar" "swww" "mako" "grim" "slurp" "wl-clipboard"]
+        "ubuntu" => ["alacritty" "wofi" "waybar" "mako" "grim" "slurp" "wl-clipboard"] # keyd/hyprland often need special handling on Ubuntu
+        _ => []
+    }
+
+    if ($mode == "local") {
+        return ($common | append $gui)
+    } else {
+        return $common
+    }
 }
 
 def get-mode [] {
