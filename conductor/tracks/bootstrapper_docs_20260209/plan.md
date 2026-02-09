@@ -1,7 +1,7 @@
 # Implementation Plan: Unified Bootstrapper & Documentation Consolidation
 
 ## Phase 1: Foundation & OS Detection
-- [ ] Task: Create `setup.nu` skeleton with Nushell check
+- [x] Task: Create `setup.nu` skeleton with Nushell check (0042517)
 - [ ] Task: Implement OS detection for Arch/CachyOS and Ubuntu
 - [ ] Task: Implement graceful exit for unsupported OSs
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Foundation & OS Detection' (Protocol in workflow.md)
