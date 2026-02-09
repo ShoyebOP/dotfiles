@@ -8,7 +8,7 @@
 
 ## Phase 2: Mode Selection & Dependency Matrix
 - [x] Task: Implement interactive mode selection (Local vs. Server) (4eaaed5)
-- [ ] Task: Define dependency maps for each module per OS
+- [x] Task: Define dependency maps for each module per OS (e4cd144)
 - [ ] Task: Implement dependency verification logic
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: Mode Selection & Dependency Matrix' (Protocol in workflow.md)
 
