@@ -28,6 +28,43 @@ def main [] {
     print $"Dependencies for ($distro) in ($mode) mode defined."
 
     verify-deps $deps
+
+    run-stow $mode
+}
+
+def run-stow [mode] {
+    print "\nStarting deployment (GNU Stow)..."
+    
+    # Core modules for all modes
+    let core_modules = ["nvim" "nushell" "starship"]
+    
+    # GUI modules for local mode
+    let gui_modules = ["hyprland" "alacritty" "wofi"]
+    
+    print "Stowing core modules..."
+    $core_modules | each { |it|
+        print $" - Stowing ($it)..."
+        stow --restow $it
+    }
+    
+    if ($mode == "local") {
+        print "Stowing GUI modules..."
+        $gui_modules | each { |it|
+            print $" - Stowing ($it)..."
+            stow --restow $it
+        }
+        
+        print "Stowing system modules (keyd)..."
+        # Special case for keyd as per usage.md: sudo stow --adopt -t / keyd
+        # We'll use a confirm prompt for sudo operations
+        if (input "Stow keyd configuration to /etc/keyd? (y/n): ") == "y" {
+            sudo stow --adopt -t / keyd
+            print "keyd stowed. Reloading keyd..."
+            sudo keyd reload
+        }
+    }
+    
+    print "\nDeployment complete!"
 }
 
 def get-distro [] {
