@@ -13,9 +13,9 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Mode Selection & Dependency Matrix' (Protocol in workflow.md) (03847e8)
 
 ## Phase 3: Deployment Logic (Stowing)
-- [ ] Task: Implement automated `stow` logic for core modules (Nvim, Nushell, Starship)
-- [ ] Task: Implement GUI-specific `stow` logic for Local Mode (Hyprland, Alacritty, Wofi)
-- [ ] Task: Implement privileged `stow` logic for `keyd` configuration
+- [x] Task: Implement automated `stow` logic for core modules (Nvim, Nushell, Starship) (1d1aac2)
+- [x] Task: Implement GUI-specific `stow` logic for Local Mode (Hyprland, Alacritty, Wofi) (1d1aac2)
+- [x] Task: Implement privileged `stow` logic for `keyd` configuration (1d1aac2)
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Deployment Logic (Stowing)' (Protocol in workflow.md)
 
 ## Phase 4: Documentation & Cleanup
