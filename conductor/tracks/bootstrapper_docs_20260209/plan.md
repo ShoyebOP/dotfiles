@@ -19,7 +19,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 3: Deployment Logic (Stowing)' (Protocol in workflow.md) (60b79d6)
 
 ## Phase 4: Documentation & Cleanup
-- [ ] Task: Create `README.md` based on `usage.md` and new bootstrap instructions
-- [ ] Task: Verify all `usage.md` information is captured
-- [ ] Task: Remove `usage.md`
+- [x] Task: Create `README.md` based on `usage.md` and new bootstrap instructions (28771ce)
+- [x] Task: Verify all `usage.md` information is captured (28771ce)
+- [x] Task: Remove `usage.md` (28771ce)
 - [ ] Task: Conductor - User Manual Verification 'Phase 4: Documentation & Cleanup' (Protocol in workflow.md)
