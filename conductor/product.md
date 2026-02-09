@@ -15,5 +15,5 @@ To maintain a high-performance, minimalist dotfiles repository that enables a co
 ## Key Features
 - **Deep Neovim Integration:** A highly optimized Neovim configuration tailored for rapid development.
 - **Optimized Shell Environment:** A customized Nushell setup featuring high-utility aliases and scripts.
-- **Automated Bootstrapping:** A master Nushell setup script to handle the installation and stowing process (`GNU Stow`) automatically.
+- **Automated Bootstrapping:** A robust `setup.nu` script that handles OS detection, dependency installation (`pacman`/`apt`), conflict cleanup, and stowing automatically.
 - **System-Wide Control:** Integration of tools like `keyd`, `hyprland`, and `wofi` managed via a unified, efficient workflow.
