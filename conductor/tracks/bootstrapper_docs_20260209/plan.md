@@ -1,10 +1,10 @@
 # Implementation Plan: Unified Bootstrapper & Documentation Consolidation
 
-## Phase 1: Foundation & OS Detection
+## Phase 1: Foundation & OS Detection [checkpoint: 6d7c9ad]
 - [x] Task: Create `setup.nu` skeleton with Nushell check (0042517)
 - [x] Task: Implement OS detection for Arch/CachyOS and Ubuntu (8e5e33c)
 - [x] Task: Implement graceful exit for unsupported OSs (8e5e33c)
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Foundation & OS Detection' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Foundation & OS Detection' (Protocol in workflow.md) (6d7c9ad)
 
 ## Phase 2: Mode Selection & Dependency Matrix
 - [ ] Task: Implement interactive mode selection (Local vs. Server)
