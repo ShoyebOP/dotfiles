@@ -30,39 +30,14 @@ def main [] {
     verify-deps $deps
 }
 
-def verify-deps [deps] {
-    print "\nVerifying dependencies..."
-    let missing = ($deps | where { (which $in | is-empty) })
-    
-    if ($missing | is-not-empty) {
-        print "The following dependencies are missing:"
-        $missing | each { print $" - ($in)" }
-        print "\nPlease install them using your package manager."
-        # For now, we just warn and proceed, or we could exit.
-        # Given the "efficiency" goal, let's exit if critical ones are missing.
-        if ("stow" in $missing) {
-            print "CRITICAL: 'stow' is required to continue."
-            exit 1
-        }
-    } else {
-        print "All dependencies are satisfied."
+def get-distro [] {
+    if ("/etc/os-release" | path exists) {
+        let release_data = (open /etc/os-release | lines)
+        let id_line = ($release_data | where { $in =~ "^ID=" } | first)
+        let id = ($id_line | str replace "ID=" "" | str replace -a '"' "")
+        return $id
     }
-}
-
-def get-deps [distro, mode] {
-    let common = ["stow" "nvim" "starship" "git" "zoxide" "fzf" "ripgrep" "bat" "eza"]
-    
-    let gui = match $distro {
-        "arch" | "cachyos" => ["hyprland" "alacritty" "wofi" "keyd" "waybar" "swww" "mako" "grim" "slurp" "wl-clipboard"]
-        "ubuntu" => ["alacritty" "wofi" "waybar" "mako" "grim" "slurp" "wl-clipboard"] # keyd/hyprland often need special handling on Ubuntu
-        _ => []
-    }
-
-    if ($mode == "local") {
-        return ($common | append $gui)
-    } else {
-        return $common
-    }
+    return "unknown"
 }
 
 def get-mode [] {
@@ -78,12 +53,38 @@ def get-mode [] {
     }
 }
 
-def get-distro [] {
-    if ("/etc/os-release" | path exists) {
-        let release_data = (open /etc/os-release | lines)
-        let id_line = ($release_data | where { $in =~ "^ID=" } | first)
-        let id = ($id_line | str replace "ID=" "" | str replace -a '"' "")
-        return $id
+def get-deps [distro, mode] {
+    # Core dependencies found in config/scripts
+    let common = ["stow" "nvim" "starship" "git" "zoxide" "uv" "rg"]
+    
+    # GUI dependencies verified on system and in use
+    let gui = match $distro {
+        "arch" | "cachyos" => ["hyprland" "alacritty" "wofi" "keyd" "waybar" "grim" "slurp" "wl-copy"]
+        "ubuntu" => ["alacritty" "wofi" "waybar" "grim" "slurp" "wl-copy"]
+        _ => []
     }
-    return "unknown"
+
+    if ($mode == "local") {
+        return ($common | append $gui)
+    } else {
+        return $common
+    }
+}
+
+def verify-deps [deps] {
+    print "\nVerifying dependencies..."
+    let missing = ($deps | where { (which $in | is-empty) })
+    
+    if ($missing | is-not-empty) {
+        print "The following dependencies are missing:"
+        $missing | each { print $" - ($in)" }
+        print "\nPlease install them using your package manager."
+        
+        if ("stow" in $missing) {
+            print "CRITICAL: 'stow' is required to continue."
+            exit 1
+        }
+    } else {
+        print "All dependencies are satisfied."
+    }
 }
