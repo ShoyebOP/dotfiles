@@ -1,12 +1,18 @@
 #!/usr/bin/env nu
 
-def main [] {
+def main [
+    --mode: string      # Deployment mode: 'local' or 'server'
+    --dry-run           # Show what would be done without making changes
+    --stow-keyd: string # Whether to stow keyd: 'y' or 'n'
+] {
     # The existence of $nu is a strong indicator we are in Nushell
     if (not ($nu | is-not-empty)) {
         print "Error: This script must be run with Nushell (nu)."
         print "Please install Nushell and run: nu setup.nu"
         exit 1
     }
+
+    if $dry_run { print "=== DRY RUN MODE: No changes will be applied ===" }
 
     print "Starting Unified Bootstrapper..."
 
@@ -21,50 +27,19 @@ def main [] {
     
     print "OS validation passed."
 
-    let mode = (get-mode)
-    print $"Selected mode: ($mode)"
+    let selected_mode = if ($mode | is-not-empty) {
+        $mode
+    } else {
+        get-mode-interactive
+    }
+    print $"Selected mode: ($selected_mode)"
 
-    let deps = (get-deps $distro $mode)
-    print $"Dependencies for ($distro) in ($mode) mode defined."
+    let deps = (get-deps $distro $selected_mode)
+    print $"Dependencies for ($distro) in ($selected_mode) mode defined."
 
     verify-deps $deps
 
-    run-stow $mode
-}
-
-def run-stow [mode] {
-    print "\nStarting deployment (GNU Stow)..."
-    
-    # Core modules for all modes
-    let core_modules = ["nvim" "nushell" "starship"]
-    
-    # GUI modules for local mode
-    let gui_modules = ["hyprland" "alacritty" "wofi"]
-    
-    print "Stowing core modules..."
-    $core_modules | each { |it|
-        print $" - Stowing ($it)..."
-        stow --restow $it
-    }
-    
-    if ($mode == "local") {
-        print "Stowing GUI modules..."
-        $gui_modules | each { |it|
-            print $" - Stowing ($it)..."
-            stow --restow $it
-        }
-        
-        print "Stowing system modules (keyd)..."
-        # Special case for keyd as per usage.md: sudo stow --adopt -t / keyd
-        # We'll use a confirm prompt for sudo operations
-        if (input "Stow keyd configuration to /etc/keyd? (y/n): ") == "y" {
-            sudo stow --adopt -t / keyd
-            print "keyd stowed. Reloading keyd..."
-            sudo keyd reload
-        }
-    }
-    
-    print "\nDeployment complete!"
+    run-stow $selected_mode $dry_run $stow_keyd
 }
 
 def get-distro [] {
@@ -77,7 +52,7 @@ def get-distro [] {
     return "unknown"
 }
 
-def get-mode [] {
+def get-mode-interactive [] {
     print "\nSelect Deployment Mode:"
     print "1. Local Mode (Full setup including GUI: Hyprland, Alacritty, keyd, etc.)"
     print "2. Server Mode (Headless setup: Nvim, Nushell, Starship only)"
@@ -124,4 +99,48 @@ def verify-deps [deps] {
     } else {
         print "All dependencies are satisfied."
     }
+}
+
+def run-stow [mode, dry_run, stow_keyd_arg] {
+    print "\nStarting deployment (GNU Stow)..."
+    
+    let core_modules = ["nvim" "nushell" "starship"]
+    let gui_modules = ["hyprland" "alacritty" "wofi"]
+    
+    let stow_cmd = if $dry_run { ["stow" "--no" "-v" "--restow"] } else { ["stow" "--restow"] }
+
+    print "Stowing core modules..."
+    $core_modules | each { |it|
+        print $" - Stowing ($it)..."
+        run-external ($stow_cmd | first) ...($stow_cmd | skip 1) $it
+    }
+    
+    if ($mode == "local") {
+        print "Stowing GUI modules..."
+        $gui_modules | each { |it|
+            print $" - Stowing ($it)..."
+            run-external ($stow_cmd | first) ...($stow_cmd | skip 1) $it
+        }
+        
+        print "Stowing system modules (keyd)..."
+        
+        let do_keyd = if ($stow_keyd_arg | is-not-empty) {
+            $stow_keyd_arg == "y"
+        } else {
+            (input "Stow keyd configuration to /etc/keyd? (y/n): ") == "y"
+        }
+
+        if $do_keyd {
+            if $dry_run {
+                print " - [DRY RUN] sudo stow --adopt -t / keyd"
+                print " - [DRY RUN] sudo keyd reload"
+            } else {
+                sudo stow --adopt -t / keyd
+                print "keyd stowed. Reloading keyd..."
+                sudo keyd reload
+            }
+        }
+    }
+    
+    print "\nDeployment complete!"
 }
