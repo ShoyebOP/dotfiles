@@ -6,11 +6,11 @@
 - [x] Task: Implement graceful exit for unsupported OSs (8e5e33c)
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Foundation & OS Detection' (Protocol in workflow.md) (6d7c9ad)
 
-## Phase 2: Mode Selection & Dependency Matrix
+## Phase 2: Mode Selection & Dependency Matrix [checkpoint: 03847e8]
 - [x] Task: Implement interactive mode selection (Local vs. Server) (4eaaed5)
 - [x] Task: Define dependency maps for each module per OS (e4cd144)
-- [x] Task: Implement dependency verification logic (e151588)
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Mode Selection & Dependency Matrix' (Protocol in workflow.md)
+- [x] Task: Implement dependency verification logic (03847e8)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Mode Selection & Dependency Matrix' (Protocol in workflow.md) (03847e8)
 
 ## Phase 3: Deployment Logic (Stowing)
 - [ ] Task: Implement automated `stow` logic for core modules (Nvim, Nushell, Starship)
