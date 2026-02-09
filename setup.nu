@@ -26,10 +26,31 @@ def main [] {
 
     let deps = (get-deps $distro $mode)
     print $"Dependencies for ($distro) in ($mode) mode defined."
+
+    verify-deps $deps
+}
+
+def verify-deps [deps] {
+    print "\nVerifying dependencies..."
+    let missing = ($deps | where { (which $in | is-empty) })
+    
+    if ($missing | is-not-empty) {
+        print "The following dependencies are missing:"
+        $missing | each { print $" - ($in)" }
+        print "\nPlease install them using your package manager."
+        # For now, we just warn and proceed, or we could exit.
+        # Given the "efficiency" goal, let's exit if critical ones are missing.
+        if ("stow" in $missing) {
+            print "CRITICAL: 'stow' is required to continue."
+            exit 1
+        }
+    } else {
+        print "All dependencies are satisfied."
+    }
 }
 
 def get-deps [distro, mode] {
-    let common = ["stow" "neovim" "starship" "git" "zoxide" "fzf" "ripgrep" "bat" "eza"]
+    let common = ["stow" "nvim" "starship" "git" "zoxide" "fzf" "ripgrep" "bat" "eza"]
     
     let gui = match $distro {
         "arch" | "cachyos" => ["hyprland" "alacritty" "wofi" "keyd" "waybar" "swww" "mako" "grim" "slurp" "wl-clipboard"]
