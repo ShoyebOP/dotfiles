@@ -2,8 +2,8 @@
 
 ## Phase 1: Foundation & OS Detection
 - [x] Task: Create `setup.nu` skeleton with Nushell check (0042517)
-- [ ] Task: Implement OS detection for Arch/CachyOS and Ubuntu
-- [ ] Task: Implement graceful exit for unsupported OSs
+- [x] Task: Implement OS detection for Arch/CachyOS and Ubuntu (8e5e33c)
+- [x] Task: Implement graceful exit for unsupported OSs (8e5e33c)
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Foundation & OS Detection' (Protocol in workflow.md)
 
 ## Phase 2: Mode Selection & Dependency Matrix
