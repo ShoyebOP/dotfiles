@@ -20,6 +20,22 @@ def main [] {
     }
     
     print "OS validation passed."
+
+    let mode = (get-mode)
+    print $"Selected mode: ($mode)"
+}
+
+def get-mode [] {
+    print "\nSelect Deployment Mode:"
+    print "1. Local Mode (Full setup including GUI: Hyprland, Alacritty, keyd, etc.)"
+    print "2. Server Mode (Headless setup: Nvim, Nushell, Starship only)"
+    
+    loop {
+        let input = (input "Enter choice (1 or 2): ")
+        if ($input == "1") { return "local" }
+        if ($input == "2") { return "server" }
+        print "Invalid choice. Please enter 1 or 2."
+    }
 }
 
 def get-distro [] {
