@@ -27,6 +27,10 @@ def main [
     
     print "OS validation passed."
 
+    # Sync Path from current config
+    let current_path = $env.PATH
+    print "Global path captured."
+
     let selected_mode = if ($mode | is-not-empty) {
         $mode
     } else {
@@ -37,7 +41,12 @@ def main [
     let deps = (get-deps $distro $selected_mode)
     print $"Dependencies for ($distro) in ($selected_mode) mode defined."
 
-    verify-deps $deps
+    let missing = (verify-deps $deps)
+    if ($missing | is-not-empty) {
+        install-deps $distro $missing $dry_run
+    } else {
+        print "All dependencies are satisfied."
+    }
 
     run-stow $selected_mode $dry_run $stow_keyd
 }
@@ -66,8 +75,8 @@ def get-mode-interactive [] {
 }
 
 def get-deps [distro, mode] {
-    # Core dependencies found in config/scripts
-    let common = ["stow" "nvim" "starship" "git" "zoxide" "uv" "rg"]
+    # Core dependencies found in config/scripts + node/npm for nvim
+    let common = ["stow" "nvim" "starship" "git" "zoxide" "uv" "rg" "node" "npm"]
     
     # GUI dependencies verified on system and in use
     let gui = match $distro {
@@ -90,14 +99,31 @@ def verify-deps [deps] {
     if ($missing | is-not-empty) {
         print "The following dependencies are missing:"
         $missing | each { print $" - ($in)" }
-        print "\nPlease install them using your package manager."
-        
+        return $missing
+    }
+    return []
+}
+
+def install-deps [distro, missing, dry_run] {
+    let install_cmd = match $distro {
+        "arch" | "cachyos" => ["sudo" "pacman" "-S" "--needed"]
+        "ubuntu" => ["sudo" "apt" "install" "-y"]
+        _ => { print "Unsupported distro for auto-install."; exit 1 }
+    }
+
+    print $"\nReady to install missing packages: ($missing | str join ' ')"
+    let confirm = if $dry_run { "n" } else { (input "Proceed with installation? (y/n): ") }
+
+    if ($confirm == "y") {
+        run-external ($install_cmd | first) ...($install_cmd | skip 1) ...$missing
+    } else if $dry_run {
+        print $"[DRY RUN] Would run: ($install_cmd | str join ' ') ($missing | str join ' ')"
+    } else {
+        print "Skipping installation. Note: Setup might fail if critical tools are missing."
         if ("stow" in $missing) {
             print "CRITICAL: 'stow' is required to continue."
             exit 1
         }
-    } else {
-        print "All dependencies are satisfied."
     }
 }
 
@@ -107,23 +133,18 @@ def run-stow [mode, dry_run, stow_keyd_arg] {
     let core_modules = ["nvim" "nushell" "starship"]
     let gui_modules = ["hyprland" "alacritty" "wofi"]
     
-    let stow_cmd = if $dry_run { ["stow" "--no" "-v" "--restow"] } else { ["stow" "--restow"] }
-
     print "Stowing core modules..."
     $core_modules | each { |it|
-        print $" - Stowing ($it)..."
-        run-external ($stow_cmd | first) ...($stow_cmd | skip 1) $it
+        stow-module $it $dry_run
     }
     
     if ($mode == "local") {
         print "Stowing GUI modules..."
         $gui_modules | each { |it|
-            print $" - Stowing ($it)..."
-            run-external ($stow_cmd | first) ...($stow_cmd | skip 1) $it
+            stow-module $it $dry_run
         }
         
         print "Stowing system modules (keyd)..."
-        
         let do_keyd = if ($stow_keyd_arg | is-not-empty) {
             $stow_keyd_arg == "y"
         } else {
@@ -143,4 +164,30 @@ def run-stow [mode, dry_run, stow_keyd_arg] {
     }
     
     print "\nDeployment complete!"
+}
+
+def stow-module [module, dry_run] {
+    print $" - Processing ($module)..."
+    
+    # Pre-stow cleanup: check target locations
+    # For simplicity, we check common targets like ~/.config/module
+    let home = $env.HOME
+    let target = $"($home)/.config/($module)"
+    
+    if ($target | path exists) {
+        # Check if it's a symlink
+        let is_link = (ls -ld $target | get 0.type) == "symlink"
+        
+        if (not $is_link) {
+            print $"   ! WARNING: ($target) is a real file/folder. Deleting..."
+            if $dry_run {
+                print $"   [DRY RUN] rm -rf ($target)"
+            } else {
+                rm -rf $target
+            }
+        }
+    }
+
+    let stow_cmd = if $dry_run { ["stow" "--no" "-v" "--restow" $module] } else { ["stow" "--restow" $module] }
+    run-external ($stow_cmd | first) ...($stow_cmd | skip 1)
 }

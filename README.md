@@ -4,7 +4,13 @@ Highly optimized, minimalist dotfiles for a consistent and high-performance deve
 
 ## 🚀 Quick Start (Unified Bootstrapper)
 
-The easiest way to set up this environment is using the automated `setup.nu` script.
+The easiest way to set up this environment is using the automated `setup.nu` script. It automatically detects your OS, installs missing dependencies, and manages your configuration symlinks.
+
+### 📜 What it does:
+- **OS Support:** Arch Linux (CachyOS) and Ubuntu.
+- **Dependency Management:** Automatically identifies and installs missing packages (via `pacman` or `apt`).
+- **Smart Stowing:** Uses `GNU Stow` to manage symlinks. If a real file or folder exists where a symlink should be, it automatically removes the conflict.
+- **Safety First:** Includes a `--dry-run` flag to preview all changes.
 
 ### 1. Prerequisite: Nushell
 If you don't have Nushell installed, please install it first:
