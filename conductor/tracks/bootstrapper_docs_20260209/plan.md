@@ -12,11 +12,11 @@
 - [x] Task: Implement dependency verification logic (03847e8)
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Mode Selection & Dependency Matrix' (Protocol in workflow.md) (03847e8)
 
-## Phase 3: Deployment Logic (Stowing)
+## Phase 3: Deployment Logic (Stowing) [checkpoint: 60b79d6]
 - [x] Task: Implement automated `stow` logic for core modules (Nvim, Nushell, Starship) (1d1aac2)
 - [x] Task: Implement GUI-specific `stow` logic for Local Mode (Hyprland, Alacritty, Wofi) (1d1aac2)
 - [x] Task: Implement privileged `stow` logic for `keyd` configuration (1d1aac2)
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Deployment Logic (Stowing)' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Deployment Logic (Stowing)' (Protocol in workflow.md) (60b79d6)
 
 ## Phase 4: Documentation & Cleanup
 - [ ] Task: Create `README.md` based on `usage.md` and new bootstrap instructions
