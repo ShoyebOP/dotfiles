@@ -1,0 +1,66 @@
+# Wofi configuration file
+# For more information on options, see 'man wofi'
+
+# The mode can be: run, dmenu, window
+mode=drun
+
+# The location of the wofi window. 0 is center, 1 is top left, 2 is top center, 3 is top right, 
+# 4 is center left, 5 is center, 6 is center right, 7 is bottom left, 8 is bottom center, 9 is bottom right
+location=center
+
+# The width of the wofi window in pixels or percentage (e.g., 50%)
+width=400
+
+# The height of the wofi window in pixels or percentage (e.g., 50%)
+height=450
+
+# Whether to show images for entries
+show=everything
+
+# Whether to use pango markup in the output
+print_command=true
+
+# Whether to hide the search bar
+# hide_search=false
+
+# Whether to hide the scroll bar
+# hide_scroll=true
+
+# The prompt to display in the search bar
+prompt=Search Apps...
+
+# Whether to allow multiple selections
+# multi_select=false
+
+# Whether to sort entries by relevance
+# sort_order=default
+
+# Whether to use a specific icon theme
+# icon_theme=Adwaita
+
+# The orientation of the list: vertical or horizontal
+# orientation=vertical
+
+# Whether to display the number of results
+# line_wrap=word
+
+# Whether to allow markup in the list entries
+# allow_markup=true
+
+# Whether to allow images in the list entries
+# allow_images=true
+
+# The size of the icons in pixels
+# image_size=24
+
+# Whether to display the search bar at the bottom
+# search_at_bottom=false
+
+# Whether to stay open after a selection is made
+# stay_open=false
+
+# Whether to use cache for faster loading
+# layer=overlay
+
+# Use 'gtk' or 'wayland' for the window type
+# window_type=wayland

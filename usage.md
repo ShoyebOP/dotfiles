@@ -6,7 +6,8 @@ sudo keyd reload
 
 after that-
 
-```sudo EDITOR=nvim visudo
+```bash
+sudo EDITOR=nvim visudo
 ```
 
 add this- 

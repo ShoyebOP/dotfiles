@@ -1,0 +1,79 @@
+/* Wofi CSS styling */
+
+/* The main window */
+window {
+    margin: 0px;
+    border: 2px solid #5e81ac;
+    background-color: #2e3440;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 14px;
+}
+
+/* The search bar container */
+#input {
+    margin: 5px;
+    border: none;
+    border-radius: 5px;
+    background-color: #3b4252;
+    color: #eceff4;
+}
+
+/* The search bar text */
+#input:focus {
+    box-shadow: none;
+}
+
+/* The list of entries */
+#inner-box {
+    margin: 5px;
+    border: none;
+    background-color: #2e3440;
+}
+
+/* The container for each entry */
+#entry {
+    padding: 10px;
+    border-radius: 5px;
+}
+
+/* The entry when it's selected */
+#entry:selected {
+    background-color: #88c0d0;
+}
+
+/* The text inside each entry */
+#text {
+    margin: 2px;
+    color: #eceff4;
+}
+
+/* The text inside the selected entry */
+#entry:selected #text {
+    color: #2e3440;
+    font-weight: bold;
+}
+
+/* The icons in the entries */
+#img {
+    margin-right: 10px;
+}
+
+/* Scroll bar styling */
+#scroll {
+    margin: 0px;
+    border: none;
+}
+
+/* Specific styling for the run mode */
+/*
+#entry:nth-child(even) {
+    background-color: #3b4252;
+}
+*/
+
+/* Example of how to style images specifically */
+/*
+#img {
+    border-radius: 50%;
+}
+*/

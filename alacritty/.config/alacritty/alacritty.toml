@@ -12,11 +12,18 @@ TERM = "xterm-256color"
 [font]
 size = 12.0 # Sometimes changing the size by 0.5px fixes rendering glitches
 
-[font.offset]
-x = 0
-y = -1 # Try changing this to 0, 1, or 2 to see which aligns the blocks perfectly
+[font.normal]
+family = "JetBrainsMono Nerd Font"
+style = "Regular"
 
-[font.glyph_offset]
-x = 0
-y = 2 # If the icons look "too high" or "too low" inside the blocks, tweak this
+[font.bold]
+family = "JetBrainsMono Nerd Font"
+style = "Bold"
 
+[font.italic]
+family = "JetBrainsMono Nerd Font"
+style = "Italic"
+
+[font.bold_italic]
+family = "JetBrainsMono Nerd Font"
+style = "Bold Italic"

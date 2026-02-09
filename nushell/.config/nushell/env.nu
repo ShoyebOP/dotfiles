@@ -39,3 +39,5 @@ $env.PATH = ($env.PATH | split row (char esep) | prepend ($env.HOME | path join 
 $env.EDITOR = "nvim"
 
 
+
+$env.PATH = ($env.PATH | append $"($env.HOME)/.npm-global/bin")

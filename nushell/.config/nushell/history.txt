@@ -460,3 +460,778 @@ ls
 c
 cd dotfiles
 ls
+c
+code
+which code
+sudo pacman -Rns visual-studio-code
+sudo pacman -Rns visual-studio-code-bin
+x
+c
+ls
+c
+nvim
+cd .config/nvim
+ls
+cd lua
+ls
+cd plugins/
+ls
+v ~/.config/nvim/lua/config/options.lua
+v ~/.config/nvim/lua/plugins/colorscheme.lua<\n>
+nvim
+cd code
+ls
+cd Zaknotes/
+ls
+cd ..
+ls
+cd my-n8n/
+ls
+nvim README.md
+cd
+cd dotfiles
+ls
+v usage.md
+c
+ls
+c
+ls
+c
+ls
+toggle-keyd.nu
+cd
+cd Downloads/
+ls
+nvim schema.prisma
+ls
+nvim migration.sql
+c
+ls
+cd
+ls
+c
+ps | where name =~ "baloo|packagekit|updatedb"
+free -m
+mkdir ~/src/openclaw<\n>cd ~/src/openclaw
+ls
+c
+bun add -g openclaw@latest
+du -sh ~/.cache/.bun/install/cache
+du ~/.cache/.bun/install/cache
+rm -rf ~/.cache/.bun/install/cache
+rm -f ~/.bun/bin/openclaw
+c
+wl-paste
+git -v
+ls
+c
+ls
+c
+ls
+cd
+c
+ls
+rm -f src
+rm -f src/
+rm -rf src/
+ls
+sudo reboot
+adb devices
+ls
+c
+adb shell
+nvim ~/.config/hypr/hyprland.conf
+hyprctl reload
+nvim ~/.config/hypr/hyprland.conf
+hyprctl reload
+sudo pacman -S pipewire pipewire-alsa pipewire-pulse wireplumber pavucontrol pamixer<\n>
+sudo pacman -Rns pulseaudio pulseaudio-alsa<\n>
+pactl info | grep "Server Name"<\n>
+systemctl --user status pipewire wireplumber pipewire-pulse<\n>
+systemctl --user enable --now wireplumber<\n>
+systemctl --user restart pipewire pipewire-pulse wireplumber<\n>
+pactl load-module module-switch-on-connect<\n>
+v ~/.config/waybar/config
+wpctl status
+v ~/.config/waybar/config
+nvim ~/.config/hypr/hyprland.conf
+c
+wpctl status
+wpctl set-default 56
+zenity
+wpctl status
+v ~/.config/waybar/config
+c
+nvim ~/.config/hypr/hyprland.conf
+fc-list
+fc-list :lang=bn family<\n>
+fc-list :lang= family<\n>
+fc-list :lang=en family<\n>
+pacman -Qs font
+sudo pacman -S noto-sans-bangeli
+sudo pacman -S noto-sans-bengali
+xdg-mime --help
+xdg-mime query default TerminalEmulator
+xdg-mime query default x-scheme-handler/terminal<\n>
+xdg-mime query default application/x-terminal-emulator<\n>
+ls /usr/share/applications | grep -i terminal<\n>
+ls /usr/share/applications | grep -i alacritty<\n>
+xdg-mime default Alacritty.desktop x-scheme-handler/terminal<\n>
+xdg-mime default Alacritty.desktop application/x-terminal-emulator<\n>
+xdg-mime query default application/x-terminal-emulator<\n>
+Alacritty
+/usr/share/applications/Alacritty.desktop
+sudo pacman -S exo-utils
+sudo pacman -S nnn
+sudo pacman -S atool trash-cli
+sduo pacman -Rns atool trash-cli nnn
+sudo pacman -Rns atool trash-cli nnn
+v .config/xfce4/helpers.rc
+ls
+cd dow
+ls
+cd JetBrainsMono/
+ls
+cd /usr/share/fonts/
+ls
+cd dow
+ls
+sudo cp JetBrainsMono/ /usr/share/fonts/JetBrainsMono/
+sudo cp -r JetBrainsMono/ /usr/share/fonts/JetBrainsMono/
+sudo thuna
+sudo thunar
+cd
+cd /usr/share/fonts/
+ls
+cd JetBrainsMono/
+ls
+sudo rm OFL.txt README.md
+ls
+cd
+fc-cache -fv
+ls
+v ~/.config/waybar/config
+nvim ~/.config/hypr/hyprland.conf
+c
+ls
+c
+ls dotfiles
+v .config/alacratty/alacritty.toml
+ls
+v dotfiles/alacritty/.config/alacritty/alacritty.toml
+ls
+fc-list : family style | grep -i "JetBrains"
+v dotfiles/alacritty/.config/alacritty/alacritty.toml
+c
+ls
+c
+sudo pacman -Rns noto-fonts-cjk noto-fonts ttf-meslo-nerd powerline-fonts ttf-bitstream-vera
+sudo pacman -Rns noto-fonts-cjk noto-fonts ttf-meslo-nerd powerline-fonts ttf-bitstream-vera cachyos-zsh-config
+sudo pacman -Rns zsh
+ls
+cd Downloads/
+ls
+mv SolaimanLipi_20-04-07.ttf SolaimanLipi.ttf
+ls
+sudo mkdir /usr/share/fonts/SolaimanLipi
+mv SolaimanLipi.ttf /usr/share/fonts/SolaimanLipi/
+sudo mv SolaimanLipi.ttf /usr/share/fonts/SolaimanLipi/
+ls
+fc-cache -fv
+ls
+fc list
+fc-list
+bun add -g live-server
+config env
+v dotfiles/nushell/.config/nushell/env.nu
+ls
+live-server
+ls .bun
+/home/you/.cache/bun/bin<\n>
+bun pm bin -g<\n>
+config env
+ls
+config env
+$env.PATH | str join ":"<\n>
+bun pm bin -g<\n>
+grep -R "bun" ~/.config/nushell/config.nu<\n>
+config env
+live-server
+ls
+cd migration_backup/Code/
+ls
+mkdir html-boilerplate
+ls
+cd html
+cd html-boilerplate/
+ls
+touch index.html
+ls
+v index.html
+cd
+ls
+c
+sudo systemctl start tailscaled
+tailscale up
+tailscale status
+ssh shoyeb@100.127.209.5
+sudo systemctl stop tailscaled
+sudo systemctl start tailscaled
+ssh shoyeb@100.127.209.5
+tailscale status
+waybar
+v ~/.config/waybar/config
+waybar &
+waybar
+bun add -g openclaw@latest
+c
+ls
+cd code
+ls
+mkdir gemini-replica
+ls
+c
+sl
+ls
+cd gemini-replica/
+ls
+c
+bun init -y
+ls
+c
+ls
+v 1-login.js
+node node 1-login.js
+node 1-login.js
+v 0-extractor.js
+bun run 0-extractor.js
+ls ~/.bun/install/global/node_modules
+ls ~/.config/.bun/install/global/node_modules
+$env.PATH | str join ":"<\n>
+ls ~/.cache/.bun/install/global/node_modules
+ls ~/.cache/.bun/bin
+c
+v 0-extractor.js
+bun run 0-extractor.js
+ls ~/.cache/.bun/bin
+ls ~/.cache/.bun/install/global/node_modules | find google
+ls ~/.cache/.bun/install/global/node_modules/@google/
+readlink -f ~/.cache/.bun/bin/gemini
+v 0-extractor.js
+bun run 0-extractor.js
+cd gemini-replica/
+cd code
+ls
+cd gemini-replica/
+ls
+v 1-login.js
+c
+bun run 1-login.js
+cat tokens.json
+v 2-onboard.js
+ls
+bun run 2-onboard.js
+ls
+cat project_id.txt
+cd gemini-replica/
+cd gemini-replica
+ls
+bun run 0-extractor.js
+v 3-chat.js
+bun run 3-chat.js "Write a short poem about hacking."
+v 3-chat.js
+bun run 3-chat.js "Write a short poem about hacking."
+v 4-list.js
+bun run 4-list.js
+cd ..
+ls
+cd Zaknotes/
+ls
+c
+gemini
+bun update -g @google/gemini-cli
+sudo systemctl start tailscaled
+ssh shoyeb@100.127.209.5
+tailscale status
+ssh shoyeb@100.127.209.5
+gemini
+git pull
+git restore conductor/tracks.md
+git pull
+c
+cd Zaknotes/
+cd Zaknotes
+ls
+cd Zaknotes
+lazygit
+cd Zaknotes
+ls
+c
+git add .
+git commit -m "feat: initialize gemini api integration track"
+git push origin main
+gemini
+c
+ls
+sduo pacman -Rns foot
+sudo pacman -Rns foot
+ls
+gh cs list
+gh auth refresh -h github.com -s codespace
+gh cs list
+gh auth refresh -h github.com -s codespace
+gh cs list
+gh cs -k 
+gh cs -h
+gh cs create -h
+gh cs create -w
+sudo systemctl start tailscaled
+ls
+cd mu
+cd Music/
+ls
+v gg.txt
+yt-dlp -F cookies
+yt-dlp -h
+yt-dlp -F --cookies gg.txt https://player.vidinfra.com/67ffe06f-ca94-4c8d-a450-6e7eee26a702/default/f0eec8df-b3f9-4030-8391-0220af7e78ba?autoplay=false&loop=false&muted=false&controls=true&preload=true
+yt-dlp -F --cookies gg.txt https://player.vidinfra.com/67ffe06f-ca94-4c8d-a450-6e7eee26a702/default/f0eec8df-b3f9-4030-8391-0220af7e78ba
+/bin/bash -c "$(curl -fsSL                                            │<\n>│  https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+sudo pacman -S brew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"<\n>
+curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh | bash<\n>
+config env
+brew doctor
+openclaw onboard --install-daemon
+openclaw onboard --auth-choice mistral
+ssh shoyeb@100.127.209.5
+sudo systemctl stop openclaw
+bun remove -g openclaw
+ls
+c
+rm -rf ~/.config/openclaw<\n>rm -rf ~/.cache/openclaw<\n>rm -rf ~/.local/share/openclaw<\n>
+rm -rf ~/.openclaw<\n>rm -rf ~/.cache/openclaw<\n>rm -rf ~/.local/share/openclaw<\n>
+ls
+ls -a
+c
+ls
+c
+yay -S pumble
+sudo pacman -Rns pumble-desktop-bin
+c
+ls
+yay -Rns pumble-desktop-bin
+cp
+cpu
+sysinfo
+c
+ls /sys/devices/system/cpu/cpu[0-9]*/cpufreq/scaling_governor | each { |it| <\n>    {<\n>        cpu: ($it.name | split row "/" | get 5),<\n>        governor: (open $it.name | str trim)<\n>    }<\n>}
+cpupower frequency-info
+sudo pacman -S --needed python-gobject webkit2gtk-4.1
+mkdir -p ~/.local/share/zoho-cliq-wrapper
+mkdir ~/.local/share/zoho-cliq-wrapper
+ls
+nvim ~/.bin/cliq.py
+nvim ~/.config/hypr/hyprland.conf
+c
+sudo systemctl start tailscaled
+ssh shoyeb@100.127.209.5
+yt-dlp -F https://www.youtube.com/watch?v=jF11Cdmqd6s
+killall waybar
+waybar &
+waybar
+waybar &
+job spawn { ^waybar }
+sudo systemctl start tailscaled
+ls
+c
+ssh shoyeb@100.127.209.5
+gh cs list
+bangi
+ls
+c
+gh cs ssh
+gh cs ssh
+sudo systemctl start tailscaled
+ls
+c
+ssh shoyeb@100.127.209.5
+tailscale status
+gh cs ssh
+ssh shoyeb@100.127.209.5
+ls
+cd code
+ls
+cd html-boilerplate/
+ls
+v index.html
+nvim ~/.config/nvim/lua/plugins/emmet.lua<\n>
+v index.html
+rm ~/.config/nvim/lua/plugins/emmet.lua<\n>
+ls ~/.config/nvim/lua/plugins/<\n>
+v index.html
+nvim ~/.config/nvim/lua/plugins/snippets_fix.lua<\n>
+v index.html
+rm ~/.config/nvim/lua/plugins/snippets_fix.lua<\n>
+nvim ~/.config/nvim/lua/plugins/fix_doctype.lua<\n>
+v index.html
+# remove any previous attempt that broke blink.cmp<\n>rm -f ~/.config/nvim/lua/plugins/snippets_fix.lua<\n>rm -f ~/.config/nvim/lua/plugins/fix_doctype.lua<\n><\n># create the new file (opens nvim)<\n>nvim ~/.config/nvim/lua/plugins/fix_doctype.lua<\n># paste the code above, save and quit<\n>
+v index.html
+# remove any previous attempt that broke blink.cmp<\n>rm -f ~/.config/nvim/lua/plugins/snippets_fix.lua<\n>rm -f ~/.config/nvim/lua/plugins/fix_doctype.lua<\n><\n># create the new file (opens nvim)<\n>nvim ~/.config/nvim/lua/plugins/fix_doctype.lua<\n># paste the code above, save and quit<\n>
+gh auth logout
+gh auth login
+rm -rf ~/.config/nvim ~/.local/share/nvim ~/.local/state/nvim ~/.cache/nvim
+ls ~/dotfiles | where type == dir | get name
+ls -a ~ | where type == symlink | where target =~ "dotfiles" | select name target
+ls ~/dotfiles | where type == dir | get name
+cd ~/dotfiles<\n>stow -nv *
+c
+cd
+c
+gh auth login
+gh cs ssh
+gh auth refresh -h github.com -s codespace
+sudo systemctl start tailscaled
+ssh shoyeb@100.127.209.5
+gh cs ssh
+gh cs -h
+gh cs delete
+gh cs create
+gh cs ssh
+gh cs stop
+ls dot
+cd dot
+l
+ls
+ls -la
+cd nvim
+ls
+ls -la
+cd .config/
+ls
+ls -la
+cd nvim/ 
+ls
+ls -la
+rm -rf *
+ls
+cd ../../..
+ls
+stow -D nvim
+stow nvim/
+cd
+nvim ~/.config/nvim/init.lua
+c
+sudo pacman -S python-pip
+bun add -g pyright typescript-language-server vscode-langservers-extracted
+nvim ~/.config/nvim/init.lua
+cd 
+ls
+cd html-boilerplate
+ls
+v index.html
+cd ~/.config/nvim/
+ls
+gemini
+bun update -g @google/gemini-cli
+bash -c gemini
+bun update -g @google/gemini-cli
+bun remove -g @google/gemini-cli
+bun add -g @google/gemini-cli
+cd html-boilerplate
+v index.html
+which node
+# Replace path with the result from 'which node'<\n>rm (which node | get path.0)
+# Replace path with the result from 'which node'<\n>sudo rm (which node | get path.0)
+which node
+rm -rf ~/.bun
+sudo pacman -Rs bun
+rm -rf ~/.cache/bun
+sudo pacman -Rns bun
+which bun
+pacman -Qo /usr/bin/bun
+# Replace 'bun-bin' with whatever name the command above gave you<\n>sudo pacman -Rns bun-bin
+sudo pacman -S nodejs npm
+sudo npm install -g pnpm
+pnpm setup
+config env
+rm -rf ~/.cache/bun
+pnpm add -g @google/gemini-cli
+pnpm help add
+config env
+pnpm add -g @google/gemini-cli
+gemini
+cd ~/.config/nvim/
+v
+cd html-boilerplate
+v index.html
+ls
+v index.html
+v
+v index.html
+cd html-boilerplate
+ls
+v index.html
+gemini
+v test.js
+ls
+cd
+c
+cd html-boilerplate
+cd ..
+ls
+mv html-boilerplate/ html
+ls
+cd html
+ls
+rm test.js
+ls
+cd html
+ls
+live-server
+pnpm add -g live-server
+c
+v index.html
+cd nvim
+ls
+gemini
+v index.html
+live-server
+gh auth logout
+gh auth login
+gh cs ssh
+gh auth refresh -h github.com -s codespace
+sudo systemctl start tailscaled
+gh cs ssh
+cd html
+ls
+v index.html
+cd html
+ls
+cd home
+ls
+cd shoyeb/
+ls
+cd ..
+ls
+rm -r home
+ls
+mkdir page2.html
+v page2.html/
+v page2.html
+ls
+rm -r page2.html/
+ls
+v page2.html
+v index.html
+sudo pacman -S fzf
+live-server
+v index.html
+ls
+cd code
+ls
+cd gemini-replica
+ls
+v gemini.ts
+ls
+node --import tsx gemini.ts --auth
+npm install tsx
+pnpm add tsx
+node --import tsx gemini.ts --auth
+command -v gemini<\n>
+which -v gemini
+which gemini
+pnpm bin -g<\n>
+ls -la ~/.local/bin/gemini
+sudo systemctl start tailscaled
+ssh shoyeb@100.127.209.5
+rm ~/.local/bin/gemini<\n>
+which gemini
+rm -rf ~/.cache/.bun
+pnpm
+pnpm add -g @google/gemini-cli
+which gemini
+gemini
+c
+node --import tsx gemini.ts --auth
+which gemini
+PATH="$PATH:$HOME/.local/share/pnpm" node --import tsx gemini.ts --auth<\n>
+with-env [PATH ($env.PATH | append "~/.local/share/pnpm")] { node --import tsx gemini.ts --auth }<\n>
+echo $env.PATH
+$env.PATH = ($env.PATH | prepend '/home/shoyeb/.local/share/pnpm')<\n>node --import tsx gemini.ts --auth<\n>
+$env.PATH
+config env
+ls /home/shoyeb/.local/share/pnpm/gemini
+which gemini
+ls (pnpm bin -g | str trim | path join 'gemini')
+pnpm -g
+pnpm bin -g
+ls (pnpm bin -g | str trim | path join 'gemini')
+cd /
+ls
+cd gemini-replica
+v gemini2.ts
+node --import tsx gemini2.ts --auth
+c
+node -p "process.env.PATH"<\n>
+ls (pnpm bin -g | str trim | path expand | path join 'gemini')<\n>
+with-env { PATH: ($env.PATH | each { |p| $p | path expand } | uniq | prepend (pnpm bin -g | str trim | path expand)) } {<\n>  node --import tsx gemini.ts --auth<\n>}<\n>
+node -p "process.env.PATH"<\n>ls (pnpm bin -g | str trim | path expand | path join 'gemini')<\n>
+ls
+ls home
+which gemin
+which gemini
+rm -rf home
+ls
+gemini
+cd
+ls
+gemini
+ls
+cd gemini-replica
+ls
+mv gemini* ../
+ls
+cd ../
+ls
+mkdir gg
+mv gemini* gg/
+ls
+cd gg
+ls
+mv gemini-replica gg/
+ls
+mv gg/ gemini-replica
+ls
+mv gemini-replica ../
+ls
+node --import tsx gemini2.ts --auth
+pnpm add tsx
+node --import tsx gemini2.ts --auth
+ls
+rm -rf home
+ls
+pnpm add -g tsx
+ls
+rm -rf home
+ls
+node --import tsx gemini2.ts --auth
+cd
+pnpm remove -g @google/gemini-cli
+pnpm bin -g<\n>
+rm -rf ~/.local/share/pnpm<\n>
+rm -rf ~/.pnpm-store<\n>rm -rf ~/.cache/pnpm<\n>
+rm -rf ~/.npmrc<\n>rm -rf ~/.pnpmfile.cjs<\n>rm -rf ~/.pnpmfile.js<\n>
+which npm
+which pnpm<\n>
+rm (which pnpm | str trim)<\n>
+rm (which npm)
+rm /usr/bin/pnpm
+sudo rm /usr/bin/pnpm
+which pnpm
+ls
+which npm
+ls
+npm -v
+c
+pnpm
+config env
+npm config set prefix "~/.npm-global"<\n>
+config env
+ls
+$env.PATH
+npm install -g @google/gemini-cli<\n>
+gemini -v
+gemini
+npm install -g tsx
+cd gg
+ls
+node --import tsx gemini.ts --auth<\n>
+node --import tsx gemini.ts --chat --prompt "hello"<\n>
+node --import tsx scripts/gemini-cli-standalone-auth.ts --chat --model "gemini-3-pro-preview" --prompt "what model are you"
+node --import tsx gemini.ts --chat --model "gemini-3-pro-preview" --prompt "what model are you"
+cat .config/nvim/init.lua
+cd .config/nvim/init.lua
+cd nvim
+ls
+v
+cd html
+ls
+gemini
+v index.html
+cd
+ls
+cd code
+ls
+gh repo clone ShoyebOP/odin-recipes
+ls
+cd odin-recipes/
+ls
+cd odin
+ls]
+ls
+touch recipe
+ls
+rm recipe
+mkdir recipe
+ls
+v index.html
+cd gg
+ls
+cat gemini-cli-auth.json
+ls
+sudo systemctl start tailscaled
+ls
+ls -la
+c
+cd
+ls
+cd
+c
+ls
+c
+cd odin
+ls
+cd odin
+live-server
+ls
+cd
+npm install -g live-server
+cd odin
+ls
+cd odin
+touch recipe/fried_chicken.html
+ssh shoyeb@100.127.209.5
+v recipe/roasted_chicken.html
+git push origin main
+gh auth logout
+ls
+gh auth login
+git push origin main
+git add .
+git commit -m "added index.html and 2 new recipes"
+git push origin main
+cd nvim
+ls
+cd html
+ls
+v index.html
+gemini
+cd dot
+ls
+cd
+ls
+c
+cd html
+v style.css
+ls
+cd
+c
+v style.css
+gemini
+cd dot
+ls
+rm style.css
+ls
+c
+cd dot
+ls
