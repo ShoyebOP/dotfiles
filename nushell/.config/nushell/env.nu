@@ -41,3 +41,8 @@ $env.EDITOR = "nvim"
 
 
 $env.PATH = ($env.PATH | append $"($env.HOME)/.npm-global/bin")
+
+
+
+$env.LANG = "en_US.UTF-8"
+$env.LC_ALL = "en_US.UTF-8"

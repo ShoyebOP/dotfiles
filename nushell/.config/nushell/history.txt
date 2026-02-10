@@ -1235,3 +1235,117 @@ ls
 c
 cd dot
 ls
+lazygit
+ls
+./setup.nu
+sudo pacman -S wl-clipboard
+sudo pacman -S wl-clipboard mako
+sudo pacman -S wl-clipboard mako eza bat swww ripgrep
+cd code
+ls
+gh repo clone ShoyebOP/css-exercises
+cd dot
+./setup.nu
+c
+cd code
+ls
+cd css-exercises/
+ls
+cd foundations/
+ls
+cd intro
+cd intro-to-css/
+ls
+cd 01-css-methods/
+ls
+c
+ls
+v index.html
+pwd
+ls
+c
+v
+v index.html
+tmux
+touch style.css
+v index.html
+ls
+lazgit
+lazygit
+gemini
+ls
+npm bin -g
+sudo systemctl start tailscaled
+ls
+c
+ssh shoyeb@100.127.209.5
+cd
+ls
+ls -a
+c
+ls
+cd code
+s
+ls
+c
+ls
+cd Test
+ls
+uv add md2notionpage
+uv pip install md2notionpage
+uv add curl
+ls
+rm -rf *
+ls
+uv init
+ls
+uv add md2notionpage
+sudo systemctl start tailscaled
+ls
+ssh shoyeb@100.127.209.5
+c
+tmux show -g | grep utf8<\n>
+echo $TERM<\n>
+tmux show -g | grep utf8<\n>
+echo $env.TERM<\n>
+echo "󰣇 󰌵 󰘚 󰊤"<\n>
+tmux new -s main<\n>
+nvim ~/.tmux.conf
+tmux kill-server<\n>tmux new -s main<\n>
+tmux
+nvim ~/.tmux.conf
+tmux kill-server
+ls
+echo $env.TERM<\n>
+echo "󰣇 󰌵 󰘚 󰊤"<\n>
+printf "┌─┐\n│ │\n└─┘\n"<\n>
+tmux -v
+tmux
+tmux -v
+tmux --version
+tmux
+nvim ~/.config/alacritty/alacritty.toml<\n>
+echo $env.TERM<\n>
+tmux
+nvim ~/.tmux.conf<\n>
+tmxu
+tmux
+tmux kill-server<\n>tmux new -s main<\n>
+tmux kill-server
+tmux new -s main<\n>
+tmux-256color<\n>
+echo $env.TERM<\n>
+infocmp tmux-256color<\n>
+tmux
+locale<\n>
+c
+nvim ~/.config/nushell/env.nu<\n>
+tmux
+cd ls
+ls
+c
+ssh shoyeb@100.127.209.5
+cd dotfiles
+ls
+lazygit
+nvim ~/.config/alacritty/alacritty.toml<\n>
