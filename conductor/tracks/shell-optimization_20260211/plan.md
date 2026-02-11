@@ -14,10 +14,10 @@ Ensure the repository is clean of machine-specific and ephemeral files.
 ## Phase 2: Starship Configuration & Dynamic Switching
 Optimize Starship for performance and situational awareness using Nushell to manage state.
 
-- [ ] Task: Create a "minimal" Starship configuration
+- [x] Task: Create a "minimal" Starship configuration 77d26d8
     - [ ] Create `starship/home-quiet.toml` that disables language modules
-- [ ] Task: Implement SSH indicator in main Starship config
+- [x] Task: Implement SSH indicator in main Starship config e253b14
     - [ ] Update `starship/.config/starship.toml` to show an SSH icon when `SSH_CONNECTION` is active
-- [ ] Task: Implement dynamic config switching in Nushell
+- [x] Task: Implement dynamic config switching in Nushell debc2de
     - [ ] Update `nushell/.config/nushell/env.nu` or `config.nu` to update `$env.STARSHIP_CONFIG` based on the current directory
-- [ ] Task: Conductor - User Manual Verification 'Starship Configuration' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Starship Configuration' (Protocol in workflow.md)
