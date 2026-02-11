@@ -38,6 +38,9 @@ $env.PATH = ($env.PATH | split row (char esep) | prepend ($env.HOME | path join 
 # Editor
 $env.EDITOR = "nvim"
 
+# Starship Config
+$env.STARSHIP_CONFIG = ($env.HOME | path join ".config" "starship.toml")
+
 
 
 $env.PATH = ($env.PATH | append $"($env.HOME)/.npm-global/bin")

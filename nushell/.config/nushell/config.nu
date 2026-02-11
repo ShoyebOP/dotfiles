@@ -160,6 +160,20 @@ $env.config = {
             event: { send: menu name: smart_history }
         }
     ]
+
+    hooks: {
+        env_change: {
+            PWD: [
+                { |before, after|
+                    if $after == $env.HOME {
+                        $env.STARSHIP_CONFIG = ($env.HOME | path join ".config" "starship-minimal.toml")
+                    } else {
+                        $env.STARSHIP_CONFIG = ($env.HOME | path join ".config" "starship.toml")
+                    }
+                }
+            ]
+        }
+    }
 }
 
 
