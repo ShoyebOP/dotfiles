@@ -11,13 +11,13 @@ Ensure the repository is clean of machine-specific and ephemeral files.
     - [x] Identify and remove any committed Nushell history files
 - [x] Task: Conductor - User Manual Verification 'Repository Hygiene' (Protocol in workflow.md) 055946c
 
-## Phase 2: Starship Configuration & Dynamic Switching
+## Phase 2: Starship Configuration & Dynamic Switching [checkpoint: 88e59ae]
 Optimize Starship for performance and situational awareness using Nushell to manage state.
 
 - [x] Task: Create a "minimal" Starship configuration 77d26d8
-    - [ ] Create `starship/home-quiet.toml` that disables language modules
+    - [x] Create `starship/home-quiet.toml` that disables language modules
 - [x] Task: Implement SSH indicator in main Starship config e253b14
-    - [ ] Update `starship/.config/starship.toml` to show an SSH icon when `SSH_CONNECTION` is active
+    - [x] Update `starship/.config/starship.toml` to show an SSH icon when `SSH_CONNECTION` is active
 - [x] Task: Implement dynamic config switching in Nushell debc2de
-    - [ ] Update `nushell/.config/nushell/env.nu` or `config.nu` to update `$env.STARSHIP_CONFIG` based on the current directory
-- [~] Task: Conductor - User Manual Verification 'Starship Configuration' (Protocol in workflow.md)
+    - [x] Update `nushell/.config/nushell/env.nu` or `config.nu` to update `$env.STARSHIP_CONFIG` based on the current directory
+- [x] Task: Conductor - User Manual Verification 'Starship Configuration' (Protocol in workflow.md) 88e59ae
