@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [~] **Track: Fix starship config for home folder silence, add SSH indicator, and improve git ignore for history and lock files.**
+- [x] **Track: Fix starship config for home folder silence, add SSH indicator, and improve git ignore for history and lock files.**
 *Link: [./tracks/shell-optimization_20260211/](./tracks/shell-optimization_20260211/)*
