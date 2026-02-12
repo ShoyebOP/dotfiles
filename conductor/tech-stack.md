@@ -4,7 +4,7 @@
 - **Shells:**
   - **Nushell:** Primary shell and automation language for the `setup.nu` bootstrapper.
 - **Editor:**
-  - **Neovim:** Central development environment, configured using Lua with a focus on high-performance plugins.
+  - **Neovim (LazyVim):** Central development environment, using the LazyVim framework for a highly optimized and modular configuration.
 - **Window Management & System UI:**
   - **Hyprland:** Tiling Wayland compositor for a keyboard-centric window management workflow.
   - **Wofi:** Wayland-native application launcher and menu system.
