@@ -1,3 +1,11 @@
 nushell/.config/nushell/history.txt
 nushell/.config/nushell/history.json
-nvim/.config/nvim/lazy-lock.json
+
+# Neovim
+nvim/lazy-lock.json
+nvim/.neoconf.json
+nvim/undo/
+nvim/shada/
+nvim/state/
+nvim/cache/
+*.swp
