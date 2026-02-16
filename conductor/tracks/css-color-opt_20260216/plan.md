@@ -6,9 +6,9 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Preparation' (Protocol in workflow.md) aa835ca
 
 ## Phase 2: CSS Completion Fix
-- [ ] Task: Create `~/.config/nvim/lua/plugins/css-completion.lua` to implement the trigger suppression logic.
-- [ ] Task: Write Tests: Verify `nvim-cmp` behavior for CSS-like filetypes (simulated through Neovim buffer manipulation if feasible, or manual verification).
-- [ ] Task: Implement: Configure `nvim-cmp` to ignore the `{` trigger in `css`, `scss`, `less`, and `postcss`.
+- [x] Task: Create `~/.config/nvim/lua/plugins/css-completion.lua` to implement the trigger suppression logic. 463c748
+- [x] Task: Write Tests: Verify `nvim-cmp` behavior for CSS-like filetypes (simulated through Neovim buffer manipulation if feasible, or manual verification). 463c748
+- [x] Task: Implement: Configure `nvim-cmp` to ignore the `{` trigger in `css`, `scss`, `less`, and `postcss`. 463c748
 - [ ] Task: Conductor - User Manual Verification 'Phase 2: CSS Completion Fix' (Protocol in workflow.md)
 
 ## Phase 3: Color Picker Integration
