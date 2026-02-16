@@ -23,7 +23,7 @@
 - [x] Task: Final smoke test across different filetypes (CSS, SCSS, Lua, etc.). 5da7fdc
 - [x] Task: Conductor - User Manual Verification 'Phase 4: Finalization' (Protocol in workflow.md) 5da7fdc
 
-## Phase 5: Color Grid Integration
-- [x] Task: Implement a keyboard-navigable color grid (palette). 356a6e1
-- [x] Task: Map the color grid to `<leader>cP`. 356a6e1
-- [~] Task: Conductor - User Manual Verification 'Phase 5: Color Grid Integration' (Protocol in workflow.md)
+## Phase 5: Color Grid Removal and Cleanup
+- [x] Task: Remove the keyboard-navigable color grid (palette). d343dae
+- [x] Task: Clean up unused plugins (minty, volt) from storage. d343dae
+- [~] Task: Conductor - User Manual Verification 'Phase 5: Final Cleanup' (Protocol in workflow.md)
