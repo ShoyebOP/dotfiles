@@ -27,3 +27,6 @@
 - [x] Task: Remove the keyboard-navigable color grid (palette). d343dae
 - [x] Task: Clean up unused plugins (minty, volt) from storage. d343dae
 - [x] Task: Conductor - User Manual Verification 'Phase 5: Final Cleanup' (Protocol in workflow.md) 1d000ce
+
+## Phase: Review Fixes
+- [x] Task: Apply review suggestions 70fe0e2
