@@ -26,7 +26,10 @@ return {
     opts = function()
       local ccc = require("ccc")
       return {
-        highlighter = { auto_enable = false },
+        highlighter = {
+          auto_enable = true,
+          lsp = true,
+        },
         inputs = { ccc.input.hsl },
         outputs = {
           ccc.output.hex,
@@ -36,6 +39,8 @@ return {
         pickers = {
           ccc.picker.hex,
           ccc.picker.css_rgb,
+          ccc.picker.css_hsl,
+          ccc.picker.css_name,
         },
       }
     end,
