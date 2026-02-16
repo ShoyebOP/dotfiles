@@ -12,9 +12,9 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: CSS Completion Fix' (Protocol in workflow.md) 44af7f5
 
 ## Phase 3: Color Picker Integration
-- [ ] Task: Create `~/.config/nvim/lua/plugins/color-picker.lua` for `ccc.nvim` integration.
-- [ ] Task: Implement: Configure `ccc.nvim` with global highlighting enabled.
-- [ ] Task: Implement: Add keybinding for `CccPick` (targeting `<leader>cp`).
+- [x] Task: Create `~/.config/nvim/lua/plugins/color-picker.lua` for `ccc.nvim` integration. d86993b
+- [x] Task: Implement: Configure `ccc.nvim` with global highlighting enabled. d86993b
+- [x] Task: Implement: Add keybinding for `CccPick` (targeting `<leader>cp`). d86993b
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Color Picker Integration' (Protocol in workflow.md)
 
 ## Phase 4: Finalization
