@@ -18,6 +18,12 @@ This track aims to refine the Neovim editing experience by resolving a specific 
   - **Proposed Keybinding:** `<leader>cp` (Color Picker), provided it does not conflict with existing maps. (Will verify and adjust if needed during implementation).
 - **Lazy Loading:** The plugin should be lazy-loaded on relevant commands (`CccPick`, `CccConvert`) or keybindings.
 
+### 3. Color Grid (Palette)
+- **Visual Grid:** Provide a dedicated keyboard-navigable grid of common colors.
+- **Navigation:** Support `h/j/k/l` movement within the grid.
+- **Selection:** Pressing `Enter` should insert the selected color.
+- **Accessibility:** Triggered via a separate keybinding (`<leader>cP`).
+
 ## Non-Functional Requirements
 - **Performance:** The completion suppression logic must be efficient and not introduce perceptible latency during typing.
 - **Maintainability:** Changes must be modular, using the `lua/plugins/` directory to avoid modifying core LazyVim files.
