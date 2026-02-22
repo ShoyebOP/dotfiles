@@ -34,6 +34,7 @@ $env.XDG_DATA_HOME = ($env.HOME | path join ".local" "share")
 # Add Local Bin to Path
 $env.PATH = ($env.PATH | split row (char esep) | prepend ($env.HOME | path join ".local" "bin"))
 $env.PATH = ($env.PATH | split row (char esep) | prepend ($env.HOME | path join ".local" "sbin"))
+$env.PATH = ($env.PATH | split row (char esep) | prepend ($env.HOME | path join ".cargo" "bin"))
 
 # Editor
 $env.EDITOR = "nvim"
