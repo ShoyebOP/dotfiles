@@ -29,8 +29,8 @@
 
 ## Phase 3: Verification and Documentation
 
-- [ ] Task: Manual verification
-    - [ ] Test `cd` to new directory
-    - [ ] Test `z` query for visited directory
-    - [ ] Verify no "not found" errors
-- [ ] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
+- [x] Task: Manual verification
+    - [x] Test `cd` to new directory
+    - [x] Test `z` query for visited directory
+    - [x] Verify no "not found" errors
+- [x] Task: Conductor - User Manual Verification 'Phase 3' (Protocol in workflow.md)
