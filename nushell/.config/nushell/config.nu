@@ -5,13 +5,14 @@
 # 1. Load Scripts from your Dotfiles Repo
 # $nu.default-config-dir points to ~/.config/nushell (which is symlinked to your repo)
 source ($nu.default-config-dir | path join "scripts" "uv.nu")
-source ($nu.default-config-dir | path join "scripts" "zoxide.nu")
+# NOTE: zoxide.nu is sourced at the END of this file to ensure hooks are not overwritten
 source ($nu.default-config-dir | path join "scripts" "catppuccin.nu")
 
-# 2. Aliases
+# 2. Aliases (non-zoxide aliases first)
 alias c = clear
 alias v = nvim
-alias cd = z
+
+# NOTE: cd alias is defined AFTER zoxide.nu is sourced (at end of file)
 
 # ============================================
 # PART 2: CONFIGURATION
@@ -176,6 +177,11 @@ $env.config = {
     }
 }
 
+# Source zoxide AFTER $env.config to ensure hooks are properly registered
+source ($nu.default-config-dir | path join "scripts" "zoxide.nu")
+
+# Now we can safely alias cd to z (zoxide)
+alias cd = z
 
 mkdir ($nu.data-dir | path join "vendor/autoload")
 starship init nu | save -f ($nu.data-dir | path join "vendor/autoload/starship.nu")
