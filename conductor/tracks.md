@@ -4,5 +4,5 @@ This file tracks all major tracks for the project. Each track has its own detail
 
 ---
 
-- [ ] **Track: Fix zoxide not adding folders to index when using cd command in Nushell**
+- [x] **Track: Fix zoxide not adding folders to index when using cd command in Nushell**
 *Link: [./tracks/zoxide-cd-fix_20260222/](./tracks/zoxide-cd-fix_20260222/)*
