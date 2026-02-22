@@ -1,0 +1,8 @@
+{
+  "track_id": "zoxide-cd-fix_20260222",
+  "type": "bug",
+  "status": "new",
+  "created_at": "2026-02-22T00:00:00Z",
+  "updated_at": "2026-02-22T00:00:00Z",
+  "description": "Fix zoxide not adding folders to index when using cd command in Nushell"
+}
