@@ -27,7 +27,7 @@
     - [x] Clean up any redundant configuration
     - [x] Ensure no startup latency introduced
 
-## Phase 3: Verification and Documentation
+## Phase 3: Verification and Documentation [26a1bcd]
 
 - [x] Task: Manual verification
     - [x] Test `cd` to new directory
