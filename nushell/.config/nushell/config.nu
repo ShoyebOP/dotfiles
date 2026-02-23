@@ -43,7 +43,7 @@ $env.config = {
         external: {
             enable: true
             max_results: 100
-            completer: (external_completer)
+            completer: {|spans| external_completer $spans }
         }
     }
 
