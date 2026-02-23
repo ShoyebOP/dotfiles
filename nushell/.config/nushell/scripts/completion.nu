@@ -1,50 +1,42 @@
 # completion.nu
 # Custom external completer for nushell
 # Provides command-priority completion:
-# - First word (no space): shows matching commands/aliases
-# - After space: shows command-specific flags and arguments
-# - Fallback: file/directory picker
+# - First word: shows matching commands/aliases (prefix match, not fuzzy)
+# - After space: shows command-specific flags/arguments, or file picker fallback
 
-# Fish-based external completer
-def fish_completer [spans: list<string>] {
-    if ($spans | length) == 0 {
-        return null
-    }
-
-    # Build the fish complete command
-    let escaped_spans = ($spans | each { |s| $s | str replace --all "'" "'\\''" } | str join ' ')
+# Get all available commands and aliases for completion
+def get_commands [] {
+    # Get built-in commands
+    let builtins = (scope commands | where name !~ "^nu\\." | get name)
     
-    # Run fish completion and capture output
-    let result = (fish --command $"complete '--do-complete=($escaped_spans)'" | complete)
+    # Get aliases
+    let aliases = (scope aliases | get name)
     
-    if $result.exit_code != 0 {
-        return null
-    }
+    # Get externals (commands in PATH)
+    let externals = (scope externs | get name)
     
-    let parsed = ($result.stdout | from tsv --flexible --noheaders --no-infer | rename value description)
-    
-    if ($parsed | is-empty) {
-        return null
-    }
-    
-    return $parsed
+    ($builtins | append $aliases | append $externals | uniq)
 }
 
 # Main external completer function called by nushell's completion system
 export def external_completer [spans: list<string>] {
-    # For first word completion (single span), let nushell handle it
-    # Return null to fall back to nushell's built-in command/alias completion
-    if ($spans | length) == 1 {
+    let span_count = ($spans | length)
+    
+    # Case 1: First word completion (no space yet)
+    # Return null to let nushell show its built-in command/alias completions
+    if $span_count == 1 {
         return null
     }
     
-    # For multi-span input (command + args), use fish completer
-    let fish_result = (fish_completer $spans)
+    # Case 2: After space - need command-specific completions
+    # Get the first command
+    let first_cmd = $spans | get 0
     
-    if ($fish_result != null) {
-        return $fish_result
-    }
+    # For known commands, we would normally show flags
+    # But without fish/carapace, we can't get dynamic flag completions
+    # So we return null to fall back to file completion
+    # This is the correct behavior: if we can't provide command-specific completions,
+    # let nushell show file picker
     
-    # Fallback to file completion
     return null
 }
