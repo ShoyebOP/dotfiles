@@ -25,7 +25,7 @@
     - [x] Set up proper flag/argument completion after space
     - [x] Configure file picker as fallback
     - [x] Test with `git`, `v`, and other commands
-- [x] Task: Verify completion behavior [860478f]
+- [x] Task: Verify completion behavior [55413d2]
     - [x] Manual verification of all acceptance criteria
     - [x] Document any edge cases or limitations
 
