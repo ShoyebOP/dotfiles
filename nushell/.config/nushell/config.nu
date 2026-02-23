@@ -38,7 +38,7 @@ $env.config = {
     completions: {
         case_sensitive: false
         quick: true
-        partial: true
+        partial: false
         algorithm: "prefix"
         external: {
             enable: true
