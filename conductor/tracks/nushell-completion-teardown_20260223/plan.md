@@ -25,9 +25,9 @@
     - [x] Set up proper flag/argument completion after space
     - [x] Configure file picker as fallback
     - [x] Test with `git`, `v`, and other commands
-- [ ] Task: Verify completion behavior
-    - [ ] Manual verification of all acceptance criteria
-    - [ ] Document any edge cases or limitations
+- [x] Task: Verify completion behavior [860478f]
+    - [x] Manual verification of all acceptance criteria
+    - [x] Document any edge cases or limitations
 
 ## Phase 3: Unstow Script
 
@@ -37,11 +37,11 @@
     - [x] Add symlink removal functionality
     - [x] Add stow directory deletion with confirmation prompt
     - [x] Support both pacman and apt systems
-- [ ] Task: Test teardown script
-    - [ ] Run script in test environment
-    - [ ] Verify all symlinks are removed
-    - [ ] Verify stow directories are deleted
-    - [ ] Confirm no unintended files are deleted
+- [x] Task: Test teardown script [4786888]
+    - [x] Run script in test environment
+    - [x] Verify all symlinks are removed
+    - [x] Verify stow directories are deleted
+    - [x] Confirm no unintended files are deleted
 
 ## Phase 4: Verification & Checkpointing
 
