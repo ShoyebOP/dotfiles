@@ -120,16 +120,16 @@ def run-unstow [mode, dry_run, unstow_keyd_arg] {
 def unstow-module [module, dry_run] {
     print $" - Unstowing ($module)..."
 
-    let unstow_cmd = if $dry_run { 
-        ["stow" "-D" "-v" $module] 
-    } else { 
-        ["stow" "-D" $module] 
+    let unstow_cmd = if $dry_run {
+        ["stow" "-D" "-v" $module]
+    } else {
+        ["stow" "-D" $module]
     }
 
     if $dry_run {
-        print $"   [DRY RUN] Would run: (run-external --redirect-stderr ($unstow_cmd | first) ...($unstow_cmd | skip 1) | complete | get stderr)"
+        print $"   [DRY RUN] Would run: stow -D ($module)"
     } else {
-        let result = (run-external --redirect-stderr ($unstow_cmd | first) ...($unstow_cmd | skip 1) | complete)
+        let result = (stow -D $module | complete)
         if $result.exit_code != 0 {
             print $"   ! Warning: stow returned non-zero exit code for ($module)"
         } else {
