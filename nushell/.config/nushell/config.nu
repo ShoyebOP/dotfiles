@@ -7,6 +7,8 @@
 source ($nu.default-config-dir | path join "scripts" "uv.nu")
 # NOTE: zoxide.nu is sourced at the END of this file to ensure hooks are not overwritten
 source ($nu.default-config-dir | path join "scripts" "catppuccin.nu")
+# Load custom completion system
+source ($nu.default-config-dir | path join "scripts" "completion.nu")
 
 # 2. Aliases (non-zoxide aliases first)
 alias c = clear
@@ -34,13 +36,14 @@ $env.config = {
 
     # 2. COMPLETIONS
     completions: {
-        case_sensitive: false 
+        case_sensitive: false
         quick: true
-        partial: true 
-        algorithm: "fuzzy" 
+        partial: true
+        algorithm: "fuzzy"
         external: {
-            enable: true 
+            enable: true
             max_results: 100
+            completer: (external_completer)
         }
     }
 
