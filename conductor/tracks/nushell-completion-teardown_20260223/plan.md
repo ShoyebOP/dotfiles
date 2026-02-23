@@ -1,6 +1,6 @@
 # Track Implementation Plan: Nushell Completion Fix & Unstow Script
 
-## Phase 1: Research & Analysis
+## Phase 1: Research & Analysis [checkpoint: f4ec6b0]
 
 - [x] Task: Analyze current nushell completion configuration
     - [x] Read existing nushell config files in `nushell/` directory
@@ -14,7 +14,7 @@
     - [x] Review nushell completion engine capabilities
     - [x] Find examples of command-priority completion configurations
 
-## Phase 2: Nushell Completion Fix
+## Phase 2: Nushell Completion Fix [checkpoint: f4ec6b0]
 
 - [x] Task: Write tests for completion behavior [eb7bad6]
     - [x] Create test scenarios for first-word completion
