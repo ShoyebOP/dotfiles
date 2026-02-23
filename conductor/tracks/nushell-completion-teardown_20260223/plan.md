@@ -29,7 +29,7 @@
     - [x] Manual verification of all acceptance criteria
     - [x] Document any edge cases or limitations
 
-## Phase 3: Unstow Script
+## Phase 3: Unstow Script [checkpoint: aab711e]
 
 - [x] Task: Write teardown script [eb7bad6]
     - [x] Create `teardown.nu` in repository root
