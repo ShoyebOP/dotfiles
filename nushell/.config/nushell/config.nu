@@ -5,6 +5,8 @@
 # 1. Load Scripts from your Dotfiles Repo
 # $nu.default-config-dir points to ~/.config/nushell (which is symlinked to your repo)
 source ($nu.default-config-dir | path join "scripts" "uv.nu")
+# Python venv activation commands
+source ($nu.default-config-dir | path join "scripts" "venv.nu")
 # NOTE: zoxide.nu is sourced at the END of this file to ensure hooks are not overwritten
 source ($nu.default-config-dir | path join "scripts" "catppuccin.nu")
 # Load custom completion system
