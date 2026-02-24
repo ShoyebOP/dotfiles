@@ -134,20 +134,20 @@ def "venv parse-activate-posix" [script_path: string] {
     return { virtual_env: $virtual_env }
 }
 
-export def venv-activate [] {
+export def --env venv-activate [] {
     """
     Activate a Python virtual environment in the current directory.
-    
+
     Searches for '.venv' first (hidden folder convention), then 'venv'.
     Shows verbose output including the venv path and Python version.
-    
+
     Examples:
         > venv-activate
     """
     
     # Check if already in a virtual environment
     if "VIRTUAL_ENV" in $env {
-        print $"(char warning) Warning: Already inside a virtual environment: ($env.VIRTUAL_ENV)"
+        print $"⚠️  Warning: Already inside a virtual environment: ($env.VIRTUAL_ENV)"
         print "  Use 'venv-deactivate' first, or 'deactivate' to exit the current venv"
         return
     }
@@ -171,9 +171,9 @@ export def venv-activate [] {
     
     # Get Python version for verbose output
     let python_version = (venv get-python-version $venv_path)
-    
+
     # Print verbose activation message
-    print $"(char dot_circle) Activating virtual environment..."
+    print $"● Activating virtual environment..."
     print $"  Path: ($venv_path)"
     print $"  Python version: ($python_version)"
     
@@ -188,20 +188,20 @@ export def venv-activate [] {
     $env.VIRTUAL_ENV = $venv_path
     $env.VIRTUAL_ENV_PROMPT = (basename $venv_path)
     $env.PATH = ($env.PATH | prepend $venv_bin)
-    
+
     # Create a deactivate function in the current scope
     # Store original PATH for restoration
     $env._VENV_OLD_PATH = ($env.PATH | where $it != $venv_bin | str join (char esep))
-    
-    print $"(char check) Virtual environment activated successfully"
+
+    print $"✓ Virtual environment activated successfully"
 }
 
-export def venv-deactivate [] {
+export def --env venv-deactivate [] {
     """
     Deactivate the currently active Python virtual environment.
-    
+
     Shows a confirmation message with the deactivated venv path.
-    
+
     Examples:
         > venv-deactivate
     """
@@ -238,6 +238,6 @@ export def venv-deactivate [] {
     if "_VENV_OLD_PATH" in $env {
         hide-env _VENV_OLD_PATH
     }
-    
-    print $"(char check) Virtual environment deactivated: ($venv_path)"
+
+    print $"✓ Virtual environment deactivated: ($venv_path)"
 }
