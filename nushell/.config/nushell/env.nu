@@ -18,10 +18,10 @@
 # them for future reference.
 
 # Only run if we are in an interactive session and on TTY1
-if ($env.LAST_EXIT_CODE? == 0) and ((tty) == "/dev/tty1") {
-    print "🚀 Launching Hyprland..."
-    exec start-hyprland
-}
+# if ($env.LAST_EXIT_CODE? == 0) and ((tty) == "/dev/tty1") {
+#     print "🚀 Launching Hyprland..."
+#     exec start-hyprland
+# }
 
 # XDG Paths (Standard)
 $env.XDG_CACHE_HOME = ($env.HOME | path join ".cache")
@@ -36,6 +36,12 @@ $env.PATH = ($env.PATH | split row (char esep) | prepend ($env.HOME | path join 
 $env.PATH = ($env.PATH | split row (char esep) | prepend ($env.HOME | path join ".local" "sbin"))
 $env.PATH = ($env.PATH | split row (char esep) | prepend ($env.HOME | path join ".cargo" "bin"))
 
+# BUN
+
+$env.BUN_INSTALL = ($env.HOME | path join ".bun")
+$env.PATH = ($env.PATH | split row (char esep) | prepend ($env.BUN_INSTALL | path join "bin"))
+
+
 # Editor
 $env.EDITOR = "nvim"
 
@@ -46,6 +52,11 @@ $env.STARSHIP_CONFIG = ($env.HOME | path join ".config" "starship.toml")
 
 $env.PATH = ($env.PATH | append $"($env.HOME)/.npm-global/bin")
 
+$env.PIPX_TOOL_INSTALLER = "uv"
 
+$env.PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true"
 
 $env.LANG = "en_US.UTF-8"
+
+
+$env.MISTRAL_API_KEY = "EXSu4QEIVkek7wjARerL5jdzZHfae0mF"

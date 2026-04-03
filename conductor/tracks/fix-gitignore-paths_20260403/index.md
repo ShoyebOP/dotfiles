@@ -1,4 +1,4 @@
-# Track venv-commands_20260224 Context
+# Track fix-gitignore-paths_20260403 Context
 
 - [Specification](./spec.md)
 - [Implementation Plan](./plan.md)

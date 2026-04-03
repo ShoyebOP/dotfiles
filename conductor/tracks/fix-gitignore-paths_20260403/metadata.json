@@ -1,0 +1,8 @@
+{
+  "track_id": "fix-gitignore-paths_20260403",
+  "type": "bug",
+  "status": "new",
+  "created_at": "2026-04-03T00:00:00Z",
+  "updated_at": "2026-04-03T00:00:00Z",
+  "description": "Fix .gitignore paths for nvim files, untrack machine-specific files, commit pending changes"
+}
