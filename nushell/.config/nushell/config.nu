@@ -190,3 +190,17 @@ alias cd = z
 
 mkdir ($nu.data-dir | path join "vendor/autoload")
 starship init nu | save -f ($nu.data-dir | path join "vendor/autoload/starship.nu")
+
+# Grabs the URL in your clipboard and prints a QR code in the terminal
+def qr [] {
+    let url = (xclip -out -selection clipboard | str trim)
+    if ($url | is-empty) {
+        print "Clipboard is empty!"
+    } else {
+        print $"Generating QR code for: ($url)"
+        qrencode -t ansiutf8 $url
+    }
+}
+
+
+
