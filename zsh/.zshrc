@@ -55,9 +55,27 @@ eval "$(zoxide init zsh)"
 alias c=clear
 alias v=nvim
 
-# emacs keybindings
-bindkey -e
-set -o emacs
+# vim keybindings
+bindkey -v
+set -o vi
+
+bindkey '^[b' vi-backward-blank-word
+bindkey '^[w' vi-forward-blank-word
+bindkey -M vicmd 'gg' beginning-of-line
+bindkey -M vicmd 'G' end-of-line
+
+function zle-keymap-select {
+  case $KEYMAP in
+    vicmd) echo -ne '\e[2 q';;
+    viins|main) echo -ne '\e[6 q';;
+  esac
+}
+zle -N zle-keymap-select
+
+function zle-line-init {
+  echo -ne '\e[6 q'
+}
+zle -N zle-line-init
 
 # Enable auto-cd
 setopt AUTO_CD
