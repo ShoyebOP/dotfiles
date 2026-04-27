@@ -211,6 +211,9 @@ zi as'completion' for \
 zinit ice depth=1
 zinit light romkatv/powerlevel10k
 
+# Catppuccin p10k themes
+zinit light tolkonepiu/catppuccin-powerlevel10k-themes
+
 # -----------------------------------------------------------------------------
 # ZINIT ANNEXES
 # -----------------------------------------------------------------------------
@@ -320,3 +323,66 @@ unset ZI_REPO
 # -----------------------------------------------------------------------------
 # Load Powerlevel10k configuration (run `p10k configure` to customize)
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Apply Catppuccin rainbow latte theme
+apply_catppuccin classic mocha
+
+# Restore vi_mode indicator and remove status tick after Catppuccin theme
+typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
+    command_execution_time
+    background_jobs
+    direnv
+    asdf
+    virtualenv
+    anaconda
+    pyenv
+    goenv
+    nodenv
+    nvm
+    nodeenv
+    rbenv
+    rvm
+    fvm
+    luaenv
+    jenv
+    plenv
+    perlbrew
+    phpenv
+    scalaenv
+    haskell_stack
+    kubecontext
+    terraform
+    aws
+    aws_eb_env
+    azure
+    gcloud
+    google_app_cred
+    toolbox
+    context
+    nordvpn
+    ranger
+    yazi
+    nnn
+    lf
+    xplr
+    vim_shell
+    midnight_commander
+    nix_shell
+    chezmoi_shell
+    todo
+    timewarrior
+    taskwarrior
+    per_directory_history
+    newline
+    vi_mode
+)
+
+# Vi mode colors
+typeset -g POWERLEVEL9K_VI_COMMAND_MODE_STRING=NORMAL
+typeset -g POWERLEVEL9K_VI_MODE_NORMAL_FOREGROUND=106
+typeset -g POWERLEVEL9K_VI_VISUAL_MODE_STRING=VISUAL
+typeset -g POWERLEVEL9K_VI_MODE_VISUAL_FOREGROUND=68
+typeset -g POWERLEVEL9K_VI_OVERWRITE_MODE_STRING=OVERTYPE
+typeset -g POWERLEVEL9K_VI_MODE_OVERWRITE_FOREGROUND=172
+typeset -g POWERLEVEL9K_VI_INSERT_MODE_STRING=INSERT
+typeset -g POWERLEVEL9K_VI_MODE_INSERT_FOREGROUND=66
