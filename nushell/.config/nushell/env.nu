@@ -60,3 +60,5 @@ $env.LANG = "en_US.UTF-8"
 
 
 $env.MISTRAL_API_KEY = "EXSu4QEIVkek7wjARerL5jdzZHfae0mF"
+
+$env.N8N_RESTRICT_FILE_ACCESS_TO = ""

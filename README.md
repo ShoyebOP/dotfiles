@@ -2,15 +2,21 @@
 
 Highly optimized, minimalist dotfiles for a consistent and high-performance development environment across machines.
 
-## 🚀 Quick Start (Unified Bootstrapper)
+## Overview
 
-The easiest way to set up this environment is using the automated `setup.nu` script. It automatically detects your OS, installs missing dependencies, and manages your configuration symlinks.
+Choose your shell path:
 
-### 📜 What it does:
-- **OS Support:** Arch Linux (CachyOS) and Ubuntu.
-- **Dependency Management:** Automatically identifies and installs missing packages (via `pacman` or `apt`).
-- **Smart Stowing:** Uses `GNU Stow` to manage symlinks. If a real file or folder exists where a symlink should be, it automatically removes the conflict.
-- **Safety First:** Includes a `--dry-run` flag to preview all changes.
+| Feature | Nushell Path | Zsh Path |
+|---------|-------------|----------|
+| Shell | Nushell | Zsh + Zinit |
+| Prompt | Starship | Powerlevel10k |
+| Setup | Auto (`nu setup.nu`) | Manual |
+| Completion | External stub | Generated via `uv generate-shell-completion zsh` |
+| keyd | Yes | Yes |
+
+---
+
+## Nushell Setup
 
 ### 1. Prerequisite: Nushell
 If you don't have Nushell installed, please install it first:
@@ -44,69 +50,110 @@ nu setup.nu --mode server
 
 ---
 
-## 🛠 Manual Installation (No Script)
+### Nushell: Manual Installation (Alternative)
 
-If you prefer to set things up manually, follow these steps:
+If you prefer to set things up manually without the bootstrapper:
 
-### 1. Install Dependencies
-Ensure you have the following installed based on your environment:
+#### Install Dependencies
 - **Core:** `stow`, `neovim`, `nushell`, `starship`, `git`, `zoxide`, `uv`, `ripgrep`, `nodejs`, `npm`.
 - **GUI (Arch/CachyOS):** `hyprland`, `alacritty`, `wofi`, `keyd`, `waybar`, `grim`, `slurp`, `wl-clipboard`.
 
-### 2. Deploy Configurations
-Use `GNU Stow` to symlink the configurations. Run these commands from the root of the cloned repository:
+#### Deploy Configurations
+Use `GNU Stow` to symlink the configurations:
 
-**CLI Tools:**
 ```bash
 stow --restow nvim nushell starship
 ```
 
-**GUI Tools (Local only):**
 ```bash
 stow --restow hyprland alacritty wofi
 ```
 
-**Privileged System Setup (keyd):**
+#### Nushell: keyd Setup
 ```bash
 sudo stow --adopt -t / keyd
 sudo keyd reload
 ```
 
-### 3. Sudoers Configuration
 To allow starting/stopping `keyd` without a password, run `sudo EDITOR=nvim visudo` and add:
 ```
 shoyeb ALL=(ALL) NOPASSWD: /usr/bin/systemctl start keyd, /usr/bin/systemctl stop keyd
 ```
 
-## 🛠 Tech Stack
+---
 
-- **Shell:** [Nushell](https://www.nushell.sh/) (Primary)
-- **Editor:** [Neovim](https://neovim.io/) (Lua-based)
-- **WM:** [Hyprland](https://hyprland.org/) (Wayland Compositor)
-- **Terminal:** [Alacritty](https://alacritty.org/)
-- **Prompt:** [Starship](https://starship.rs/)
-- **Management:** [GNU Stow](https://www.gnu.org/software/stow/)
-- **Utilities:** `keyd`, `wofi`, `zoxide`, `rg`, `uv`
+## Zsh Setup
 
-## ⌨️ Manual privileged setup (keyd)
+**Note:** Zsh path requires manual installation of all tools.
 
-If you prefer to handle `keyd` manually or need to troubleshoot:
+### 1. Prerequisites: Install Tools Manually
 
-1. Stow the configuration:
-   ```bash
-   sudo stow --adopt -t / keyd
-   ```
-2. Reload the daemon:
-   ```bash
-   sudo keyd reload
-   ```
-3. (Optional) Enable passwordless control for `keyd`:
-   Run `sudo EDITOR=nvim visudo` and add:
-   ```
-   shoyeb ALL=(ALL) NOPASSWD: /usr/bin/systemctl start keyd, /usr/bin/systemctl stop keyd
-   ```
+#### Core Tools
+```bash
+# Using pacman (Arch/CachyOS)
+sudo pacman -S stow neovim git zoxide uv nodejs npm
+```
 
-## 📐 Philosophy
+#### Shell & Plugin Manager
+```bash
+# Install Zsh
+sudo pacman -S zsh
+
+# Install Zinit (will be cloned automatically on first shell start)
+git clone https://github.com/zdharma-continuum/zinit ~/.local/share/zinit/zinit.git
+```
+
+#### Tool Completions
+```bash
+# Generate uv zsh completions
+mkdir -p ~/.config/zsh/completions
+uv generate-shell-completion zsh > ~/.config/zsh/completions/_uv
+```
+
+### 2. Set as Default Shell (Optional)
+To make Zsh your default shell:
+```bash
+# Add zsh to valid shells
+which zsh | sudo tee -a /etc/shells
+# Change shell for current user
+chsh -s $(which zsh)
+```
+
+### 3. Deploy Configurations
+Use `GNU Stow` to symlink the configurations from the repository root:
+
+```bash
+stow --restow nvim zsh starship
+```
+
+```bash
+stow --restow hyprland alacritty wofi
+```
+
+### 4. Zsh: keyd Setup
+```bash
+sudo stow --adopt -t / keyd
+sudo keyd reload
+```
+
+To allow starting/stopping `keyd` without a password, run `sudo EDITOR=nvim visudo` and add:
+```
+shoyeb ALL=(ALL) NOPASSWD: /usr/bin/systemctl start keyd, /usr/bin/systemctl stop keyd
+```
+
+---
+
+## Tech Stack
+
+| Shell | Nushell | Zsh |
+|-------|--------|-----|
+| Prompt | Starship | Powerlevel10k |
+| Manager | Built-in | Zinit |
+| Utilities | keyd, wofi, zoxide, rg, uv | keyd, wofi, zoxide, rg, uv |
+
+---
+
+## Philosophy
 
 - **Extreme Efficiency:** Prioritizing functional utility and low latency.
 - **Modular Minimalism:** Only essential, high-utility plugins and tools.
@@ -114,4 +161,5 @@ If you prefer to handle `keyd` manually or need to troubleshoot:
 - **Consistent Keybindings:** Unified interaction language across all tools.
 
 ---
+
 *Managed with Conductor*
