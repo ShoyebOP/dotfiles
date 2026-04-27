@@ -10,7 +10,7 @@ Choose your shell path:
 |---------|-------------|----------|
 | Shell | Nushell | Zsh + Zinit |
 | Prompt | Starship | Powerlevel10k |
-| Setup | Auto (`nu setup.nu`) | Manual |
+| Setup | Auto (`nu setup.nu`) | Auto (`zsh setup.zsh`) |
 | Completion | External stub | Generated via `uv generate-shell-completion zsh` |
 | keyd | Yes | Yes |
 
@@ -84,31 +84,10 @@ shoyeb ALL=(ALL) NOPASSWD: /usr/bin/systemctl start keyd, /usr/bin/systemctl sto
 
 ## Zsh Setup
 
-**Note:** Zsh path requires manual installation of all tools.
-
-### 1. Prerequisites: Install Tools Manually
-
-#### Core Tools
-```bash
-# Using pacman (Arch/CachyOS)
-sudo pacman -S stow neovim git zoxide uv nodejs npm
-```
-
-#### Shell & Plugin Manager
-```bash
-# Install Zsh
-sudo pacman -S zsh
-
-# Install Zinit (will be cloned automatically on first shell start)
-git clone https://github.com/zdharma-continuum/zinit ~/.local/share/zinit/zinit.git
-```
-
-#### Tool Completions
-```bash
-# Generate uv zsh completions
-mkdir -p ~/.config/zsh/completions
-uv generate-shell-completion zsh > ~/.config/zsh/completions/_uv
-```
+### 1. Prerequisite: Zsh
+If you don't have Zsh installed, please install it first:
+- **Arch/CachyOS:** `sudo pacman -S zsh`
+- **Ubuntu:** `sudo apt install zsh`
 
 ### 2. Set as Default Shell (Optional)
 To make Zsh your default shell:
@@ -119,18 +98,61 @@ which zsh | sudo tee -a /etc/shells
 chsh -s $(which zsh)
 ```
 
-### 3. Deploy Configurations
-Use `GNU Stow` to symlink the configurations from the repository root:
+### 3. Run the Bootstrapper
+Clone this repository and run:
+```bash
+zsh setup.zsh
+```
+
+**Options:**
+- `--mode`: Select `local` (Full GUI) or `server` (Headless CLI).
+- `--dry-run`: Preview changes without applying them.
+- `--stow-keyd`: Pass `y` or `n` to automate the privileged `keyd` setup.
+
+Example (Non-interactive Server Setup):
+```bash
+zsh setup.zsh --mode server
+```
+
+---
+
+### Zsh: Manual Installation (Alternative)
+
+If you prefer to set things up manually without the bootstrapper:
+
+#### Install Tools Manually
+
+**Core Tools:**
+```bash
+# Using pacman (Arch/CachyOS)
+sudo pacman -S stow neovim git zoxide uv nodejs npm
+```
+
+**Plugin Manager:**
+```bash
+# Install Zinit (will be cloned automatically on first shell start)
+git clone https://github.com/zdharma-continuum/zinit ~/.local/share/zinit/zinit.git
+```
+
+**Tool Completions:**
+```bash
+# Generate uv zsh completions
+mkdir -p ~/.config/zsh/completions
+uv generate-shell-completion zsh > ~/.config/zsh/completions/_uv
+```
+
+#### Deploy Configurations
+Use `GNU Stow` to symlink the configurations:
 
 ```bash
-stow --restow nvim zsh starship
+stow --restow nvim zsh
 ```
 
 ```bash
 stow --restow hyprland alacritty wofi
 ```
 
-### 4. Zsh: keyd Setup
+#### Zsh: keyd Setup
 ```bash
 sudo stow --adopt -t / keyd
 sudo keyd reload
