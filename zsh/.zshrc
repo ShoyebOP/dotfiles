@@ -33,6 +33,7 @@ export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 
 # Local bins
 export PATH="$HOME/.local/bin:$PATH"
+export BUN_INSTALL="$HOME/.bun"
 export PATH="$HOME/.local/sbin:$PATH"
 export PATH="$HOME/.bun/bin:$PATH"
 export PATH="$HOME/.npm-global/bin:$PATH"
@@ -65,15 +66,15 @@ bindkey -M vicmd 'gg' beginning-of-line
 bindkey -M vicmd 'G' end-of-line
 
 function zle-keymap-select {
-  case $KEYMAP in
-    vicmd) echo -ne '\e[2 q';;
-    viins|main) echo -ne '\e[6 q';;
-  esac
+    case $KEYMAP in
+    vicmd) echo -ne '\e[2 q' ;;
+    viins | main) echo -ne '\e[6 q' ;;
+    esac
 }
 zle -N zle-keymap-select
 
 function zle-line-init {
-  echo -ne '\e[6 q'
+    echo -ne '\e[6 q'
 }
 zle -N zle-line-init
 
@@ -162,7 +163,7 @@ fi
 # Load Zinit
 source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
 autoload -Uz _zinit
-(( ${+_comps} )) && _comps[zinit]=_zinit
+((${+_comps})) && _comps[zinit]=_zinit
 
 # -----------------------------------------------------------------------------
 # HELPER FUNCTIONS (moved after instant prompt to avoid console output)
@@ -262,7 +263,7 @@ function _pip_completion() {
     reply=(
         $(
             COMP_WORDS="$words[*]"
-            COMP_CWORD=$(( cword-1 ))
+            COMP_CWORD=$((cword - 1))
             PIP_AUTO_COMPLETE=1 $words 2>/dev/null
         )
     )
@@ -292,7 +293,6 @@ zi light zsh-users/zsh-autosuggestions
 zi light-mode for \
     $ZI_REPO/fast-syntax-highlighting
 
-
 # FZF history search - Fuzzy search through command history
 zi ice joshskidmore/zsh-fzf-history-search
 
@@ -313,8 +313,8 @@ zi light marlonrichert/zsh-autocomplete
 #       zicompinit; zicdreplay
 #       _zsh_highlight_bind_widgets
 #       _zsh_autosuggest_bind_widgets' \
-    #     as'null' id-as'zinit/cleanup' lucid nocd wait \
-    #   $ZI_REPO/null
+#     as'null' id-as'zinit/cleanup' lucid nocd wait \
+#   $ZI_REPO/null
 #
 
 unset ZI_REPO
