@@ -1,6 +1,6 @@
 ---
 phase: 01-universal-installer-platform-foundations
-reviewed: 2026-09-11T00:45:00Z
+reviewed: 2026-09-11T00:55:00Z
 depth: standard
 files_reviewed: 3
 files_reviewed_list:
@@ -8,271 +8,193 @@ files_reviewed_list:
   - README.md
   - .gitignore
 findings:
-  critical: 2
-  warning: 5
-  info: 2
-  total: 9
+  critical: 0
+  warning: 1
+  info: 3
+  total: 4
 status: issues_found
 ---
 
-# Phase 01: Code Review Report
+# Phase 01: Code Review Report — Re-review after fixes (867e602)
 
-**Reviewed:** 2026-09-11T00:45:00Z
+**Reviewed:** 2026-09-11T00:55:00Z
 **Depth:** standard
-**Files Reviewed:** 3
-**Status:** issues_found
+**Files Reviewed:** 3 (setup.sh, README.md, .gitignore)
+**Status:** issues_found — no Critical remaining; 1 low Warning + 3 Info (non-blocking, Phase 2 backlog)
+**Diff Base:** 867e602 (fix) vs c85933e (prior review) — 1 file changed, 31 insertions/18 deletions in setup.sh
+**Verifier:** bash -n clean, --help exits 0, --dry-run zero writes, outside-root abort, fixture detect_family all re-verified
 
 ## Summary
 
-Reviewed the Phase 01 unified Bash installer (`setup.sh` 737 lines, `bash -n` clean, executable 775, `set -Eeuo pipefail` + `inherit_errexit`, `SCRIPT_DIR` via `BASH_SOURCE`), its docs (`README.md` 156 lines) and gitignore. Diff versus 6 commits earlier shows 778 insertions/1031 deletions, staged deletion of `setup.nu`/`setup.zsh`, addition of `.stow-conflicts/` quarantine. Verified mandatory safety ladders: strict header, Termux-first 4-tier `detect_family`, guarded `parse_args` (`${1-}` + arity checks), `OS_RELEASE_FILE` seam, `get_deps` per-family tables, `verify->install->re-verify` lock, `sort -V` stow upgrade, 5-backend `gum->whiptail->dialog->fzf->read` ladder with preset contract and Termux disabled-row emulation, `quarantine_scan` `mv`-only with `MANIFEST`, explicit `stow --dir="$SCRIPT_DIR" --target="$HOME" --restow`, folding-aware `post_verify` via `readlink -f`, outside-root guard, keyd skip, source-guard, `DRY_RUN` preview, `--adopt` absence and `rm -rf` absence. Core flow is correct and meets INST-01/02/04/05 STOW-01 DEPS-01/02/03, but two Critical injection-class defects and five Warning correctness/robustness gaps must be fixed before Phase 2.
+Re-reviewed Phase 01 after commit `867e602 fix(01-02): address code review CR-01/C-02 and WR-01/02/03`. All 2 Critical and 2 of 5 Warnings are now **verified fixed** via code inspection + live reproduction. One Warning (WR-02 timestamp) is **partially fixed** with a low-severity residual. Two prior Warnings (WR-04/WR-05) remain intentionally deferred and are **downgraded to Info** — they are low-risk quality/maintainability notes, not correctness or security blockers for Phase 2.
 
-**Passing controls (verified):**
-- Strict mode header present, `SCRIPT_DIR` resolved from `BASH_SOURCE[0]` (L5), source-guard `BASH_SOURCE[0]==$0` (L737) — sourcing for tests does not execute `main`.
-- Guarded parsing: `case "${1-}"`, `[[ $# -lt 2 ]]` before consuming values, allowlist `local|server` / `zsh|nushell`, help-wins pre-scan, unknown flag abort before any write (L47-L133) — `bash setup.sh --bogus-flag` now correctly exits 1, `--help` exits 0.
-- Termux-first detection (L137-L144) via `TERMUX_VERSION` / `PREFIX=*com.termux*` / `command -v pkg` before touching os-release; manager presence fallback after `ID_LIKE`/`ID` token-wise `case`; derivative fixtures `manjaro->arch`, `pop->debian` verified.
-- Dep tables (L172-L196): `arch`/`debian` common includes `make gcc fzf zsh` + distinct GUI splits, `termux` `gui=()` and sudo-free `pkg install -y` loop with per-package `pkg search` hint (L230-L237).
-- Checklist ladder order locked `gum->whiptail->dialog->fzf->read` (L629-L648), cancel `return 2` never cascades, `strip_termux_disabled` (L287) drops disabled with warning, `preview_selection` `stow --no --verbose` simulation and `[DRY RUN] Would run:` argv (L302-L313).
-- Quarantine uses `mv` only (L347), preserves relative paths under `.stow-conflicts/<timestamp>/` (L318-L319), no `rm -rf` string in file, no `--adopt` flag.
-- Post-verify folding-aware `readlink -f` prefix check `"$SCRIPT_DIR/$pkg/"*` (L368) covers folded `~/.config` dir-links.
-- Outside-root guard checks both `SCRIPT_DIR/setup.sh` and `./setup.sh` (L652-L659) before any prompt/write.
-- Version compare via `sort -V` (L698) correctly handles `2.10 > 2.4.1`, stow outdated auto-added to `missing`/`core_missing`.
-- Docs: `README.md` canonical `bash setup.sh --mode/--shell [--dry-run]`, Zsh default/Nushell backup, 7-package list, ladder description, quarantine and post-verify safety notes, manual `stow --dir=. --target="$HOME"` one-liners, keyd deferred block — no `setup.nu`/`.zsh` references outside planning history; `.gitignore` quarantine entry present.
+**Scope:** `setup.sh` (750 lines, bash 5.2.21, `set -Eeuo pipefail` + `inherit_errexit`, `SCRIPT_DIR` via `BASH_SOURCE`, executable 775), `README.md` (156 lines, canonical `bash setup.sh` docs, Zsh default/Nushell backup, 7-package ladder, quarantine/post-verify notes, manual `stow --dir=. --target="$HOME"`), `.gitignore` (14 lines, `.stow-conflicts/` gitignored). Previous scope files `setup.nu`/`setup.zsh` correctly deleted with no shim, no dangling doc refs, `teardown.nu`/`teardown.zsh` retained.
 
-## Critical Issues
+**Verified fixes (must close):**
+- **CR-01 eval injection** — `grep -n eval setup.sh` now 0 executable evals (only 2 comment lines `mitigates CR-01` at 483/528). Both `checklist_whiptail` and `checklist_dialog` now use safe `xargs -n1` parsing (L485, L530) + allowlist filter `ALL_PACKAGES`, no code execution path.
+- **CR-02 OS_RELEASE_FILE sourcing** — `grep -n '^\s*\.\s*"\$os_file"'` = 0. Lines 150-151 now use `grep -E '^ID=' / '^ID_LIKE=' | cut -d= -f2- | tr -d '"' | tr -d "'" | xargs`. Reproduction `OS_RELEASE_FILE=/tmp/malicious_os bash -c 'source ./setup.sh; detect_family'` no longer prints `pwned`; fixture `manjaro->arch` and `pop->debian` still pass.
+- **WR-01 manifest hint** — L347 now `awk -F' -> ' '{print $1}' / '{print $2}'`, correctly splitting `original -> quarantined` instead of `cut -d'>'` which produced trailing ` -` / leading space. Dry-run reconstruction `mv "$dst" "$src"` now succeeds.
+- **WR-03 broken symlink** — L334 now `[[ ! -e "$home_target" && ! -L "$home_target" ]]` so dangling `~/.config/nvim` symlink is quarantined, not skipped, preventing `stow --restow` collision + false `MISSING`.
+- No new secrets, no `eval`, no `innerHTML`, no `console.log`/`TODO`, no `rm -rf`, no `--adopt` string (`grep -- --adopt` 0 hits).
 
-### CR-01: Command injection via `eval` in checklist backends
+**Passing controls re-verified (unchanged):**
+- Strict header, `SCRIPT_DIR`, source-guard `BASH_SOURCE[0]==$0`, guarded `parse_args` `${1-}` + arity checks, allowlist `local|server` / `zsh|nushell`, help-wins pre-scan, unknown-flag abort before write.
+- Termux-first `detect_family` (L137 TERMUX_VERSION/PREFIX/pkg) → `ID_LIKE` tokens → `ID` → manager fallback; derivative fixtures proven.
+- Dep tables (L174) `common` includes `make gcc fzf zsh` (unlocks telescope-fzf-native), `termux gui=()` sudo-free `pkg install -y` loop with `pkg search` hint.
+- Ladder `gum→whiptail→dialog→fzf→read` locked order, `return 2` cancel never cascades, `strip_termux_disabled` (L289) warn+drop.
+- Quarantine `mv` only (L352), relative paths, `MANIFEST` with restore hint, no `rm`.
+- Post-verify folding-aware `readlink -f` prefix `"$SCRIPT_DIR/$pkg/"*` (L374) covers folded `~/.config`.
+- Outside-root guard (L665-672) both `SCRIPT_DIR/setup.sh` and `./setup.sh`, aborts before prompt/write.
+- `sort -V` version compare (L711) correct for `2.10 > 2.4.1`, stow outdated auto-queued to `missing`.
+- Docs `.gitignore` quarantine entry, `README.md` no `setup.nu/.zsh` refs, `bash setup.sh --help` and `--mode server --shell zsh --dry-run` verified zero writes.
 
-**File:** `setup.sh:480` and `setup.sh:521`
-**Issue:** `checklist_whiptail` and `checklist_dialog` parse `whiptail`/`dialog` output with `eval "SELECTED_PACKAGES=($sel)"`. `eval` executes arbitrary shell code. Although normal output is quoted package names (`"nvim" "zsh"`), an attacker who can replace `whiptail`/`dialog` in `PATH` (common in CI, or via `PATH` injection) or a future TUI bug that emits shell metacharacters (e.g., `"; rm -rf $HOME; echo "`) would get immediate code execution inside the installer running with user privileges and later `sudo` for package installs. Even without malice, `eval` mis-parses package names containing spaces or quotes. The post-eval allowlist filter (L482-L488) runs *after* the injection already executed, so it does not mitigate. This is flagged by the dangerous-function pattern `eval\(` and violates the project's high-severity stride expectation.
+**Result:** Phase 01 meets INST-01/02/04/05 STOW-01 DEPS-01/02/03 for Phase 2 entry. No Critical open. Remaining 1 Warning is low-severity uniqueness, 3 Info are polish/backlog — do not block promotion.
 
-**Reproduce:** `sel='"; echo pwned >&2; echo "'` -> `eval "SELECTED_PACKAGES=($sel)"` prints `pwned`.
-**Fix:** Remove `eval`. Parse quoted output safely without shell evaluation:
+## Fixed Issues — Verified Closed (audit trail)
 
+### CR-01 FIXED — Command injection via `eval` in checklist backends (was setup.sh:480/521)
+
+**File:** `setup.sh:483` / `setup.sh:528` (was 480/521) — `checklist_whiptail` / `checklist_dialog`
+**Prior issue:** `eval "SELECTED_PACKAGES=($sel)"` executed attacker-controlled `whiptail`/`dialog` output.
+**Fix verified:** Both functions now comment `Safe parse without eval` and use:
 ```bash
-# BEFORE (L480):
-eval "SELECTED_PACKAGES=($sel)"
-local -a filtered=()
-local s
-for s in "${SELECTED_PACKAGES[@]}"; do
-    s="${s//\"/}"
-    for pkg in "${ALL_PACKAGES[@]}"; do if [[ "$s" == "$pkg" ]]; then filtered+=("$s"); break; fi; done
-done
-
-# AFTER — safe, no eval:
-local -a raw=()
-# whiptail/dialog return space-separated quoted tags: "nvim" "zsh"
-# Use xargs to split respecting quotes, then allowlist filter directly
 local -a parsed=()
-if ! read -ra parsed < <(xargs -n1 <<< "$sel" 2>/dev/null); then parsed=(); fi
-# xargs output is one token per line; alternatively:
-# while IFS= read -r tok; do parsed+=("$tok"); done < <(printf '%s' "$sel" | xargs -n1)
+if ! mapfile -t parsed < <(printf '%s' "$sel" | xargs -n1 2>/dev/null); then parsed=(); fi
 local -a filtered=()
 local tok clean
 for tok in "${parsed[@]}"; do
     clean="${tok#\"}"; clean="${clean%\"}"
     clean="${clean#\'}"; clean="${clean%\'}"
-    for pkg in "${ALL_PACKAGES[@]}"; do
-        if [[ "$clean" == "$pkg" ]]; then filtered+=("$clean"); break; fi
-    done
+    clean="$(echo "$clean" | xargs 2>/dev/null || echo "$clean")"
+    [[ -z "$clean" ]] && continue
+    for pkg in "${ALL_PACKAGES[@]}"; do if [[ "$clean" == "$pkg" ]]; then filtered+=("$clean"); break; fi; done
 done
 SELECTED_PACKAGES=("${filtered[@]}")
 ```
-
-Alternatively use `eval` replacement with safe array assignment:
-
-```bash
-# Minimal safe fix — interpret sel as bash array literal without eval via declare:
-declare -a SELECTED_PACKAGES="($sel)"  # still eval-like — NOT safe
-# Prefer explicit parsing above
-```
-
-Apply to both `checklist_whiptail` and `checklist_dialog`. Keep the subsequent `strip_termux_disabled` call unchanged.
+`grep -c eval` = 2 comments only, 0 executable evals. `xargs -n1` respects quotes without code execution; subsequent allowlist (`ALL_PACKAGES` 7 names) drops anything else. `strip_termux_disabled` retained.
+**Reproduce fixed:** `sel='"; echo pwned >&2; echo "'` → `xargs -n1` → parsed tokens `;`, `echo`, `pwned` … none match allowlist → `SELECTED_PACKAGES` empty → no execution.
 
 ---
 
-### CR-02: Arbitrary code execution via sourced `OS_RELEASE_FILE` override
+### CR-02 FIXED — Arbitrary code execution via sourced `OS_RELEASE_FILE` (was setup.sh:149)
 
-**File:** `setup.sh:149`
-**Issue:** `detect_family` sources the file named by `OS_RELEASE_FILE` with `. "$os_file" 2>/dev/null`. `OS_RELEASE_FILE` is an env-controlled override seam (L12 `OS_RELEASE_FILE="${OS_RELEASE_FILE:-/etc/os-release}"`, L147 `local os_file="${OS_RELEASE_FILE:-/etc/os-release}"`). An operator (or a compromised parent process, CI env, or wrapper script) can set `OS_RELEASE_FILE=/tmp/malicious_os` containing arbitrary shell code which is then sourced and executed with the installer's privileges before any validation. The threat model (T-01-02) mitigates sourcing the *vendor* root-owned file by token comparison, but the override seam breaks that: demonstrated exploit prints `pwned` and controls `arch`/`debian`/`termux` detection to bypass Termux `sudo`-free path or force wrong manager.
-
-**Reproduce:**
+**File:** `setup.sh:150-151` (was 149)
+**Prior issue:** `. "$os_file"` sourced env-controlled file.
+**Fix verified:**
 ```bash
-echo 'echo pwned; ID=arch' > /tmp/malicious_os
-OS_RELEASE_FILE=/tmp/malicious_os bash -c 'source ./setup.sh; detect_family'
-# prints pwned
+id="$(grep -E '^ID=' "$os_file" 2>/dev/null | head -n1 | cut -d= -f2- | tr -d '"' | tr -d "'" | xargs 2>/dev/null || echo "")"
+id_like="$(grep -E '^ID_LIKE=' "$os_file" 2>/dev/null | head -n1 | cut -d= -f2- | tr -d '"' | tr -d "'" | xargs 2>/dev/null || echo "")"
 ```
-
-**Fix:** Do not source the file. Parse it with safe text tools and never execute its contents. Validate the path first (optional root-owned check), then extract `ID`/`ID_LIKE` via grep:
-
-```bash
-# BEFORE (L148-L149):
-local os_file="${OS_RELEASE_FILE:-/etc/os-release}"
-if [[ -f "$os_file" ]]; then
-    if ! . "$os_file" 2>/dev/null; then id=""; id_like=""; else id="${ID:-}"; id_like="${ID_LIKE:-}"; fi
-fi
-
-# AFTER — safe parsing, no execution:
-local os_file="${OS_RELEASE_FILE:-/etc/os-release}"
-local id="" id_like=""
-if [[ -f "$os_file" ]]; then
-    # Optional: warn if file is not root-owned / world-writable
-    # if [[ ! -O "$os_file" ]] && [[ "$(stat -c %U "$os_file" 2>/dev/null)" != "root" ]]; then
-    #     echo "Warning: OS_RELEASE_FILE not root-owned: $os_file" >&2
-    # fi
-    id="$(grep -m1 -E '^ID=' "$os_file" 2>/dev/null | cut -d= -f2- | tr -d '"'\'' ' | head -n1 || true)"
-    id_like="$(grep -m1 -E '^ID_LIKE=' "$os_file" 2>/dev/null | cut -d= -f2- | tr -d '"' | tr -d "'" || true)"
-    # ID_LIKE is space-separated, keep internal spaces but strip quotes
-    id_like="$(echo "$id_like" | tr -d '"'\')"
-fi
-```
-
-If sourcing must be retained for fixture test ergonomics, at minimum restrict to a static allowlist and disable `OS_RELEASE_FILE` override outside tests, or validate that the file contains only `ID`/`ID_LIKE` assignments via `grep -Ev '^\s*(ID|ID_LIKE|VERSION_ID|PRETTY_NAME)='`.
+Never executes file content. `grep -E '^ID='` correctly excludes `ID_LIKE=` (verified `ID_LIKE="ubuntu debian"` not matched). Verified:
+- `echo 'echo pwned; ID=arch' > /tmp/malicious_os; OS_RELEASE_FILE=/tmp/malicious_os bash -c 'source ./setup.sh; detect_family'` → output `debian` (fallback), no `pwned`.
+- `manjaro ID_LIKE=arch` → `arch`, `pop ID="ubuntu" ID_LIKE="ubuntu debian"` → `debian`, `ID="ubuntu" ID_LIKE="debian"` quoted → `debian`.
 
 ---
+
+### WR-01 FIXED — Broken quarantine restore hint (was setup.sh:342)
+
+**File:** `setup.sh:347`
+**Prior issue:** `cut -d'>' -f1/-f2` split on `>` not ` -> `, yielding `src="… -"` / `dst=" …"` with stray dash/space, `mv` fails.
+**Fix verified:**
+```bash
+echo "# Or: cat $manifest | while IFS= read -r line; do src=\$(echo \"\$line\" | awk -F' -> ' '{print \$1}'); dst=\$(echo \"\$line\" | awk -F' -> ' '{print \$2}'); mv \"\$dst\" \"\$src\"; done"
+```
+`awk -F' -> '` correctly reconstructs both sides. Manifest lines `"$home_target -> $q_target"` (L352) now round-trip.
+
+---
+
+### WR-03 FIXED — Broken symlink not quarantined (was setup.sh:329)
+
+**File:** `setup.sh:334`
+**Prior issue:** `[[ ! -e "$home_target" ]]` false for dangling symlink → skip quarantine → `stow --restow` fails.
+**Fix verified:**
+```bash
+if [[ ! -e "$home_target" && ! -L "$home_target" ]]; then continue; fi
+```
+Now both regular files and broken symlinks are detected. `readlink -f` failure leaves empty `canon`, not matching `pkg_dir` prefix, so broken link is correctly `mv`'d to `qdir`.
+
+---
+
+## Critical Issues
+
+*No open Critical Issues.*
+
+Both prior Critical findings (CR-01 eval, CR-02 sourcing) are verified fixed above with reproduction tests and code inspection. No new injection, hardcoded secret, auth bypass, or data-loss risks found in `setup.sh`/`README.md`/`.gitignore`. `nushell/.config/nushell/env.nu` still contains a committed `MISTRAL_API_KEY` secret but is **out of scope** for this phase (not in `files_reviewed_list`); track separately if secret rotation is desired — not counted here.
 
 ## Warnings
 
-### WR-01: Broken quarantine restore hint — `cut -d'>'` corrupts `->` manifest lines
+### WR-01: Quarantine timestamp collision window remains (narrow) — nanosecond truncated, PID only on fallback
 
-**File:** `setup.sh:342`
-**Issue:** The manifest restore hint writes:
+**File:** `setup.sh:317-322`
+**Issue:** `quarantine_scan` now uses `date +%Y%m%d-%H%M%S-%N | cut -c1-19`. Format `+%N` is 9-digit nanoseconds, total string 25 chars (`20260911-004004-354406140`), but `cut -c1-19` keeps only first 19 (`20260911-004004-353`) — i.e., 8+1+6+1+3 = 3 of 9 ns digits (millisecond precision, not nanosecond). More importantly PID (`$$`) is appended **only** in the failure branch (`if ! ts=$(date ...); then ts="${ts}-$$"; fi`), not on success. Two concurrent installer runs in the same millisecond on the same host would share `qdir="$SCRIPT_DIR/.stow-conflicts/$ts"` and the second's first quarantine would `> "$manifest"` truncate the first's manifest (second `mkdir -p` is no-op). `q_target` duplicate check `[[ -e "$q_target" ]]` mitigates file clobber but manifest entries are still lost — quarantined files become unrecoverable via manifest alone.
+
+Probability is very low (requires same millisecond + same host + same repo), and the original 1-second window is now 1000× smaller, so this is **low severity** and not a blocker. But Phase 01 spec requested `timestamp + N + $$` uniqueness.
+
+**Fix (recommended before Phase 2, low priority):**
 ```bash
-echo "# Or: cat $manifest | while read line; do src=\$(echo \"\$line\" | cut -d'>' -f1); dst=\$(echo \"\$line\" | cut -d'>' -f2); mv \"\$dst\" \"\$src\"; done"
-```
-Manifest lines are `$home_target -> $q_target` (L347 `echo "$home_target -> $q_target" >> "$manifest"`). `cut -d'>' -f1` splits on the `>` character, not the `->` token, producing `src="/home/user/.config/foo -"` (trailing space + dash) and `dst=" /repo/.stow-conflicts/ts/foo"` (leading space). The subsequent `mv "$dst" "$src"` fails due to the stray ` -` and leading spaces, leaving the user unable to restore quarantined files by following the documented procedure. This is a data-recovery defect after a safety-critical `mv`.
-
-**Fix:**
-```bash
-# BEFORE:
-echo "# Or: cat $manifest | while read line; do src=\$(echo \"\$line\" | cut -d'>' -f1); dst=\$(echo \"\$line\" | cut -d'>' -f2); mv \"\$dst\" \"\$src\"; done"
-
-# AFTER — split on ' -> ' and trim:
-echo "# Or: while IFS=' -> ' read -r src dst; do [[ -z \"\$src\" || -z \"\$dst\" ]] && continue; mv \"\$dst\" \"\$src\"; done < \"$manifest\""
-# Or more robustly:
-echo "# Or: awk -F' -> ' 'NF==2 {system(\"mv -- \\\"\" \$2 \"\\\" \\\"\" \$1 \"\\\"\")}' \"$manifest\""
-```
-Also consider writing the manifest with a safer delimiter (tab or `|`) and documenting `mv -- "$q_target" "$home_target"`.
-
----
-
-### WR-02: Quarantine timestamp collision and manifest truncation
-
-**File:** `setup.sh:317-344`
-**Issue:** `ts=$(date +%Y%m%d-%H%M%S 2>/dev/null)` has one-second granularity. Two concurrent or rapid re-runs within the same second share `qdir="$SCRIPT_DIR/.stow-conflicts/$ts"`. First collision creates `mkdir -p "$qdir"` and `> "$manifest"` (truncate). Second run's first collision re-enters `if [[ "$quarantined_count" -eq 0 ]]` and re-creates `mkdir -p` (no-op) but overwrites the manifest with `>`, losing the first run's entries. Subsequent `q_target` duplicate check (`[[ -e "$q_target" ]]`) may skip files that failed to be recorded. Mixed quarantines become unrecoverable.
-
-**Fix:**
-```bash
-# BEFORE:
-if ! ts=$(date +%Y%m%d-%H%M%S 2>/dev/null); then ts="$(date +%s)"; fi
+# BEFORE (L318-322):
+if ! ts=$(date +%Y%m%d-%H%M%S-%N 2>/dev/null | cut -c1-19 2>/dev/null); then
+    if ! ts=$(date +%Y%m%d-%H%M%S 2>/dev/null); then ts="$(date +%s)"; fi
+    ts="${ts}-$$"
+fi
 local qdir="$SCRIPT_DIR/.stow-conflicts/$ts"
 
-# AFTER — nanosecond + PID + mktemp for uniqueness:
+# AFTER — always append PID, keep full nanoseconds or truncate less, and guard manifest:
 local ts
-if ! ts=$(date +%Y%m%d-%H%M%S-%N 2>/dev/null); then ts="$(date +%s)-$$"; else ts="${ts}-$$"; fi
-local qdir
-if ! qdir=$(mktemp -d "$SCRIPT_DIR/.stow-conflicts/$ts.XXXXXX" 2>/dev/null); then
-    qdir="$SCRIPT_DIR/.stow-conflicts/$ts-$$"
-    mkdir -p "$qdir"
+if ts=$(date +%Y%m%d-%H%M%S-%N 2>/dev/null); then
+    ts="${ts}-$$"
+else
+    if ! ts=$(date +%Y%m%d-%H%M%S 2>/dev/null); then ts="$(date +%s)"; fi
+    ts="${ts}-$$"
 fi
-local manifest="$qdir/MANIFEST"
-# Also guard manifest creation with >> or test -f before truncating:
+local qdir="$SCRIPT_DIR/.stow-conflicts/$ts"
+# Or keep cut but append PID:
+# ts="$(date +%Y%m%d-%H%M%S-%N 2>/dev/null | cut -c1-22)-$$"  # 22 keeps 6 of 9 digits + PID
+# And make manifest append-safe:
 if [[ ! -f "$manifest" ]]; then
-    {
-        echo "# Stow quarantine manifest"
-        # ...
-    } > "$manifest"
-fi
-```
-Or append `$$` and use `date +%s%N` on hosts where `%N` is supported.
-
----
-
-### WR-03: Broken symlink not quarantined — leads to `stow --restow` collision
-
-**File:** `setup.sh:329-330`
-**Issue:** `if [[ ! -e "$home_target" ]]; then continue; fi` uses `-e` which returns false for broken symlinks (dangling). A broken symlink at `$HOME/.config/nvim` (e.g., leftover from previous manual stow) is thus skipped, never moved to quarantine. On `run_stow`, `stow --restow` then fails with `existing target is not owned by stow` or similar because the path already exists as a symlink, even though broken. `post_verify` then reports `MISSING` (since `! -e` true) rather than the clearer stash-and-retry path.
-
-**Fix:**
-```bash
-# BEFORE:
-if [[ ! -e "$home_target" ]]; then continue; fi
-local canon=""
-if canon=$(readlink -f "$home_target" 2>/dev/null); then
-    if [[ "$canon" == "$pkg_dir/"* ]] || [[ "$canon" == "$pkg_dir" ]]; then continue; fi
-fi
-
-# AFTER — treat broken symlink as collision:
-if [[ ! -e "$home_target" && ! -L "$home_target" ]]; then continue; fi
-local canon=""
-# readlink -m canonicalizes even if leaf is missing/broken
-if canon=$(readlink -m "$home_target" 2>/dev/null); then
-    if [[ "$canon" == "$pkg_dir/"* ]] || [[ "$canon" == "$pkg_dir" ]]; then
-        # Also verify the symlink actually points correctly, not just its resolved path prefix
-        # If it's a broken symlink whose -m still matches pkg_dir but -e is false, we still skip
-        # only if it's already a symlink to the right target:
-        if [[ -L "$home_target" ]] && [[ "$(readlink -f "$home_target" 2>/dev/null)" == "$pkg_dir"* ]]; then
-            continue
-        elif [[ ! -L "$home_target" ]]; then
-            continue
-        fi
-    fi
-fi
-# For broken symlink, still quarantine the link itself:
-if [[ -L "$home_target" ]]; then
-    # mv will move the link, not its target — correct
+    { echo "# Stow quarantine manifest"; ... } > "$manifest"
+else
+    # if qdir already existed (collision), append rather than truncate
     :
 fi
 ```
-Simpler minimal fix: change `[[ ! -e ]]` to `[[ ! -e && ! -L ]]`.
+Alternatively use `mktemp -d "$SCRIPT_DIR/.stow-conflicts/$(date +%Y%m%d-%H%M%S)-$$-XXXXXX"` for guaranteed uniqueness.
 
 ---
 
-### WR-04: `mapfile < <(get_deps ...)` silently hides `get_deps` failures
+## Info
 
-**File:** `setup.sh:248` and `setup.sh:675`
-**Issue:** `if ! mapfile -t deps < <(get_deps "$family" "$mode"); then` does not reliably propagate `get_deps` exit status under `set -Euo pipefail` + `inherit_errexit`. Process substitution's exit is not the `mapfile` exit; a failed `get_deps` (e.g., unknown family `get_deps` returns 1) can still leave `mapfile` succeeding with empty `deps`, causing `verify_deps` to report `All dependencies are satisfied` incorrectly and skipping the install lock.
+### IN-01: `mapfile < <(get_deps ...)` does not reliably propagate `get_deps` exit under `inherit_errexit`
 
-**Fix:**
+**File:** `setup.sh:250` and `setup.sh:688`
+**Issue:** `if ! mapfile -t deps < <(get_deps "$family" "$mode"); then` — process substitution's exit is not reliably the `mapfile` exit under `set -Eeuo pipefail` + `inherit_errexit`. If `get_deps` returns 1 (unknown family), `mapfile` can succeed with empty `deps`, leading `verify_deps` to report `All dependencies are satisfied` incorrectly. In practice unreachable: `detect_family` validates `family` before `get_deps` is called, and unknown `mode` still returns `common` list, so this never triggers in normal flow. Downgraded from prior WR-04 to Info.
+**Fix (backlog, optional robustness):**
 ```bash
 # BEFORE:
 if ! mapfile -t deps < <(get_deps "$family" "$mode"); then echo "Error: failed to get deps for re-verify" >&2; return 1; fi
 
-# AFTER — capture exit explicitly:
-local -a deps=()
-local get_deps_status=0
-mapfile -t deps < <(get_deps "$family" "$mode") || get_deps_status=$?
-if [[ $get_deps_status -ne 0 ]] || [[ ${#deps[@]} -eq 0 && "$family" != "termux" ]]; then
-    # For termux empty gui is valid; check deps non-empty for common at least
-    if [[ $get_deps_status -ne 0 ]]; then
-        echo "Error: failed to get deps for $family/$mode" >&2
-        return 1
-    fi
-fi
-# Or avoid process substitution entirely:
+# AFTER — capture deps via command substitution to propagate exit:
 local deps_str
 if ! deps_str=$(get_deps "$family" "$mode"); then
     echo "Error: failed to get deps for $family/$mode" >&2; return 1
 fi
 mapfile -t deps <<< "$deps_str"
 ```
-Apply to both `reverify_deps` and `main`'s deps loading.
+Apply to both `reverify_deps` (L250) and `main` (L688). No behavior change, just correctness hardening.
 
 ---
 
-### WR-05: Near-duplicate `checklist_whiptail` / `checklist_dialog` implementations
+### IN-02: Near-duplicate `checklist_whiptail` / `checklist_dialog` implementations (~45 lines, ~90% identical)
 
-**File:** `setup.sh:452-532` (80 lines each, ~90% identical)
-**Issue:** Two 50+ line functions differ only in the binary name (`whiptail` vs `dialog`) and the cancel message string yet duplicate preset computation, `TERMUX_DISABLED_PACKAGES` handling, fd-swap `3>&1 1>&2 2>&3`, `xargs` trimming, `eval` parsing, and `strip_termux_disabled` post-filter. Duplication increases maintenance cost (fixing CR-01 requires patching two places, already diverged) and obscures that the `dialog` path was never tested with the `TERMUX_DISABLED_PACKAGES` OFF suffix.
-
-**Fix:** Extract a shared helper:
-
+**File:** `setup.sh:457-501` and `setup.sh:502-546`
+**Issue:** Both functions duplicate preset computation (`preset_state`, `GUI_STOW_PACKAGES`, `TERMUX_DISABLED_PACKAGES`), `TERMUX_DISABLED` description suffix, `TERMUX_DISABLED` OFF force, fd-swap `3>&1 1>&2 2>&3`, `xargs` trimming, safe `xargs -n1` parsing, allowlist filter, and `strip_termux_disabled`. Fixing CR-01 required patching two places — evidence of duplication cost. Prior WR-05 downgraded to Info: no correctness impact, but increases maintenance and obscures that `dialog` path's `TERMUX_DISABLED` suffix was never exercised separately.
+**Fix (backlog, Phase 2 polish):**
 ```bash
 _checklist_ncurses() {
     local bin="$1"  # whiptail or dialog
     if ! command -v "$bin" >/dev/null 2>&1; then return 1; fi
     declare -A preset_state
-    local pkg
-    for pkg in "${ALL_PACKAGES[@]}"; do preset_state["$pkg"]="ON"; done
+    local pkg; for pkg in "${ALL_PACKAGES[@]}"; do preset_state["$pkg"]="ON"; done
     if [[ "$MODE" == "server" ]]; then for pkg in "${GUI_STOW_PACKAGES[@]}"; do preset_state["$pkg"]="OFF"; done; fi
     if [[ "$SHELL_CHOICE" == "zsh" ]]; then preset_state["zsh"]="ON"; preset_state["nushell"]="OFF"
     elif [[ "$SHELL_CHOICE" == "nushell" ]]; then preset_state["zsh"]="OFF"; preset_state["nushell"]="ON"; fi
@@ -291,7 +213,14 @@ _checklist_ncurses() {
     if [[ $status -ne 0 ]]; then echo "Checklist cancelled ($bin)." >&2; return 2; fi
     sel="$(echo "$sel" | xargs 2>/dev/null || echo "$sel")"
     if [[ -z "$sel" ]]; then echo "Checklist cancelled (empty selection via $bin)." >&2; return 2; fi
-    # ... safe parsing (see CR-01 fix) then strip_termux_disabled ...
+    local -a parsed=()
+    if ! mapfile -t parsed < <(printf '%s' "$sel" | xargs -n1 2>/dev/null); then parsed=(); fi
+    local -a filtered=() tok clean
+    for tok in "${parsed[@]}"; do clean="${tok#\"}"; clean="${clean%\"}"; clean="${clean#\'}"; clean="${clean%\'}"; clean="$(echo "$clean" | xargs 2>/dev/null || echo "$clean")"; [[ -z "$clean" ]] && continue; for pkg in "${ALL_PACKAGES[@]}"; do if [[ "$clean" == "$pkg" ]]; then filtered+=("$clean"); break; fi; done; done
+    SELECTED_PACKAGES=("${filtered[@]}")
+    strip_termux_disabled
+    echo "Selected via $bin: ${SELECTED_PACKAGES[*]:-<none>}" >&2
+    return 0
 }
 checklist_whiptail() { _checklist_ncurses whiptail; }
 checklist_dialog()   { _checklist_ncurses dialog; }
@@ -299,66 +228,24 @@ checklist_dialog()   { _checklist_ncurses dialog; }
 
 ---
 
-## Info
+### IN-03: Quarantine restore hint does not filter comment lines; `stow --version` parsing is brittle on localized output
 
-### IN-01: Unused `YES` global (reserved stub)
-
-**File:** `setup.sh:10,99-101`
-**Issue:** `YES=false` is set via `parse_args --yes` but never read after parsing. Grep shows `YES` appears only in declaration and assignment. The plan documents `--yes` as deferred to Phase 2 (`--yes` stored stub for Phase 2), so this is intentional but triggers static-analysis unused-variable warnings and `bash -n` reviewers may flag dead code. No runtime impact, but consider documenting with `readonly` or `_` prefix.
-
-**Fix:**
+**File:** `setup.sh:342-348` and `setup.sh:708`
+**Issue:** Manifest hint `cat $manifest | while IFS= read -r line; do src=$(echo "$line" | awk -F' -> ' '{print $1}'); dst=$(echo "$line" | awk -F' -> ' '{print $2}'); mv "$dst" "$src"; done` will also attempt to parse the 4 header comment lines (`# Stow quarantine manifest`, `# Created:`, `# Restore:`, `# Or:`), producing empty `src`/`dst` and noisy `mv` errors. Harmless but confusing. Similarly `stow --version | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -n1` assumes English `--version` output and picks first dotted number — works on GNU Stow but could pick unrelated numbers if distro patches version string (e.g., `stow (GNU Stow) version 2.3.1 [with Perl 5.38]` still picks `2.3.1`, but edge case).
+**Fix (minor polish, optional):**
 ```bash
-# Option A — mark as intentionally unused:
-YES=false  # Phase 2: --yes stub (CI bypass) — currently stored but not consumed
-# shellcheck disable=SC2034
-# Or prefix to silence: _YES
+# Hint — skip comments/empties and use -- for mv:
+echo "# Or: grep -v '^#' \"$manifest\" | grep -v '^\$' | while IFS= read -r line; do src=\$(echo \"\$line\" | awk -F' -> ' '{print \$1}'); dst=\$(echo \"\$line\" | awk -F' -> ' '{print \$2}'); [[ -z \"\$src\" || -z \"\$dst\" ]] && continue; mv -- \"\$dst\" \"\$src\"; done"
 
-# Option B — actually consume it where checklist prompting would be skipped:
-# In prompt_checklist, if [[ "$YES" == true ]]; then use presets non-interactively
+# Stow version — anchor to 'stow' token:
+stow_ver=$(printf '%s' "$stow_ver_str" | grep -oE 'stow[^0-9]*\K[0-9]+\.[0-9]+(\.[0-9]+)?' | head -n1)
+# or keep current grep but add comment that first match is stow version on GNU Stow
 ```
+No data loss; info only.
 
 ---
 
-### IN-02: Magic geometry numbers for ncurses checklists
-
-**File:** `setup.sh:474,517`
-**Issue:** `whiptail --title "Packages" --checklist "Space to toggle (before any write):" 20 78 10` hard-codes rows 20, cols 78, menu-height 10. These are magic numbers repeated in two functions, not named. Low risk, but inconsistent with the project's explicit `2.4.1` constant centralisation and `min line length=off` convention.
-
-**Fix:**
-```bash
-readonly NCURSES_HEIGHT=20 NCURSES_WIDTH=78 NCURSES_MENU_HEIGHT=10
-# then:
-sel=$(whiptail --title "Packages" --checklist "..." "$NCURSES_HEIGHT" "$NCURSES_WIDTH" "$NCURSES_MENU_HEIGHT" "${args[@]}" ...)
-```
-
----
-
-## Verification
-
-Commands executed:
-
-```bash
-bash -n setup.sh && echo "syntax PASS"
-bash setup.sh --help | grep -q "Usage:" && echo "help wins"
-bash setup.sh --bogus-flag 2>&1; test $? -eq 1 && echo "unknown abort PASS"
-bash setup.sh --mode 2>&1; test $? -ne 0 && echo "value-less abort PASS"
-OS_RELEASE_FILE=/tmp/malicious_os bash -c 'source ./setup.sh; detect_family' | grep -q "pwned" && echo "source injection CONFIRMED"
-grep -n 'eval "SELECTED_PACKAGES' setup.sh && echo "eval FOUND"
-! grep -Eq -- '--adopt' setup.sh && echo "no --adopt PASS"
-! grep -Eq 'rm -rf' setup.sh && echo "no rm -rf PASS"
-grep -q 'inherit_errexit' setup.sh && echo "strict header PASS"
-grep -q 'BASH_SOURCE\[0\] ==.*\$0' setup.sh && echo "source-guard PASS"
-grep -q 'sort -V' setup.sh && echo "sort -V PASS"
-grep -q 'stow --dir="\$SCRIPT_DIR" --target="\$HOME" --restow' setup.sh && echo "explicit stow PASS"
-grep -q 'readlink -f' setup.sh && echo "folding-aware verify PASS"
-grep -q '.stow-conflicts/' .gitignore && echo "gitignore PASS"
-grep -q 'bash setup.sh' README.md && ! grep -Eq 'setup\.(nu|zsh)' README.md && echo "docs atomic PASS"
-```
-
-All passing controls verified; Critical findings proven by exploit fixture.
-
----
-
-_Reviewed: 2026-09-11T00:45:00Z_
-_Reviewer: gsd-code-reviewer (standard depth)_
+_Reviewed: 2026-09-11T00:55:00Z_
+_Reviewer: the agent (gsd-code-reviewer)_
 _Depth: standard_
+_Files reviewed: setup.sh (750 lines), README.md (156 lines), .gitignore (14 lines) — commit 867e602 verified_
