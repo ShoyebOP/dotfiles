@@ -218,13 +218,16 @@ get_deps() {
         termux)
             # Termux distinct table using pkg names (best-effort per A2/A3)
             # stow: best-effort — name 'stow' assumed in Termux repos (A2)
-            # neovim: Termux package 'neovim' provides 'nvim' (best-effort)
-            # ripgrep: 'ripgrep' provides 'rg'
-            # nodejs: 'nodejs' provides 'node'
-            # starship, zoxide, fzf, git, zsh, make, gcc assumed available as named (best-effort per A3)
-            # uv: best-effort — if missing, per-package graceful message will guide manual retry
-            common=(stow neovim starship git zoxide ripgrep nodejs npm make gcc fzf zsh)
+            # neovim: Termux package 'neovim' provides 'nvim' (best-effort per A3)
+            # ripgrep: 'ripgrep' provides 'rg' (best-effort per A3)
+            # nodejs: 'nodejs' provides 'node' (best-effort per A3)
+            # starship: 'starship' best-effort per A3
+            # zoxide: 'zoxide' best-effort per A3
+            # uv: 'uv' best-effort per A3 — if missing, per-package graceful message will guide manual retry
+            # fzf, git, zsh, make, gcc assumed available as named (best-effort per A3, toolchain for telescope-fzf-native)
+            common=(stow neovim starship git zoxide uv ripgrep nodejs npm make gcc fzf zsh)
             # No GUI packages selectable on Termux (keyd/hyprland/wofi disabled per D-12)
+            # Termux branch stays sudo-free with no privileged packages (T-01-04)
             gui=()
             ;;
         *)
