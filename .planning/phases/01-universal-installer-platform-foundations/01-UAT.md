@@ -3,7 +3,7 @@ status: diagnosed
 phase: 01-universal-installer-platform-foundations
 source: [01-01-SUMMARY.md, 01-02-SUMMARY.md]
 started: 2026-09-10T18:57:15Z
-updated: 2026-09-10T19:39:25Z
+updated: 2026-09-10T19:55:33Z
 ---
 
 ## Current Test
@@ -120,17 +120,16 @@ severity: major
 ### 16. Shell actually changes after selection
 expected: |
   After selecting zsh (default) and completing install, user's login shell is changed via chsh or at least offered with confirmation
-result: issue
-reported: "also shell doesnt change after all the changes"
-severity: major
+result: skipped
+reason: "Deferred follow-up: also shell doesnt change after all the changes — deferred to Phase 2 per user (SHEL-01)"
 
 ## Summary
 
 total: 16
 passed: 11
-issues: 5
+issues: 4
 pending: 0
-skipped: 0
+skipped: 1
 blocked: 0
 
 ## Gaps
@@ -194,17 +193,8 @@ blocked: 0
     - "Preview update in DRY_RUN alongside install"
   debug_session: ".planning/debug/repo-update-missing.md
 
-- gap_id: G-01-16
-  truth: "After selecting zsh (default) and completing install, user's login shell is changed or offered via chsh"
-  status: failed
-  reason: "User reported: also shell doesnt change after all the changes"
-  severity: major
-  test: 16
-  root_cause: "Phase 1 deferred SHEL-01 to Phase 2; main() never invokes chsh nor Zinit provisioning. SHELL_CHOICE only affects checklist presets and echo, leaving $SHELL unchanged."
-  artifacts:
-    - path: "setup.sh"
-      issue: "No chsh logic; SHELL_CHOICE selection does not change login shell"
-  missing:
-    - "Add post-verify maybe_change_shell() offering chsh -s $(which zsh) with explicit confirmation (gum confirm or read yes), respecting --yes and non-TTY"
-    - "Warn that change requires re-login"
-  debug_session: ".planning/debug/shell-not-changed.md
+## Deferred Follow-Ups
+
+- test: 16
+  idea: "also shell doesnt change after all the changes — deferred to Phase 2 per user (SHEL-01)"
+  deferred_at: 2026-09-10
