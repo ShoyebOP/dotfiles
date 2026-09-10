@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 01-universal-installer-platform-foundations
 source: [01-01-SUMMARY.md, 01-02-SUMMARY.md]
 started: 2026-09-10T18:57:15Z
-updated: 2026-09-10T18:58:17Z
+updated: 2026-09-10T18:58:44Z
 ---
 
 ## Current Test
@@ -113,5 +113,11 @@ blocked: 0
   reason: "User reported: script does not work - ~/dotfiles $ sh setup.sh => setup.sh: 2: set: Illegal option -o pipefail"
   severity: major
   test: 12
-  artifacts: []
-  missing: []
+  root_cause: "setup.sh lines 2-3 execute Bash-only strict mode (set -Eeuo pipefail; shopt -s inherit_errexit) without first verifying the running shell is Bash. When invoked as sh setup.sh, dash fails at 'set: Illegal option -o pipefail' before any error handling can run."
+  artifacts:
+    - path: "setup.sh"
+      issue: "Lines 2-3 use Bash-only pipefail/shopt with no prior BASH_VERSION guard; sh invocation aborts with Illegal option before usage"
+  missing:
+    - "Add POSIX-safe Bash detection guard before strict mode: if [ -z "${BASH_VERSION-}" ]; then echo "Error: This installer must be run with Bash. Use: bash setup.sh [OPTIONS]" >&2; exit 1; fi"
+    - "Guard must be POSIX-safe (no [[, arrays, BASH_SOURCE) and precede set -Eeuo pipefail"
+  debug_session: ".planning/debug/sh-pipefail-guard.md
