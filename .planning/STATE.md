@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 2
-current_phase_name: Safe, Reversible & Server-Safe Deployment
-status: planning
-stopped_at: Completed 01-02-PLAN.md
-last_updated: "2026-09-10T18:45:22.761Z"
+current_phase: 01
+current_phase_name: universal-installer-platform-foundations
+status: executing
+stopped_at: Completed 01-03-PLAN.md
+last_updated: "2026-09-10T20:02:28.936Z"
 last_activity: 2026-09-11
 last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 1
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  completed_phases: 0
+  total_plans: 4
+  completed_plans: 3
 ---
 
 # Project State
@@ -27,12 +27,12 @@ See: .planning/PROJECT.md (updated 2026-09-10)
 
 ## Current Position
 
-Phase: 2 — Safe, Reversible & Server-Safe Deployment
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-11 — Phase 01 complete, transitioned to Phase 2
+Phase: 01 (universal-installer-platform-foundations) — EXECUTING
+Plan: 3 of 4
+Status: Ready to execute
+Last activity: 2026-09-11 — Phase 01 execution started
 
-Progress: [██████████] 100%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
@@ -64,6 +64,7 @@ Progress: [██████████] 100%
 |------|----------|-------|-------|
 | Phase 01 P01 | 3 min | 3 tasks | 1 files |
 | Phase 01 P02 | 5 min | 3 tasks | 5 files |
+| Phase 01 P03 | 1 min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -85,6 +86,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Folding-aware post-verify via readlink -f prefix under SCRIPT_DIR/<pkg>/ — Covers both folded directory-links and unfolded file-links; aborts with link→expected-target report on mismatch
 - [Phase ?]: Outside-repo-root guard requires ./setup.sh in CWD alongside SCRIPT_DIR/setup.sh — Fixes donor CWD-relative stow defect and prevents privileged writes from wrong directory
 - [Phase ?]: Staged delete of setup.nu/setup.zsh with atomic README/.gitignore repair; keyd Phase-2 skip — No shims, git history is recovery; docs now canonical Bash entry with Zsh default, Nushell backup, no --adopt in Phase 1
+- [Phase 01]: POSIX guard via [ -z "${BASH_VERSION-}" ] before strict mode ensures sh fails fast with guidance — Preserves bash/shebang paths; uses POSIX [ and ${BASH_VERSION-} so dash executes guidance before pipefail crash
 
 ### Pending Todos
 
@@ -104,6 +106,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-10T18:32:05.821Z
-Stopped at: Completed 01-02-PLAN.md
+Last session: 2026-09-10T20:02:28.927Z
+Stopped at: Completed 01-03-PLAN.md
 Resume file: None
