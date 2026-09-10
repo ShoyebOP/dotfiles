@@ -9,17 +9,17 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Installer — Unified Bash
 
-- [ ] **INST-01**: User can run `bash setup.sh` (canonical entry) to install entire environment via interactive prompts (mode `local|server` → shell `zsh` default/`nushell` backup) without needing Nushell or Zsh preinstalled
-- [ ] **INST-02**: User can preview every write with `--dry-run` (stow `--no --verbose`, package installs, `chsh`, `keyd` privileged) without modifying filesystem
+- [x] **INST-01**: User can run `bash setup.sh` (canonical entry) to install entire environment via interactive prompts (mode `local|server` → shell `zsh` default/`nushell` backup) without needing Nushell or Zsh preinstalled
+- [x] **INST-02**: User can preview every write with `--dry-run` (stow `--no --verbose`, package installs, `chsh`, `keyd` privileged) without modifying filesystem
 - [ ] **INST-03**: User can cleanly uninstall/reverse with `bash setup.sh --uninstall` (or `--remove`) that runs `stow -D`, removes privileged keyd link via `stow -D -t /`, and cleans Mason packages when Neovim is deselected — with typed `yes` guard (bypassable via `--yes` for CI)
 - [ ] **INST-04**: User can override the computed package list via interactive checklist after mode+shell, deselecting `keyd`/`hyprland`/`wofi` etc. before any write (gum primary → whiptail fallback → dialog → fzf → read)
-- [ ] **INST-05**: User can invoke `--help`, `--mode`, `--shell`, `--dry-run`, `--yes`, `--uninstall` flags with robust Bash parsing (`set -Eeuo pipefail`, `${1-}` guards) without crashes on `--help` or non-interactive TTY
+- [x] **INST-05**: User can invoke `--help`, `--mode`, `--shell`, `--dry-run`, `--yes`, `--uninstall` flags with robust Bash parsing (`set -Eeuo pipefail`, `${1-}` guards) without crashes on `--help` or non-interactive TTY
 
 ### Distro & Dependencies
 
-- [ ] **DEPS-01**: User on derivative distro (Manjaro, EndeavourOS, Garuda, Mint, Pop!_OS) **and Termux** can install without hard error — installer probes `command -v pacman/apt/pkg` then `ID_LIKE` then `ID` per `os-release(5)` and maps to families `arch` vs `debian` vs `termux` (including `ID=termux` detection)
-- [ ] **DEPS-02**: User gets missing dependencies auto-installed and re-verified — `verify → install → re-verify` lock, `make`+`gcc`+`fzf`+`zsh` included in `common` so `telescope-fzf-native` and fzf history never silently fall back, partition `core` vs `gui` missing; **Termux uses separate package name list** (`pkg install` names vs `pacman`/`apt` names, no `sudo`, no `keyd` privileged) maintained as distinct `termux` family list
-- [ ] **DEPS-03**: User can re-run installer idempotently; second run with `stow --restow` and `pacman -S --needed`/`apt install -y`/`pkg install` is a safe no-op and handles missing `stow ≥2.4.1` upgrade
+- [x] **DEPS-01**: User on derivative distro (Manjaro, EndeavourOS, Garuda, Mint, Pop!_OS) **and Termux** can install without hard error — installer probes `command -v pacman/apt/pkg` then `ID_LIKE` then `ID` per `os-release(5)` and maps to families `arch` vs `debian` vs `termux` (including `ID=termux` detection)
+- [x] **DEPS-02**: User gets missing dependencies auto-installed and re-verified — `verify → install → re-verify` lock, `make`+`gcc`+`fzf`+`zsh` included in `common` so `telescope-fzf-native` and fzf history never silently fall back, partition `core` vs `gui` missing; **Termux uses separate package name list** (`pkg install` names vs `pacman`/`apt` names, no `sudo`, no `keyd` privileged) maintained as distinct `termux` family list
+- [x] **DEPS-03**: User can re-run installer idempotently; second run with `stow --restow` and `pacman -S --needed`/`apt install -y`/`pkg install` is a safe no-op and handles missing `stow ≥2.4.1` upgrade
 
 ### Stow & Privileged Deployment
 
@@ -87,14 +87,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INST-01 | Phase 1 | Pending |
-| INST-02 | Phase 1 | Pending |
+| INST-01 | Phase 1 | Complete |
+| INST-02 | Phase 1 | Complete |
 | INST-03 | Phase 2 | Pending |
 | INST-04 | Phase 1 | Pending |
-| INST-05 | Phase 1 | Pending |
-| DEPS-01 | Phase 1 | Pending |
-| DEPS-02 | Phase 1 | Pending |
-| DEPS-03 | Phase 1 | Pending |
+| INST-05 | Phase 1 | Complete |
+| DEPS-01 | Phase 1 | Complete |
+| DEPS-02 | Phase 1 | Complete |
+| DEPS-03 | Phase 1 | Complete |
 | STOW-01 | Phase 1 | Pending |
 | STOW-02 | Phase 2 | Pending |
 | STOW-03 | Phase 2 | Pending |
@@ -111,6 +111,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | HLTH-01 | Phase 4 | Pending |
 
 **Coverage:**
+
 - v1 requirements: 22 total
 - Mapped to phases: 22
 - Unmapped: 0 ✓

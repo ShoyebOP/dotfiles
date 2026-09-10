@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 1
-current_phase_name: Universal Installer + Platform Foundations
+current_phase: 01
+current_phase_name: universal-installer-platform-foundations
 status: executing
-stopped_at: Phase 1 context gathered
-last_updated: "2026-09-10T17:28:29.690Z"
-last_activity: 2026-09-10
-last_activity_desc: ROADMAP.md created (4 phases, 22 requirements, Termux families mapped)
+stopped_at: Completed 01-01-PLAN.md
+last_updated: "2026-09-10T18:22:22.913Z"
+last_activity: 2026-09-11
+last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 1
   completed_phases: 0
   total_plans: 2
-  completed_plans: 0
+  completed_plans: 1
 ---
 
 # Project State
@@ -23,16 +23,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-10)
 
 **Core value:** A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop environment on any supported distro/derivative with one interactive run, and cleanly reverse itself — no manual `stow` or `MasonInstallAll` required.
-**Current focus:** Phase 1 — Universal Installer + Platform Foundations
+**Current focus:** Phase 01 — universal-installer-platform-foundations
 
 ## Current Position
 
-Phase: 1 of 4 (Universal Installer + Platform Foundations)
-Plan: - of 2 in current phase
+Phase: 01 (universal-installer-platform-foundations) — EXECUTING
+Plan: 2 of 2
 Status: Ready to execute
-Last activity: 2026-09-10 — ROADMAP.md created (4 phases, 22 requirements, Termux families mapped)
+Last activity: 2026-09-11 — Phase 01 execution resumed (wave continue)
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [█████░░░░░] 50%
 
 ## Performance Metrics
 
@@ -57,6 +57,11 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+**Per-Plan Metrics:**
+
+| Plan | Duration | Tasks | Files |
+|------|----------|-------|-------|
+| Phase 01 P01 | 3 min | 3 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -69,6 +74,10 @@ Recent decisions affecting current work:
 - Distro detection via `ID_LIKE` + `pacman`/`apt`/`pkg` probe → families `arch`/`debian`/`termux` (Termux separate pkg list, no sudo/keyd)
 - Flow: mode → shell (zsh default) → package checklist before any write, with gum→whiptail→dialog→fzf→read ladder
 - Coarse granularity: 4 vertical MVP slices (Phase 1 spine installable, later phases polish fzf/Mason/health)
+- [Phase ?]: Help-wins-anywhere via pre-scan — any --help/-h exits 0 before validation (D-08) — Ensures invocation contract holds under strict mode without crashes
+- [Phase ?]: Termux-first 4-tier family detection with OS_RELEASE_FILE seam — Covers Manjaro/EndeavourOS/Garuda/Mint/Pop and Termux env fixtures via manager fallback
+- [Phase ?]: Per-family install names mapped to binary probes (neovim->nvim etc) and Termux best-effort pkg table — Fixes donor defect where package names mismatched manager repos, keeps Termux sudo-free
+- [Phase ?]: Stow version check via sort -V routed through same manager lock (D-15) — Version-sort semantics handle 2.10 > 2.4.1 correctly, never lexicographic
 
 ### Pending Todos
 
@@ -88,6 +97,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-10T16:52:16.479Z
-Stopped at: Phase 1 context gathered
-Resume file: /home/shoyeb/dotfiles/.planning/phases/01-universal-installer-platform-foundations/01-CONTEXT.md
+Last session: 2026-09-10T18:22:22.905Z
+Stopped at: Completed 01-01-PLAN.md
+Resume file: None
