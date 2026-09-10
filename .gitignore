@@ -9,3 +9,6 @@ nvim/.config/nvim/shada/
 nvim/.config/nvim/state/
 nvim/.config/nvim/cache/
 *.swp
+
+# Installer quarantine (D-13/D-14) — timestamped collision backup, gitignored
+.stow-conflicts/

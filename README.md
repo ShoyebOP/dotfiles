@@ -4,174 +4,142 @@ Highly optimized, minimalist dotfiles for a consistent and high-performance deve
 
 ## Overview
 
-Choose your shell path:
+Choose your shell path (unified Bash installer handles both):
 
-| Feature | Nushell Path | Zsh Path |
+| Feature | Zsh (Default) | Nushell (Backup) |
 |---------|-------------|----------|
-| Shell | Nushell | Zsh + Zinit |
-| Prompt | Starship | Powerlevel10k |
-| Setup | Auto (`nu setup.nu`) | Auto (`zsh setup.zsh`) |
-| Completion | External stub | Generated via `uv generate-shell-completion zsh` |
-| keyd | Yes | Yes |
+| Shell | Zsh + Zinit | Nushell |
+| Prompt | Powerlevel10k | Starship |
+| Setup | `bash setup.sh --shell zsh` | `bash setup.sh --shell nushell` |
+| Completion | Generated via `uv generate-shell-completion zsh` | External stub |
+| keyd | Yes (Phase 2 privileged) | Yes (Phase 2 privileged) |
+
+**Default: Zsh** | **Backup: Nushell** — the unified Bash installer provisions the chosen shell before stowing configs.
 
 ---
 
-## Nushell Setup
+## Unified Bash Installer
 
-### 1. Prerequisite: Nushell
-If you don't have Nushell installed, please install it first:
-- **Arch/CachyOS:** `sudo pacman -S nushell`
-- **Ubuntu:** `sudo apt install nushell`
+Canonical entry: `bash setup.sh` — replaces the legacy bootstrappers. Works on Arch, Debian-family, and Termux via `ID_LIKE` + `pacman`/`apt`/`pkg` probing. No preinstalled Zsh or Nushell required.
 
-### 2. Set as Default Shell (Optional)
-To make Nushell your default shell:
+### Quick Start
+
+Clone and run from the clone root:
+
 ```bash
-# Add nu to valid shells
-which nu | sudo tee -a /etc/shells
-# Change shell for current user
-chsh -s $(which nu)
+git clone <repo> dotfiles && cd dotfiles
+bash setup.sh
 ```
 
-### 3. Run the Bootstrapper
-Clone this repository and run:
-```bash
-nu setup.nu
-```
+Interactive flow (before any write): **mode** (`local` full GUI vs `server` headless) → **shell** (`zsh` default / `nushell` backup) → **package checklist** (7 toggleable: `nvim`, `zsh`, `nushell`, `alacritty`, `starship`, `wofi`, `keyd`). Server mode pre-unchecks GUI (`alacritty`, `wofi`, `keyd`); shell choice pre-checks only the chosen shell — you can toggle any before any write.
 
 **Options:**
-- `--mode`: Select `local` (Full GUI) or `server` (Headless CLI).
-- `--dry-run`: Preview changes without applying them.
-- `--stow-keyd`: Pass `y` or `n` to automate the privileged `keyd` setup.
 
-Example (Non-interactive Server Setup):
+- `--mode local|server` — deployment mode
+- `--shell zsh|nushell` — Zsh default, Nushell backup
+- `--dry-run` — preview every write (`[DRY RUN] Would run:` + `stow --no --verbose` for the exact post-checklist selection) with zero writes
+- `--help, -h` — show usage (wins anywhere, exits 0 before any write)
+- `--yes` — reserved for Phase 2 `--uninstall` CI bypass
+- `--uninstall, --remove` — deferred to Phase 2; use teardown scripts for now
+
+Examples:
+
 ```bash
-nu setup.nu --mode server
+# Interactive (TTY prompts for missing mode/shell, then checklist)
+bash setup.sh
+
+# Non-interactive server with Zsh, preview first
+bash setup.sh --mode server --shell zsh --dry-run
+bash setup.sh --mode server --shell zsh
+
+# Local full GUI with Zsh
+bash setup.sh --mode local --shell zsh --dry-run
+bash setup.sh --mode local
 ```
+
+Safety:
+
+- Must be run from the clone root (`./setup.sh` must exist in CWD alongside `SCRIPT_DIR` resolution for `stow --dir`); outside-root aborts with a `run-from-clone` message before any prompt or write.
+- Checklist uses a five-backend ladder `gum → whiptail → dialog → fzf → read` (probed, skipped silently) with Termux `keyd`/`wofi`/`alacritty` rendered as visible-but-disabled and never selectable.
+- Existing non-symlink targets are quarantined (never deleted, never force-adopted) to `.stow-conflicts/<timestamp>/` preserving relative paths with a `MANIFEST` and restore hint.
+- Strict post-verify (`test -e` + `readlink -f` prefix check, folding-aware) aborts with a link→expected-target report if any link is wrong. Selecting `keyd` in Phase 1 prints a privileged-install-lands-in-Phase-2 notice and is skipped — no `/etc` writes in Phase 1.
 
 ---
 
-### Nushell: Manual Installation (Alternative)
+## Manual Installation (Alternative)
 
-If you prefer to set things up manually without the bootstrapper:
+If you prefer to set things up manually without the unified installer:
 
 #### Install Dependencies
-- **Core:** `stow`, `neovim`, `nushell`, `starship`, `git`, `zoxide`, `uv`, `ripgrep`, `nodejs`, `npm`.
-- **GUI (Arch/CachyOS):** `hyprland`, `alacritty`, `wofi`, `keyd`, `waybar`, `grim`, `slurp`, `wl-clipboard`.
+
+- **Core:** `stow`, `neovim`, `starship`, `git`, `zoxide`, `uv`, `ripgrep`, `nodejs`, `npm`, `make`, `gcc`, `fzf`, `zsh`
+- **GUI (Arch):** `hyprland`, `alacritty`, `wofi`, `keyd`, `waybar`, `grim`, `slurp`, `wl-copy`
+- **GUI (Debian):** `alacritty`, `wofi`, `waybar`, `grim`, `slurp`, `wl-copy`
+- **Termux:** `stow`, `neovim`, `starship`, `git`, `zoxide`, `uv`, `ripgrep`, `nodejs`, `npm`, `make`, `gcc`, `fzf`, `zsh` via `pkg install` (no `sudo`, no GUI packages)
 
 #### Deploy Configurations
-Use `GNU Stow` to symlink the configurations:
+
+Use `GNU Stow` to symlink the configurations (explicit `--dir`/`--target` is what `bash setup.sh` does internally):
 
 ```bash
-stow --restow nvim nushell starship
+# Core (Zsh default)
+stow --dir=. --target="$HOME" --restow nvim zsh starship
+
+# Nushell backup instead of Zsh
+stow --dir=. --target="$HOME" --restow nvim nushell starship
+
+# GUI extras (local mode)
+stow --dir=. --target="$HOME" --restow alacritty wofi
 ```
+
+For a full local deploy with Zsh:
 
 ```bash
-stow --restow hyprland alacritty wofi
+stow --dir=. --target="$HOME" --restow nvim zsh starship alacritty wofi
 ```
 
-#### Nushell: keyd Setup
+#### keyd Setup (Phase 2)
+
+Privileged `keyd` install (`/etc/keyd`) is gated to Phase 2. In Phase 1, `bash setup.sh` will skip `keyd` with a notice and perform no `/etc` writes. When Phase 2 lands, the installer will preview with `stow --no --verbose -t / keyd` and require explicit confirmation before any privileged write. For now, manual keyd setup remains:
+
 ```bash
-sudo stow --adopt -t / keyd
-sudo keyd reload
+# Phase 2 will handle this with confirmation; manual preview:
+stow --dir=. --target=/ --no --verbose keyd
+# After confirmation, Phase 2 will run: sudo stow --target=/ keyd && sudo keyd reload
 ```
 
-To allow starting/stopping `keyd` without a password, run `sudo EDITOR=nvim visudo` and add:
+To allow starting/stopping `keyd` without a password (Phase 2 will document least-privilege handling), run `sudo EDITOR=nvim visudo` and add:
+
 ```
 shoyeb ALL=(ALL) NOPASSWD: /usr/bin/systemctl start keyd, /usr/bin/systemctl stop keyd
 ```
 
----
+#### Zsh Plugin Manager
 
-## Zsh Setup
-
-### 1. Prerequisite: Zsh
-If you don't have Zsh installed, please install it first:
-- **Arch/CachyOS:** `sudo pacman -S zsh`
-- **Ubuntu:** `sudo apt install zsh`
-
-### 2. Set as Default Shell (Optional)
-To make Zsh your default shell:
 ```bash
-# Add zsh to valid shells
-which zsh | sudo tee -a /etc/shells
-# Change shell for current user
-chsh -s $(which zsh)
-```
-
-### 3. Run the Bootstrapper
-Clone this repository and run:
-```bash
-zsh setup.zsh
-```
-
-**Options:**
-- `--mode`: Select `local` (Full GUI) or `server` (Headless CLI).
-- `--dry-run`: Preview changes without applying them.
-- `--stow-keyd`: Pass `y` or `n` to automate the privileged `keyd` setup.
-
-Example (Non-interactive Server Setup):
-```bash
-zsh setup.zsh --mode server
-```
-
----
-
-### Zsh: Manual Installation (Alternative)
-
-If you prefer to set things up manually without the bootstrapper:
-
-#### Install Tools Manually
-
-**Core Tools:**
-```bash
-# Using pacman (Arch/CachyOS)
-sudo pacman -S stow neovim git zoxide uv nodejs npm
-```
-
-**Plugin Manager:**
-```bash
-# Install Zinit (will be cloned automatically on first shell start)
+# Install Zinit (will be cloned automatically on first shell start via bash setup.sh in Phase 2)
 git clone https://github.com/zdharma-continuum/zinit ~/.local/share/zinit/zinit.git
 ```
 
-**Tool Completions:**
+#### Tool Completions
+
 ```bash
 # Generate uv zsh completions
 mkdir -p ~/.config/zsh/completions
 uv generate-shell-completion zsh > ~/.config/zsh/completions/_uv
 ```
 
-#### Deploy Configurations
-Use `GNU Stow` to symlink the configurations:
-
-```bash
-stow --restow nvim zsh
-```
-
-```bash
-stow --restow hyprland alacritty wofi
-```
-
-#### Zsh: keyd Setup
-```bash
-sudo stow --adopt -t / keyd
-sudo keyd reload
-```
-
-To allow starting/stopping `keyd` without a password, run `sudo EDITOR=nvim visudo` and add:
-```
-shoyeb ALL=(ALL) NOPASSWD: /usr/bin/systemctl start keyd, /usr/bin/systemctl stop keyd
-```
-
 ---
 
 ## Tech Stack
 
-| Shell | Nushell | Zsh |
+| Shell | Zsh (Default) | Nushell (Backup) |
 |-------|--------|-----|
-| Prompt | Starship | Powerlevel10k |
-| Manager | Built-in | Zinit |
+| Prompt | Powerlevel10k | Starship |
+| Manager | Zinit | Built-in |
 | Utilities | keyd, wofi, zoxide, rg, uv | keyd, wofi, zoxide, rg, uv |
+
+Installer: `bash setup.sh` (Bash 5.2+, GNU Stow ≥2.4.1 auto-upgraded, `gum`/`whiptail`/`dialog`/`fzf`/`read` ladder, `mv`-only quarantine, `readlink -f` post-verify)
 
 ---
 
@@ -185,3 +153,4 @@ shoyeb ALL=(ALL) NOPASSWD: /usr/bin/systemctl start keyd, /usr/bin/systemctl sto
 ---
 
 *Managed with Conductor*
+*Installer: `bash setup.sh --mode <local|server> --shell <zsh|nushell> [--dry-run]` — Zsh default, Nushell backup*
