@@ -39,6 +39,16 @@ EOF
 }
 
 parse_args() {
+    # Help-wins-anywhere (D-08): scan all args first; if --help/-h present, print usage and exit 0 before any other validation or write
+    local arg
+    for arg in "$@"; do
+        case "$arg" in
+            --help|-h)
+                usage
+                exit 0
+                ;;
+        esac
+    done
     while [[ $# -gt 0 ]]; do
         case "${1-}" in
             --mode)
