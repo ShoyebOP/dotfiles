@@ -12,7 +12,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **INST-01**: User can run `bash setup.sh` (canonical entry) to install entire environment via interactive prompts (mode `local|server` → shell `zsh` default/`nushell` backup) without needing Nushell or Zsh preinstalled
 - [x] **INST-02**: User can preview every write with `--dry-run` (stow `--no --verbose`, package installs, `chsh`, `keyd` privileged) without modifying filesystem
 - [ ] **INST-03**: User can cleanly uninstall/reverse with `bash setup.sh --uninstall` (or `--remove`) that runs `stow -D`, removes privileged keyd link via `stow -D -t /`, and cleans Mason packages when Neovim is deselected — with typed `yes` guard (bypassable via `--yes` for CI)
-- [ ] **INST-04**: User can override the computed package list via interactive checklist after mode+shell, deselecting `keyd`/`hyprland`/`wofi` etc. before any write (gum primary → whiptail fallback → dialog → fzf → read)
+- [x] **INST-04**: User can override the computed package list via interactive checklist after mode+shell, deselecting `keyd`/`hyprland`/`wofi` etc. before any write (gum primary → whiptail fallback → dialog → fzf → read)
 - [x] **INST-05**: User can invoke `--help`, `--mode`, `--shell`, `--dry-run`, `--yes`, `--uninstall` flags with robust Bash parsing (`set -Eeuo pipefail`, `${1-}` guards) without crashes on `--help` or non-interactive TTY
 
 ### Distro & Dependencies
@@ -23,7 +23,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Stow & Privileged Deployment
 
-- [ ] **STOW-01**: User's Stow packages (nvim, zsh, starship→`~/.config/starship.toml` folding, alacritty, wofi, keyd) are correctly symlinked only from repo root (`stow --dir="$SCRIPT_DIR"`), with `stow --no --verbose` preview and `test -L` + `readlink -f` post-verify; invocation outside repo root aborts with clear message
+- [x] **STOW-01**: User's Stow packages (nvim, zsh, starship→`~/.config/starship.toml` folding, alacritty, wofi, keyd) are correctly symlinked only from repo root (`stow --dir="$SCRIPT_DIR"`), with `stow --no --verbose` preview and `test -L` + `readlink -f` post-verify; invocation outside repo root aborts with clear message
 - [ ] **STOW-02**: User's privileged `keyd` install is safe — installer previews `stow --no -t / keyd`, shows `diff` if `/etc/keyd/default.conf` exists and is not a symlink, requires explicit `gum confirm`/`Type 'yes'` before `sudo stow --adopt -t / keyd`, otherwise uses plain `sudo stow -t / keyd`; least-privilege sudoers documented
 - [ ] **STOW-03**: User on `server` mode does not have login killed by Hyprland — `zsh/.zprofile` guarded by persisted `~/.config/dotfiles/mode` + `command -v Hyprland` + `|| true` before `exec`
 
@@ -90,12 +90,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INST-01 | Phase 1 | Complete |
 | INST-02 | Phase 1 | Complete |
 | INST-03 | Phase 2 | Pending |
-| INST-04 | Phase 1 | Pending |
+| INST-04 | Phase 1 | Complete |
 | INST-05 | Phase 1 | Complete |
 | DEPS-01 | Phase 1 | Complete |
 | DEPS-02 | Phase 1 | Complete |
 | DEPS-03 | Phase 1 | Complete |
-| STOW-01 | Phase 1 | Pending |
+| STOW-01 | Phase 1 | Complete |
 | STOW-02 | Phase 2 | Pending |
 | STOW-03 | Phase 2 | Pending |
 | SHEL-01 | Phase 2 | Pending |

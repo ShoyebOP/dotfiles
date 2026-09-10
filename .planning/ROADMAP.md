@@ -27,7 +27,7 @@ From a broken set of mirrored Nushell/Zsh bootstrappers that crash on derivative
   4. User gets `verify → install → re-verify` lock — `verify_deps` lists partitioned `core_missing` vs `gui_missing`, installer runs `pacman -S --needed` / `apt install -y` / `pkg install`, includes `make`+`gcc`+`fzf`+`zsh` in `common` so `telescope-fzf-native` and fzf history never silently fall back, then re-verifies and aborts with `Still missing` if incomplete; idempotent second run is a safe no-op
   5. User sees interactive flow `mode (local/server) → shell (zsh default / nushell backup) → package checklist` **before any write** and can preview every write with `--dry-run` (`[DRY RUN] Would run:` + `stow --no --verbose`); invocation outside repo root (`[[ -f ./setup.sh ]]` missing) aborts with clear message; `stow --dir="$SCRIPT_DIR"` + `test -L` + `readlink -f` post-verify confirms `nvim`/`starship.toml` folding
 
-**Plans**: 1/2 plans executed
+**Plans**: 2/2 plans executed
 
 Plans:
 **Wave 1**
@@ -36,7 +36,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Stow orchestration core + dry-run + checklist ladder (gum → whiptail → dialog → fzf → read) before any write
+- [x] 01-02-PLAN.md — Stow orchestration core + dry-run + checklist ladder (gum → whiptail → dialog → fzf → read) before any write
 
 ### Phase 2: Safe, Reversible & Server-Safe Deployment
 
@@ -107,7 +107,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Universal Installer + Platform Foundations | 1/2 | In Progress|  |
+| 1. Universal Installer + Platform Foundations | 2/2 | In Progress|  |
 | 2. Safe, Reversible & Server-Safe Deployment | 0/2 | Not started | - |
 | 3. Polished Shell, Theme & Local Overrides | 0/1 | Not started | - |
 | 4. Editor Autonomy & Verified Health | 0/2 | Not started | - |
