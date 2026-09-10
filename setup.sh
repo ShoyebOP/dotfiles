@@ -226,6 +226,32 @@ install_deps() {
         termux) install_cmd=(pkg install -y) ;;
         *) echo "Unsupported family for auto-install: $family" >&2; return 1 ;;
     esac
+    case "$family" in
+        arch)
+            echo "Refreshing pacman DB..."
+            if [[ "$DRY_RUN" == true ]]; then
+                echo "[DRY RUN] Would run: sudo pacman -Sy"
+            else
+                if ! sudo pacman -Sy; then echo "Warning: pacman -Sy failed, continuing" >&2; fi
+            fi
+            ;;
+        debian)
+            echo "Refreshing apt lists..."
+            if [[ "$DRY_RUN" == true ]]; then
+                echo "[DRY RUN] Would run: sudo apt update"
+            else
+                if ! sudo apt update; then echo "Warning: apt update failed, continuing" >&2; fi
+            fi
+            ;;
+        termux)
+            echo "Refreshing pkg lists..."
+            if [[ "$DRY_RUN" == true ]]; then
+                echo "[DRY RUN] Would run: pkg update -y"
+            else
+                if ! pkg update -y; then echo "Warning: pkg update failed, continuing" >&2; fi
+            fi
+            ;;
+    esac
     echo ""
     echo "Ready to install: ${missing[*]}"
     if [[ "$DRY_RUN" == true ]]; then echo "[DRY RUN] Would run: ${install_cmd[*]} ${missing[*]}"; return 0; fi
