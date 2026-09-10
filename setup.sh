@@ -146,7 +146,9 @@ detect_family() {
     local id_like=""
     local os_file="${OS_RELEASE_FILE:-/etc/os-release}"
     if [[ -f "$os_file" ]]; then
-        if ! . "$os_file" 2>/dev/null; then id=""; id_like=""; else id="${ID:-}"; id_like="${ID_LIKE:-}"; fi
+        # Safe parse without sourcing: extract ID/ID_LIKE without executing file content (mitigates CR-02)
+        id="$(grep -E '^ID=' "$os_file" 2>/dev/null | head -n1 | cut -d= -f2- | tr -d '"' | tr -d "'" | xargs 2>/dev/null || echo "")"
+        id_like="$(grep -E '^ID_LIKE=' "$os_file" 2>/dev/null | head -n1 | cut -d= -f2- | tr -d '"' | tr -d "'" | xargs 2>/dev/null || echo "")"
     fi
     local cand
     for cand in $id_like; do
@@ -314,7 +316,10 @@ preview_selection() {
 
 quarantine_scan() {
     local ts
-    if ! ts=$(date +%Y%m%d-%H%M%S 2>/dev/null); then ts="$(date +%s)"; fi
+    if ! ts=$(date +%Y%m%d-%H%M%S-%N 2>/dev/null | cut -c1-19 2>/dev/null); then
+        if ! ts=$(date +%Y%m%d-%H%M%S 2>/dev/null); then ts="$(date +%s)"; fi
+        ts="${ts}-$$"
+    fi
     local qdir="$SCRIPT_DIR/.stow-conflicts/$ts"
     local manifest="$qdir/MANIFEST"
     local quarantined_count=0
@@ -326,7 +331,7 @@ quarantine_scan() {
         while IFS= read -r -d '' src; do
             local rel="${src#$pkg_dir/}"
             local home_target="$HOME/$rel"
-            if [[ ! -e "$home_target" ]]; then continue; fi
+            if [[ ! -e "$home_target" && ! -L "$home_target" ]]; then continue; fi
             local canon=""
             if canon=$(readlink -f "$home_target" 2>/dev/null); then
                 if [[ "$canon" == "$pkg_dir/"* ]] || [[ "$canon" == "$pkg_dir" ]]; then continue; fi
@@ -339,7 +344,7 @@ quarantine_scan() {
                     echo "# Stow quarantine manifest"
                     echo "# Created: $(date -u +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || echo "$ts")"
                     echo "# Restore: mv <quarantined-path> <original-path>"
-                    echo "# Or: cat $manifest | while read line; do src=\$(echo \"\$line\" | cut -d'>' -f1); dst=\$(echo \"\$line\" | cut -d'>' -f2); mv \"\$dst\" \"\$src\"; done"
+                    echo "# Or: cat $manifest | while IFS= read -r line; do src=\$(echo \"\$line\" | awk -F' -> ' '{print \$1}'); dst=\$(echo \"\$line\" | awk -F' -> ' '{print \$2}'); mv \"\$dst\" \"\$src\"; done"
                     echo ""
                 } > "$manifest"
             fi
@@ -473,18 +478,20 @@ checklist_whiptail() {
     local status=0
     sel=$(whiptail --title "Packages" --checklist "Space to toggle (before any write):" 20 78 10 "${args[@]}" 3>&1 1>&2 2>&3) || status=$?
     if [[ $status -ne 0 ]]; then echo "Checklist cancelled (whiptail)." >&2; return 2; fi
-    # whiptail returns quoted strings; empty means user selected none and pressed OK
     sel="$(echo "$sel" | xargs 2>/dev/null || echo "$sel")"
     if [[ -z "$sel" ]]; then echo "Checklist cancelled (empty selection via whiptail)." >&2; return 2; fi
-    # Parse: eval handles quoted tags
-    eval "SELECTED_PACKAGES=($sel)"
-    # sel already contains package names without quotes after eval; but need to ensure they are valid
-    # Filter to allowlist
+    # Safe parse without eval: split quoted output via xargs without code execution (mitigates CR-01)
+    local -a parsed=()
+    if ! mapfile -t parsed < <(printf '%s' "$sel" | xargs -n1 2>/dev/null); then parsed=(); fi
     local -a filtered=()
-    local s
-    for s in "${SELECTED_PACKAGES[@]}"; do
-        s="${s//\"/}"
-        for pkg in "${ALL_PACKAGES[@]}"; do if [[ "$s" == "$pkg" ]]; then filtered+=("$s"); break; fi; done
+    local tok
+    local clean
+    for tok in "${parsed[@]}"; do
+        clean="${tok#\"}"; clean="${clean%\"}"
+        clean="${clean#\'}"; clean="${clean%\'}"
+        clean="$(echo "$clean" | xargs 2>/dev/null || echo "$clean")"
+        [[ -z "$clean" ]] && continue
+        for pkg in "${ALL_PACKAGES[@]}"; do if [[ "$clean" == "$pkg" ]]; then filtered+=("$clean"); break; fi; done
     done
     SELECTED_PACKAGES=("${filtered[@]}")
     strip_termux_disabled
@@ -518,12 +525,18 @@ checklist_dialog() {
     if [[ $status -ne 0 ]]; then echo "Checklist cancelled (dialog)." >&2; return 2; fi
     sel="$(echo "$sel" | xargs 2>/dev/null || echo "$sel")"
     if [[ -z "$sel" ]]; then echo "Checklist cancelled (empty selection via dialog)." >&2; return 2; fi
-    eval "SELECTED_PACKAGES=($sel)"
+    # Safe parse without eval: split quoted output via xargs without code execution (mitigates CR-01)
+    local -a parsed=()
+    if ! mapfile -t parsed < <(printf '%s' "$sel" | xargs -n1 2>/dev/null); then parsed=(); fi
     local -a filtered=()
-    local s
-    for s in "${SELECTED_PACKAGES[@]}"; do
-        s="${s//\"/}"
-        for pkg in "${ALL_PACKAGES[@]}"; do if [[ "$s" == "$pkg" ]]; then filtered+=("$s"); break; fi; done
+    local tok
+    local clean
+    for tok in "${parsed[@]}"; do
+        clean="${tok#\"}"; clean="${clean%\"}"
+        clean="${clean#\'}"; clean="${clean%\'}"
+        clean="$(echo "$clean" | xargs 2>/dev/null || echo "$clean")"
+        [[ -z "$clean" ]] && continue
+        for pkg in "${ALL_PACKAGES[@]}"; do if [[ "$clean" == "$pkg" ]]; then filtered+=("$clean"); break; fi; done
     done
     SELECTED_PACKAGES=("${filtered[@]}")
     strip_termux_disabled
