@@ -685,6 +685,12 @@ main() {
     echo "Selected mode: $MODE"
     echo "Selected shell: $SHELL_CHOICE"
     if [[ "$DRY_RUN" == true ]]; then echo "=== DRY RUN MODE: No changes will be applied ==="; fi
+    echo ""
+    echo "=== Package Selection ==="
+    if ! prompt_checklist; then echo "Installation cancelled at package checklist." >&2; exit 1; fi
+    if [[ ${#SELECTED_PACKAGES[@]} -eq 0 ]]; then echo "No packages selected — nothing to stow. Exiting." >&2; echo "No packages to deploy."; exit 0; fi
+    echo ""
+    echo "Final package selection: ${SELECTED_PACKAGES[*]}"
     local -a deps=()
     if ! mapfile -t deps < <(get_deps "$FAMILY" "$MODE"); then echo "Error: failed to get dependencies for $FAMILY/$MODE" >&2; exit 1; fi
     verify_deps "${deps[@]}"
@@ -698,11 +704,6 @@ main() {
         is_gui=false; for g in "${gui_list[@]}"; do if [[ "$m" == "$g" ]]; then is_gui=true; break; fi; done
         if [[ "$is_gui" == true ]]; then gui_missing+=("$m"); else core_missing+=("$m"); fi
     done
-    if [[ ${#core_missing[@]} -gt 0 ]] || [[ ${#gui_missing[@]} -gt 0 ]]; then
-        echo ""; echo "Dependency Status"; echo "----------------------------------------"
-        if [[ ${#core_missing[@]} -gt 0 ]]; then echo "Missing CORE deps: ${core_missing[*]}"; else echo "Core deps: OK"; fi
-        if [[ ${#gui_missing[@]} -gt 0 ]]; then echo "Missing GUI deps: ${gui_missing[*]}"; else echo "GUI deps: OK"; fi
-    fi
     if command -v stow >/dev/null 2>&1; then
         local stow_ver_str=""; local stow_ver=""; local outdated=false
         if stow_ver_str=$(stow --version 2>/dev/null); then
@@ -722,25 +723,47 @@ main() {
             if [[ "$found" == false ]]; then missing+=("stow"); core_missing+=("stow"); fi
         fi
     fi
-    local deps_need_install=false
-    if [[ ${#missing[@]} -gt 0 ]]; then deps_need_install=true; fi
-    if [[ "$deps_need_install" == true ]]; then
+    if [[ "$DRY_RUN" == true ]]; then
+        echo ""
+        echo "=== Preview ==="
+        if [[ ${#core_missing[@]} -gt 0 ]] || [[ ${#gui_missing[@]} -gt 0 ]]; then
+            echo "Dependency Status"
+            echo "----------------------------------------"
+            if [[ ${#core_missing[@]} -gt 0 ]]; then echo "Missing CORE deps: ${core_missing[*]}"; else echo "Core deps: OK"; fi
+            if [[ ${#gui_missing[@]} -gt 0 ]]; then echo "Missing GUI deps: ${gui_missing[*]}"; else echo "GUI deps: OK"; fi
+            echo ""
+        else
+            echo "All dependencies are satisfied."
+            echo ""
+        fi
+        if [[ ${#missing[@]} -gt 0 ]]; then
+            install_deps "$FAMILY" "${missing[@]}"
+            echo ""
+            echo "DRY RUN: Skipped re-verify (no changes made)."
+        else
+            echo "No install needed — second run is a safe no-op for deps."
+            echo ""
+            echo "DRY RUN: deps already satisfied."
+        fi
+        preview_selection
+        echo ""
+        echo "DRY RUN complete — no writes performed."
+        return 0
+    fi
+    if [[ ${#core_missing[@]} -gt 0 ]] || [[ ${#gui_missing[@]} -gt 0 ]]; then
+        echo ""; echo "Dependency Status"; echo "----------------------------------------"
+        if [[ ${#core_missing[@]} -gt 0 ]]; then echo "Missing CORE deps: ${core_missing[*]}"; else echo "Core deps: OK"; fi
+        if [[ ${#gui_missing[@]} -gt 0 ]]; then echo "Missing GUI deps: ${gui_missing[*]}"; else echo "GUI deps: OK"; fi
+    fi
+    if [[ ${#missing[@]} -gt 0 ]]; then
         install_deps "$FAMILY" "${missing[@]}"
-        if [[ "$DRY_RUN" == true ]]; then echo ""; echo "DRY RUN: Skipped re-verify (no changes made)."
-        else if ! reverify_deps "$FAMILY" "$MODE"; then exit 1; fi; echo ""; echo "Dependencies verified and installed successfully."; fi
+        if ! reverify_deps "$FAMILY" "$MODE"; then exit 1; fi
+        echo ""; echo "Dependencies verified and installed successfully."
     else
         echo ""; echo "All dependencies are satisfied."
-        if [[ "$DRY_RUN" == false ]]; then echo "No install needed — second run is a safe no-op for deps."; fi
+        echo "No install needed — second run is a safe no-op for deps."
         echo ""
-        if [[ "$DRY_RUN" == true ]]; then echo "DRY RUN: deps already satisfied."; fi
     fi
-    echo ""
-    echo "=== Package Selection ==="
-    if ! prompt_checklist; then echo "Installation cancelled at package checklist." >&2; exit 1; fi
-    if [[ ${#SELECTED_PACKAGES[@]} -eq 0 ]]; then echo "No packages selected — nothing to stow. Exiting." >&2; echo "No packages to deploy."; exit 0; fi
-    echo ""
-    echo "Final package selection: ${SELECTED_PACKAGES[*]}"
-    if [[ "$DRY_RUN" == true ]]; then preview_selection; echo ""; echo "DRY RUN complete — no writes performed."; return 0; fi
     quarantine_scan
     if ! run_stow; then echo "Error: stow deployment failed." >&2; exit 1; fi
     if ! post_verify; then echo "Error: post-verify failed — deployment incomplete." >&2; exit 1; fi
