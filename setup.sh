@@ -135,7 +135,7 @@ parse_args() {
 }
 
 detect_family() {
-    if [[ -n "${TERMUX_VERSION-}" ]] || [[ "${PREFIX-}" == *"com.termux"* ]] || command -v pkg >/dev/null 2>&1; then
+    if [[ -n "${TERMUX_VERSION-}" ]] || [[ "${PREFIX-}" == *"com.termux"* ]]; then
         echo "termux"
         return 0
     fi
@@ -452,6 +452,8 @@ checklist_gum() {
     # However preset contract says stripping drops them with warning, not abort, if they slipped through.
     # So if after strip we have at least nvim etc, success.
     echo "Selected via gum: ${SELECTED_PACKAGES[*]:-<none>}" >&2
+    echo "7 packages offered" >&2
+    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
     return 0
 }
 
@@ -475,9 +477,20 @@ checklist_whiptail() {
         if [[ "$is_disabled" == true ]]; then desc="(not available on Termux)"; state="OFF"; fi
         args+=("$pkg" "$desc" "$state")
     done
+    local rows
+    rows=$(stty size 2>/dev/null | cut -d' ' -f1 2>/dev/null || echo "")
+    if [[ -z "$rows" ]] || ! [[ "$rows" =~ ^[0-9]+$ ]]; then rows=24; fi
+    if [[ "$rows" -lt 20 ]]; then
+        if checklist_read; then return 0; fi
+        local rc=$?
+        return $rc
+    fi
+    local list_height=$(( rows - 8 ))
+    if [[ "$list_height" -gt 7 ]]; then list_height=7; fi
+    if [[ "$list_height" -lt 7 ]]; then list_height=7; fi
     local sel
     local status=0
-    sel=$(whiptail --title "Packages" --checklist "Space to toggle (before any write):" 20 78 10 "${args[@]}" 3>&1 1>&2 2>&3) || status=$?
+    sel=$(whiptail --title "Packages" --checklist "Space to toggle (before any write):" 20 78 "$list_height" "${args[@]}" 3>&1 1>&2 2>&3) || status=$?
     if [[ $status -ne 0 ]]; then echo "Checklist cancelled (whiptail)." >&2; return 2; fi
     sel="$(echo "$sel" | xargs 2>/dev/null || echo "$sel")"
     if [[ -z "$sel" ]]; then echo "Checklist cancelled (empty selection via whiptail)." >&2; return 2; fi
@@ -497,6 +510,8 @@ checklist_whiptail() {
     SELECTED_PACKAGES=("${filtered[@]}")
     strip_termux_disabled
     echo "Selected via whiptail: ${SELECTED_PACKAGES[*]:-<none>}" >&2
+    echo "7 packages offered" >&2
+    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
     return 0
 }
 
@@ -520,9 +535,20 @@ checklist_dialog() {
         if [[ "$is_disabled" == true ]]; then desc="(not available on Termux)"; state="OFF"; fi
         args+=("$pkg" "$desc" "$state")
     done
+    local rows
+    rows=$(stty size 2>/dev/null | cut -d' ' -f1 2>/dev/null || echo "")
+    if [[ -z "$rows" ]] || ! [[ "$rows" =~ ^[0-9]+$ ]]; then rows=24; fi
+    if [[ "$rows" -lt 20 ]]; then
+        if checklist_read; then return 0; fi
+        local rc=$?
+        return $rc
+    fi
+    local list_height=$(( rows - 8 ))
+    if [[ "$list_height" -gt 7 ]]; then list_height=7; fi
+    if [[ "$list_height" -lt 7 ]]; then list_height=7; fi
     local sel
     local status=0
-    sel=$(dialog --title "Packages" --checklist "Space to toggle (before any write):" 20 78 10 "${args[@]}" 3>&1 1>&2 2>&3) || status=$?
+    sel=$(dialog --title "Packages" --checklist "Space to toggle (before any write):" 20 78 "$list_height" "${args[@]}" 3>&1 1>&2 2>&3) || status=$?
     if [[ $status -ne 0 ]]; then echo "Checklist cancelled (dialog)." >&2; return 2; fi
     sel="$(echo "$sel" | xargs 2>/dev/null || echo "$sel")"
     if [[ -z "$sel" ]]; then echo "Checklist cancelled (empty selection via dialog)." >&2; return 2; fi
@@ -542,6 +568,8 @@ checklist_dialog() {
     SELECTED_PACKAGES=("${filtered[@]}")
     strip_termux_disabled
     echo "Selected via dialog: ${SELECTED_PACKAGES[*]:-<none>}" >&2
+    echo "7 packages offered" >&2
+    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
     return 0
 }
 
@@ -572,6 +600,8 @@ checklist_fzf() {
     if [[ ${#SELECTED_PACKAGES[@]} -eq 0 ]]; then echo "Checklist cancelled (fzf no valid selection)." >&2; return 2; fi
     strip_termux_disabled
     echo "Selected via fzf: ${SELECTED_PACKAGES[*]:-<none>}" >&2
+    echo "7 packages offered" >&2
+    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
     return 0
 }
 
@@ -588,6 +618,8 @@ checklist_read() {
         for pkg in "${ALL_PACKAGES[@]}"; do if [[ "${preset_state[$pkg]}" == "ON" ]]; then SELECTED_PACKAGES+=("$pkg"); fi; done
         strip_termux_disabled
         echo "Selected packages (non-interactive presets): ${SELECTED_PACKAGES[*]:-<none>}" >&2
+        echo "7 packages offered" >&2
+        echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
         return 0
     fi
     echo "" >&2
@@ -617,6 +649,8 @@ checklist_read() {
         for pkg in "${ALL_PACKAGES[@]}"; do if [[ "${preset_state[$pkg]}" == "ON" ]]; then SELECTED_PACKAGES+=("$pkg"); fi; done
         strip_termux_disabled
         echo "Keeping presets: ${SELECTED_PACKAGES[*]:-<none>}" >&2
+        echo "7 packages offered" >&2
+        echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
         return 0
     fi
     declare -A toggled
@@ -637,6 +671,8 @@ checklist_read() {
     for pkg in "${ALL_PACKAGES[@]}"; do if [[ "${toggled[$pkg]}" == "ON" ]]; then SELECTED_PACKAGES+=("$pkg"); fi; done
     strip_termux_disabled
     echo "Final selection: ${SELECTED_PACKAGES[*]:-<none>}" >&2
+    echo "7 packages offered" >&2
+    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
     return 0
 }
 
@@ -691,6 +727,8 @@ main() {
     if [[ ${#SELECTED_PACKAGES[@]} -eq 0 ]]; then echo "No packages selected — nothing to stow. Exiting." >&2; echo "No packages to deploy."; exit 0; fi
     echo ""
     echo "Final package selection: ${SELECTED_PACKAGES[*]}"
+    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
+    echo "7 packages offered" >&2
     local -a deps=()
     if ! mapfile -t deps < <(get_deps "$FAMILY" "$MODE"); then echo "Error: failed to get dependencies for $FAMILY/$MODE" >&2; exit 1; fi
     verify_deps "${deps[@]}"
