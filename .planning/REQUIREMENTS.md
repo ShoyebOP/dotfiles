@@ -89,26 +89,26 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | INST-01 | Phase 1 | Pending |
 | INST-02 | Phase 1 | Pending |
-| INST-03 | Phase 1 | Pending |
+| INST-03 | Phase 2 | Pending |
 | INST-04 | Phase 1 | Pending |
 | INST-05 | Phase 1 | Pending |
 | DEPS-01 | Phase 1 | Pending |
 | DEPS-02 | Phase 1 | Pending |
 | DEPS-03 | Phase 1 | Pending |
-| STOW-01 | Phase 2 | Pending |
+| STOW-01 | Phase 1 | Pending |
 | STOW-02 | Phase 2 | Pending |
 | STOW-03 | Phase 2 | Pending |
 | SHEL-01 | Phase 2 | Pending |
 | SHEL-02 | Phase 3 | Pending |
-| SHEL-03 | Phase 2 | Pending |
-| SHEL-04 | Phase 2 | Pending |
-| EDIT-01 | Phase 3 | Pending |
-| EDIT-02 | Phase 3 | Pending |
-| EDIT-03 | Phase 3 | Pending |
-| EDIT-04 | Phase 2 | Pending |
+| SHEL-03 | Phase 3 | Pending |
+| SHEL-04 | Phase 3 | Pending |
+| EDIT-01 | Phase 4 | Pending |
+| EDIT-02 | Phase 4 | Pending |
+| EDIT-03 | Phase 4 | Pending |
+| EDIT-04 | Phase 3 | Pending |
 | THEM-01 | Phase 3 | Pending |
-| DOCS-01 | Phase 1 | Pending |
-| HLTH-01 | Phase 3 | Pending |
+| DOCS-01 | Phase 2 | Pending |
+| HLTH-01 | Phase 4 | Pending |
 
 **Coverage:**
 - v1 requirements: 22 total
@@ -117,4 +117,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-09-10*
-*Last updated: 2026-09-10 after initial definition*
+*Last updated: 2026-09-10 after roadmap (4 phases, Termux families mapped)*
