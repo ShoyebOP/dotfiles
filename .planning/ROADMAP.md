@@ -24,11 +24,11 @@ From a broken set of mirrored Nushell/Zsh bootstrappers that crash on derivative
   3. User on Termux installs via `pkg install` from a distinct `termux` family list (no `sudo`, no `keyd` privileged stow) — `keyd`/`hyprland`/`wofi` automatically deselected for Termux, `nvim`/`zsh`/`starship` still link correctly
   4. User gets `verify → install → re-verify` lock — `verify_deps` lists partitioned `core_missing` vs `gui_missing`, installer runs `pacman -S --needed` / `apt install -y` / `pkg install`, includes `make`+`gcc`+`fzf`+`zsh` in `common` so `telescope-fzf-native` and fzf history never silently fall back, then re-verifies and aborts with `Still missing` if incomplete; idempotent second run is a safe no-op
   5. User sees interactive flow `mode (local/server) → shell (zsh default / nushell backup) → package checklist` **before any write** and can preview every write with `--dry-run` (`[DRY RUN] Would run:` + `stow --no --verbose`); invocation outside repo root (`[[ -f ./setup.sh ]]` missing) aborts with clear message; `stow --dir="$SCRIPT_DIR"` + `test -L` + `readlink -f` post-verify confirms `nvim`/`starship.toml` folding
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 01-01: Bash strict-mode entry, arg parsing, and Termux-aware distro/deps resolver with verify→install→re-verify lock
-- [ ] 01-02: Stow orchestration core + dry-run + checklist ladder (gum → whiptail → dialog → fzf → read) before any write
+- [ ] 01-01-PLAN.md — Bash strict-mode entry, arg parsing, and Termux-aware distro/deps resolver with verify→install→re-verify lock
+- [ ] 01-02-PLAN.md — Stow orchestration core + dry-run + checklist ladder (gum → whiptail → dialog → fzf → read) before any write
 
 ### Phase 2: Safe, Reversible & Server-Safe Deployment
 **Mode:** mvp
