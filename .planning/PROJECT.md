@@ -17,6 +17,8 @@ A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop env
 - ✓ Neovim with lazy.nvim, `settings.lua` language aggregator (14 langs), Mason + Treesitter, 21 plugins — existing
 - ✓ Zsh with Zinit + Powerlevel10k, vi bindings, zoxide, Starship/Alacritty/Wofi theming — existing
 - ✓ Keyd privileged install via `sudo stow --adopt -t / keyd` + `keyd reload`/`systemctl` — existing (with known risks)
+- ✓ Unified Bash installer `bash setup.sh` with strict-mode guards, Termux-first family detection, per-family dep tables, verify→install→re-verify lock — Validated in Phase 1 (INST-01, INST-02, INST-05, DEPS-01, DEPS-02, DEPS-03)
+- ✓ Interactive package checklist override before any write with 5-backend ladder, Termux disabled-row emulation, quarantine with manifest, folding-aware post-verify — Validated in Phase 1 (INST-04, STOW-01)
 
 ### Active
 
@@ -44,6 +46,7 @@ A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop env
 
 - **Repo:** `dotfiles` at `/home/shoyeb/dotfiles`, branch `main`, remote `origin`. Stow packages at repo root; deployment via GNU Stow to `$HOME`/`~/.config`/`/etc` (`keyd` privileged).
 - **Prior state:** Dual bootstrappers (`setup.nu` + `setup.zsh` plus teardowns) with mirrored logic and drift (core modules differ: `[nvim,nushell,starship]` vs `[nvim,zsh]`). Manual `stow --restow` fallback documented. Issue: package installation crashes and never begins; derivatives (Manjaro, EndeavourOS) rejected; no manual package override stage.
+- **Phase 1 complete (2026-09-11):** `setup.sh` 750 lines, `bash -n` clean, `--help`/`--help wins-anywhere`, Termux-first `detect_family`, per-family `get_deps`, `verify→install→re-verify` lock, `mode→shell→checklist` ladder, `quarantine_scan` `mv` to `.stow-conflicts/<ts>/MANIFEST`, `stow --dir/--target --restow` + `--no --verbose` preview, folding-aware `post_verify` via `readlink -f`, outside-root guard, keyd Phase-2 skip; `setup.nu`/`setup.zsh` deleted (no shims), `README.md` flipped, `.gitignore` quarantine entry; `bash setup.sh --mode server --shell zsh --dry-run` zero writes verified, derivative/Termux fixtures verified, 13/13 must-haves passed.
 - **Codebase map (2026-09-10):** `ARCHITECTURE.md`, `STACK.md`, `STRUCTURE.md`, `CONCERNS.md` (tech debt, bugs, security, perf, fragile areas, scaling, missing features, test gaps), `CONVENTIONS.md`, `INTEGRATIONS.md`, `TESTING.md` available in `.planning/codebase/`.
 - **Host tooling:** `stow`, `neovim`+`gcc`/`make`/`luarocks`/`tree-sitter-cli`, `starship`, `zoxide`, `uv`, `ripgrep`, `git`, `node`/`npm` + `bun` (Zsh path), `fzf`, `keyd`, `alacritty`/`wofi`/`waybar`/`grim`/`slurp`/`wl-copy` (local), `zinit`+`powerlevel10k`.
 - **Current Zsh pain:** No working history fuzzy search; adding `fzf` conflicts with `zsh-autocomplete`/`zsh-fzf-history-search` and `bindkey` ordering (`^I` menu-select). `zsh/.zshrc` currently loads `zi light joshskidmore/zsh-fzf-history-search` then `zi light marlonrichert/zsh-autocomplete` with `^I` remapped.
@@ -64,14 +67,14 @@ A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop env
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Unified Bash `setup.sh` for install + remove (replaces 4 scripts) | Bash is preinstalled; single entry reduces drift vs mirrored `setup.nu`/`setup.zsh` | — Pending |
-| Flow: mode → shell (zsh default) → package checklist → execute | User specified `Mode → Shell only`, then manual select/deselect override | — Pending |
-| Installer installs shell binary itself before stowing | Ensures `zsh` exists even on minimal server images | — Pending |
-| Distro detection via `ID_LIKE` + `pacman`/`apt` probing, with post-install verify | Fixes crashes and derivative rejections reported in CONCERNS | — Pending |
-| Nushell fixes excluded | Nushell is backup only per user | — Pending |
-| Zsh default in all docs | Correct historical Nushell-favored docs | — Pending |
-| Machine-local gitignored configs (`*.local` pattern) | Isolates per-host differences | — Pending |
-| Mason auto-install on setup + cleanup on uninstall | User: "everything should work after setup script is ran; removal should remove nvim packages too" | — Pending |
+| Unified Bash `setup.sh` for install + remove (replaces 4 scripts) | Bash is preinstalled; single entry reduces drift vs mirrored `setup.nu`/`setup.zsh` | Phase 1: `setup.sh` (750 lines, bash 5.2.21, strict header, source-guard) replaces `setup.nu`/`setup.zsh` (deleted, no shims); `teardown.*` retained for Phase 2 |
+| Flow: mode → shell (zsh default) → package checklist → execute | User specified `Mode → Shell only`, then manual select/deselect override | Phase 1: `mode (local/server)→shell (zsh/nushell)→7-package checklist` before any write, `gum→whiptail→dialog→fzf→read` ladder, `DRY_RUN` preview via `stow --no --verbose` |
+| Installer installs shell binary itself before stowing | Ensures `zsh` exists even on minimal server images | Phase 1: dep tables include `zsh` in `common`; `make`+`gcc`+`fzf`+`zsh` ensure `telescope-fzf-native` never silently falls back; stow 2.4.1 auto-upgrade via `sort -V` |
+| Distro detection via `ID_LIKE` + `pacman`/`apt` probing, with post-install verify | Fixes crashes and derivative rejections reported in CONCERNS | Phase 1: 4-tier `detect_family` (Termux env/pkg → manager → `ID_LIKE` tokens → `ID` → manager fallback), `OS_RELEASE_FILE` seam, `grep` parsing (no sourcing), fixtures `manjaro→arch`/`pop→debian`/`termux` verified; `verify→install→re-verify` with `Still missing` abort and idempotent `--needed`/`-y` |
+| Nushell fixes excluded | Nushell is backup only per user | Honored — no `uv`/`zoxide` Nushell fixes |
+| Zsh default in all docs | Correct historical Nushell-favored docs | Phase 1: `README.md` flipped to `bash setup.sh --mode/--shell` Zsh default/Nushell backup, `stow --dir="$SCRIPT_DIR"` one-liners, `nvim/README.md` audited (no dangling pointer) |
+| Machine-local gitignored configs (`*.local` pattern) | Isolates per-host differences | Phase 3 (not yet) |
+| Mason auto-install on setup + cleanup on uninstall | User: "everything should work after setup script is ran; removal should remove nvim packages too" | Phase 4 (not yet) |
 
 ## Evolution
 
@@ -91,4 +94,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-10 after initialization*
+*Last updated: 2026-09-11 after Phase 1 completion*
