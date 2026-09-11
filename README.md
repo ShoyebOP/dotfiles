@@ -39,8 +39,8 @@ Interactive flow (before any write): **mode** (`local` full GUI vs `server` head
 - `--shell zsh|nushell` — Zsh default, Nushell backup
 - `--dry-run` — preview every write (`[DRY RUN] Would run:` + `stow --no --verbose` for the exact post-checklist selection) with zero writes
 - `--help, -h` — show usage (wins anywhere, exits 0 before any write)
-- `--yes` — reserved for Phase 2 `--uninstall` CI bypass
-- `--uninstall, --remove` — deferred to Phase 2; use teardown scripts for now
+- `--yes` — Assume yes for prompts (CI bypass for --uninstall and privileged flows)
+- `--uninstall, --remove` — cleanly unstows selected configs via `stow -D` plus privileged `sudo stow -D -t / keyd` when keyd selected plus Mason artefacts when `nvim` deselected plus offers system package removal; typed `yes` required (bypass with `--yes`)
 
 Examples:
 
@@ -48,13 +48,16 @@ Examples:
 # Interactive (TTY prompts for missing mode/shell, then checklist)
 bash setup.sh
 
+# Primary: local mode with Zsh (default), preview first
+bash setup.sh --mode local --dry-run
+bash setup.sh --mode local
+
 # Non-interactive server with Zsh, preview first
 bash setup.sh --mode server --shell zsh --dry-run
 bash setup.sh --mode server --shell zsh
 
 # Local full GUI with Zsh
 bash setup.sh --mode local --shell zsh --dry-run
-bash setup.sh --mode local
 ```
 
 Safety:
@@ -62,7 +65,7 @@ Safety:
 - Must be run from the clone root (`./setup.sh` must exist in CWD alongside `SCRIPT_DIR` resolution for `stow --dir`); outside-root aborts with a `run-from-clone` message before any prompt or write.
 - Checklist uses a five-backend ladder `gum → whiptail → dialog → fzf → read` (probed, skipped silently) with Termux `keyd`/`wofi`/`alacritty` rendered as visible-but-disabled and never selectable.
 - Existing non-symlink targets are quarantined (never deleted, never force-adopted) to `.stow-conflicts/<timestamp>/` preserving relative paths with a `MANIFEST` and restore hint.
-- Strict post-verify (`test -e` + `readlink -f` prefix check, folding-aware) aborts with a link→expected-target report if any link is wrong. Selecting `keyd` in Phase 1 prints a privileged-install-lands-in-Phase-2 notice and is skipped — no `/etc` writes in Phase 1.
+- Strict post-verify (`test -e` + `readlink -f` prefix check, folding-aware) aborts with a link→expected-target report if any link is wrong. Selecting `keyd` previews with `stow --dir=. --target=/ --no --verbose keyd` plus `diff -u` when `/etc/keyd/default.conf` exists as a regular file, requires `gum confirm` or `Type 'yes' to confirm privileged keyd install:` before `sudo stow --dir=. --target=/ keyd` (or `sudo stow --dir=. --target=/ --adopt keyd` only with explicit adopt confirmation), then `sudo keyd reload || sudo systemctl reload keyd || true`.
 
 ---
 
@@ -98,26 +101,29 @@ For a full local deploy with Zsh:
 stow --dir=. --target="$HOME" --restow nvim zsh starship alacritty wofi
 ```
 
-#### keyd Setup (Phase 2)
+#### keyd Setup
 
-Privileged `keyd` install (`/etc/keyd`) is gated to Phase 2. In Phase 1, `bash setup.sh` will skip `keyd` with a notice and perform no `/etc` writes. When Phase 2 lands, the installer will preview with `stow --no --verbose -t / keyd` and require explicit confirmation before any privileged write. For now, manual keyd setup remains:
+Privileged `keyd` install (`/etc/keyd`) previews before any `/etc` write and requires explicit confirmation. The installer previews with `stow --dir=. --target=/ --no --verbose keyd` plus `diff -u /etc/keyd/default.conf keyd/etc/keyd/default.conf` if `/etc/keyd/default.conf` exists as a regular file (not a symlink), then requires confirmation via `gum confirm` or `Type 'yes' to confirm privileged keyd install:` before any privileged write. On confirmation, it runs `sudo stow --dir=. --target=/ keyd` (plain) or `sudo stow --dir=. --target=/ --adopt keyd` only when a conflict file exists as a regular file and the user explicitly confirms the adopt path, then `sudo keyd reload || sudo systemctl reload keyd || true`. For `--dry-run`, it prints `[DRY RUN] Would run: sudo stow --dir=. --target=/ keyd` plus diff preview without touching filesystem. Manual preview:
 
 ```bash
-# Phase 2 will handle this with confirmation; manual preview:
+# Preview before privileged write (what installer shows):
 stow --dir=. --target=/ --no --verbose keyd
-# After confirmation, Phase 2 will run: sudo stow --target=/ keyd && sudo keyd reload
+diff -u /etc/keyd/default.conf keyd/etc/keyd/default.conf 2>/dev/null || echo "(no host file or symlink — no diff needed)"
+# After confirmation, installer runs: sudo stow --dir=. --target=/ keyd && sudo keyd reload || sudo systemctl reload keyd || true
+# With conflict and explicit adopt confirmation: sudo stow --dir=. --target=/ --adopt keyd
 ```
 
-To allow starting/stopping `keyd` without a password (Phase 2 will document least-privilege handling), run `sudo EDITOR=nvim visudo` and add:
+To allow reloading `keyd` without a password (least-privilege), run `sudo EDITOR=nvim visudo` and add:
 
 ```
-shoyeb ALL=(ALL) NOPASSWD: /usr/bin/systemctl start keyd, /usr/bin/systemctl stop keyd
+shoyeb ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload keyd, /usr/bin/keyd reload
 ```
 
 #### Zsh Plugin Manager
 
 ```bash
-# Install Zinit (will be cloned automatically on first shell start via bash setup.sh in Phase 2)
+# Zinit clones itself on first zsh launch via zsh/.zshrc — no installer clone, no commit pin per D-12
+# Manual fallback if needed:
 git clone https://github.com/zdharma-continuum/zinit ~/.local/share/zinit/zinit.git
 ```
 

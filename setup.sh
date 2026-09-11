@@ -42,8 +42,11 @@ OPTIONS:
 
 EXAMPLES:
     $prog --mode local
+    $prog --mode local --dry-run
     $prog --mode server --shell zsh --dry-run
     $prog --help
+    $prog --uninstall --dry-run
+    $prog --uninstall --yes
 
 EOF
 }

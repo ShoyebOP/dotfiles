@@ -15,7 +15,7 @@ Efficiency-first Stow-based dotfiles for Arch/CachyOS/Ubuntu workstations and he
 - **Scope filter:** Do not fix Nushell-only issues — why: Nushell is backup, avoid wasted work
 - **OS support:** Must correctly handle Arch/CachyOS/Ubuntu **and derivatives** via `ID_LIKE` + package-manager presence (`pacman`/`apt`), not hard-coded `["arch","cachyos","ubuntu"]` — why: users on Manjaro/EndeavourOS hit hard errors
 - **Machine-local:** Machine-specific overrides must be gitignored and auto-sourced if present — why: per-machine PATH/alias/theme differences must not dirty git
-- **Reversibility:** Removal must clean Stow symlinks, Keyd config, and Mason/packages installed by nvim (when uninstalling) — why: user expects `teardown` parity in unified script
+- **Reversibility:** Removal must clean Stow symlinks, Keyd config, and Mason/packages installed by nvim (when uninstalling) — why: user expects `setup.sh --uninstall` parity in unified script
 - **Safety:** No destructive writes without preview/confirmation; privileged `/etc/keyd` writes require explicit conflict check and user confirmation — why: `--adopt` currently risky
 
 <!-- GSD:project-end -->
@@ -27,9 +27,9 @@ Efficiency-first Stow-based dotfiles for Arch/CachyOS/Ubuntu workstations and he
 ## Languages
 
 - Lua 5.1+ / LuaJIT - Neovim configuration (`nvim/.config/nvim/lua/**/*.lua`, `nvim/.config/nvim/init.lua`) — core editor config, plugin specs, LSP, treesitter, language modules
-- Nushell 0.110.0 - Shell bootstrap and environment (`nushell/.config/nushell/config.nu`, `nushell/.config/nushell/env.nu`, `setup.nu`, `teardown.nu`, `nushell/.config/nushell/scripts/*.nu`)
-- Zsh - Alternative shell path (`zsh/.zshrc`, `zsh/.zprofile`, `zsh/.p10k.zsh`, `setup.zsh`, `teardown.zsh`) with vi-mode and Zinit plugin manager
-- Shell (Bash/POSIX) — subshell fragments inside setup/teardown scripts
+- Nushell 0.110.0 - Shell bootstrap and environment (`nushell/.config/nushell/config.nu`, `nushell/.config/nushell/env.nu`, `setup.nu`, `setup.sh --uninstall`, `nushell/.config/nushell/scripts/*.nu`)
+- Zsh - Alternative shell path (`zsh/.zshrc`, `zsh/.zprofile`, `zsh/.p10k.zsh`, `setup.zsh`, `setup.sh --uninstall`) with vi-mode and Zinit plugin manager
+- Shell (Bash/POSIX) — subshell fragments inside setup/setup.sh --uninstall scripts
 - TOML - Alacritty and Starship configuration (`alacritty/.config/alacritty/alacritty.toml`, `alacritty/.config/alacritty/catppuccin-mocha.toml`, `starship/.config/starship.toml`, `starship/.config/starship-minimal.toml`)
 - CSS - Wofi launcher styling (`wofi/.config/wofi/style.css`)
 - INI-like (keyd) — Keyboard remapping (`keyd/etc/keyd/default.conf`)
@@ -43,7 +43,7 @@ Efficiency-first Stow-based dotfiles for Arch/CachyOS/Ubuntu workstations and he
 - Nushell 0.110.0+ (interactive shell, `setup.nu` validates via `$nu | is-not-empty`)
 - Zsh with Zinit (`zsh/.zshrc` clones `https://github.com/zdharma-continuum/zinit` to `~/.local/share/zinit/zinit.git` on first run)
 - Starship prompt (`starship/.config/starship.toml`, schema `https://starship.rs/config-schema.json`)
-- GNU Stow - Dotfile deployment (`setup.nu`/`setup.zsh` use `stow --restow`, `teardown.nu`/`teardown.zsh` use `stow -D`)
+- GNU Stow - Dotfile deployment (`setup.nu`/`setup.zsh` use `stow --restow`, `setup.sh --uninstall`/`setup.sh --uninstall` use `stow -D`)
 - uv - Python package/tool installer and venv manager (`nushell/.config/nushell/scripts/uv.nu` provides `uv` completions and `uv generate-shell-completion` for Zsh in `setup.zsh`)
 - npm - Node tooling for Neovim JS/TS language support (`setup.*` lists `node`, `npm` as core deps)
 - Mason registry - In-editor LSP/formatter/linter installer (`nvim/.config/nvim/lua/utils/mason-install-all.lua`, `nvim/.config/nvim/lua/plugins/mason.lua`)
@@ -98,7 +98,7 @@ Efficiency-first Stow-based dotfiles for Arch/CachyOS/Ubuntu workstations and he
 
 - Supported distros: Arch Linux / CachyOS / Ubuntu (checked in `setup.nu:get-distro` and `setup.zsh:get_distro` via `/etc/os-release` ID). Other distros error with manual instructions per `README.md`
 - Core packages: `stow`, `neovim`, `starship`, `git`, `zoxide`, `uv`, `ripgrep`, `nodejs`, `npm` (always). GUI extras for `--mode local`: Arch/CachyOS adds `hyprland`, `alacritty`, `wofi`, `keyd`, `waybar`, `grim`, `slurp`, `wl-copy`; Ubuntu adds `alacritty`, `wofi`, `waybar`, `grim`, `slurp`, `wl-copy`
-- Nushell required for `setup.nu`/`teardown.nu` (`$nu | is-not-empty` guard); Zsh required for `setup.zsh`/`teardown.zsh` (`set -euo pipefail`)
+- Nushell required for `setup.nu`/`setup.sh --uninstall` (`$nu | is-not-empty` guard); Zsh required for `setup.zsh`/`setup.sh --uninstall` (`set -euo pipefail`)
 - Editor toolchain: `gcc`, `make`, `luarocks`, `tree-sitter-cli`, `wl-clipboard`, `python3-pip` (per `nvim/.config/nvim/README.md`)
 - Fonts: JetBrainsMono Nerd Font (Alacritty config)
 - Deployment target: Local workstation or headless server — `README.md` defines two modes: `local` (full GUI) and `server` (headless: only `nvim`, `nushell`, `starship`, or `nvim`+`zsh` on Zsh path)
@@ -116,12 +116,12 @@ Efficiency-first Stow-based dotfiles for Arch/CachyOS/Ubuntu workstations and he
 - Stow packages: lowercase package name identical to deployed location — `nvim/`, `nushell/`, `zsh/`, `alacritty/`, `starship/`, `wofi/`, `keyd/` (repo root). Each mirrors target hierarchy (`nvim/.config/nvim/`, `keyd/etc/keyd/`)
 - Neovim Lua: `kebab-case.lua` throughout `nvim/.config/nvim/lua/` — e.g., `lspconfig.lua`, `blink-cmp.lua`, `code_runner.lua`, `treesitter-textobjects.lua`, `lspkind.lua`; barrel `init.lua` per package (`lua/base/init.lua`, `lua/lang/init.lua`, `lua/colorschemes/init.lua`); language modules use lang name as filename (`lua/lang/python/python.lua` + companion `lua/lang/python/plugins.lua`)
 - Nushell scripts: `kebab-case.nu` in `nushell/.config/nushell/scripts/` — `catppuccin.nu`, `completion.nu`, `uv.nu`, `venv.nu`, `zoxide.nu`, `test-venv.nu`, `test-zoxide.nu`
-- Shell bootstrappers: `setup.nu`/`teardown.nu` (Nushell), `setup.zsh`/`teardown.zsh` (Zsh) — verb pattern
+- Shell bootstrappers: `setup.nu`/`setup.sh --uninstall` (Nushell), `setup.zsh`/`setup.sh --uninstall` (Zsh) — verb pattern
 - TOML/CSS/config: `kebab-case.toml` + `style.css`/`config` e.g., `alacritty.toml`, `catppuccin-mocha.toml`, `starship.toml`, `starship-minimal.toml`, `wofi/config`
 - Dotfiles: preserved with dot prefix inside stow package (`nvim/.config/nvim/.editorconfig`, `zsh/.zshrc`, `zsh/.zprofile`, `zsh/.p10k.zsh`)
 - Lua (Neovim): `snake_case` for module locals and exports — `M.get_packages()`, `M.install_all()`, `mr.refresh(function() ... end)` in `nvim/.config/nvim/lua/utils/mason-install-all.lua`; `deduplicate(tbl)` helper in `nvim/.config/nvim/lua/lang/init.lua`; `opts = function() ... end` / `config = function(_, opts)` in `nvim/.config/nvim/lua/plugins/lspconfig.lua`; keymap descriptions use Title Case strings: `desc = "Find files"` in `nvim/.config/nvim/lua/base/keymaps.lua`
-- Nushell: `kebab-case` with `def` — `def main`, `def get-distro []`, `def get-deps [distro, mode]`, `def verify-deps [deps]`, `def install-deps ...`, `def run-stow ...`, `def get-mode-interactive []` in `setup.nu`; helpers like `run-unstow`, `unstow-module` in `teardown.nu`
-- Zsh: `snake_case` — `get_distro()`, `verify_command()`, `get_deps()`, `run_stow()`, `run_unstow()`, `get_mode_interactive()` in `setup.zsh`/`teardown.zsh`; `zle-keymap-select`, `zle-line-init`, `edit-command-line` autoloads in `zsh/.zshrc`
+- Nushell: `kebab-case` with `def` — `def main`, `def get-distro []`, `def get-deps [distro, mode]`, `def verify-deps [deps]`, `def install-deps ...`, `def run-stow ...`, `def get-mode-interactive []` in `setup.nu`; helpers like `run-unstow`, `unstow-module` in `setup.sh --uninstall`
+- Zsh: `snake_case` — `get_distro()`, `verify_command()`, `get_deps()`, `run_stow()`, `run_unstow()`, `get_mode_interactive()` in `setup.zsh`/`setup.sh --uninstall`; `zle-keymap-select`, `zle-line-init`, `edit-command-line` autoloads in `zsh/.zshrc`
 - Lua: `snake_case` — `lazypath`, `specs`, `lang_config`, `plugin_specs`, `mason_packages`, `treesitter_parsers`, `status_ok`, `lang_module` in `nvim/.config/nvim/init.lua` and `nvim/.config/nvim/lua/lang/init.lua`; short `opt`, `o`, `g` aliases for `vim.opt`/`vim.o`/`vim.g` in `nvim/.config/nvim/lua/base/options.lua`
 - Nushell: `snake_case` with `$` — `$distro`, `$selected_mode`, `$deps`, `$missing`, `$dry_run`, `$stow_keyd` in `setup.nu`; `$env.PATH`, `$env.EDITOR`, `$env.STARSHIP_CONFIG`, `$nu.default-config-dir` in `nushell/.config/nushell/*.nu`
 - Zsh: `UPPER_SNAKE` for env/global plus `snake_case` for locals — `DRY_RUN`, `MODE`, `STOW_KEYD`, `SCRIPT_NAME`, `XDG_*`, `BUN_INSTALL`, `EDITOR` in `setup.zsh`/`zsh/.zshrc`; locals quoted like `local distro="$1"`; array syntax `local -a common=(...)`
@@ -151,13 +151,13 @@ Efficiency-first Stow-based dotfiles for Arch/CachyOS/Ubuntu workstations and he
 
 - **Guard + early exit:** Nushell `if not ($nu | is-not-empty) { print "Error: must run with Nushell"; exit 1 }` and `if $distro not-in ["arch","cachyos","ubuntu"] { print "Error: only supports ..."; exit 1 }` (`setup.nu:10`, `setup.nu:30`); Zsh `set -euo pipefail` + `verify_command || missing+=` + `usage; exit 1` for unknown flags (`setup.zsh:18`, `setup.zsh:verify_command`)
 - **pcall/warn continue:** Lua protects dynamic loads `status_ok, lang_config = pcall(require, lang_module); if not status_ok then vim.notify("Failed to load: "..lang_module.."\n"..tostring(lang_config), WARN) end` (`nvim/.config/nvim/lua/lang/init.lua:25`) and similarly `pcall(require,"lang")` in `nvim/.config/nvim/init.lua:19` — bootstrap continues with empty `M`
-- **Collection before action:** Bootstrappers gather `missing` deps list before installing; dry-run short-circuits (`if $dry_run { print "=== DRY RUN MODE ===" }` in `setup.nu:10`, `if [[ "$DRY_RUN" == true ]] then return` variants in `setup.zsh`/`teardown.*`)
+- **Collection before action:** Bootstrappers gather `missing` deps list before installing; dry-run short-circuits (`if $dry_run { print "=== DRY RUN MODE ===" }` in `setup.nu:10`, `if [[ "$DRY_RUN" == true ]] then return` variants in `setup.zsh`/`setup.sh --uninstall.*`)
 - **Neovim safety:** `nvim/.config/nvim/lua/base/options.lua` sets `confirm=true` (prompt before closing unsaved), `exrc=true` + `secure=true` (prompt before trusting local `.nvim.lua`), `g.editorconfig=true`; fold and grep formats handle missing tools (`grepprg=rg --vimgrep` assumes rg present, `cond = vim.fn.executable("make")==1` for telescope-fzf-native)
 - **Mason warnings:** `nvim/.config/nvim/lua/utils/mason-install-all.lua` warns on `not mr.has_package(package_name)` and skips `pkg:is_installed()` before `MasonInstall`; aggregates `to_install` then single `MasonInstall` command
 
 ## Logging
 
-- Shell bootstrap logs every step with `print $"Detected distribution: ($distro)"` and `print $"Dependencies for ($distro) in ($selected_mode) mode defined."` (Nushell `setup.nu`) vs `echo "\nVerifying dependencies..."` / `echo "All dependencies are satisfied."` (Zsh `setup.zsh`/`teardown.zsh`); teardown warns `print "⚠️  WARNING: Starting Teardown Process"` before requiring `yes`
+- Shell bootstrap logs every step with `print $"Detected distribution: ($distro)"` and `print $"Dependencies for ($distro) in ($selected_mode) mode defined."` (Nushell `setup.nu`) vs `echo "\nVerifying dependencies..."` / `echo "All dependencies are satisfied."` (Zsh `setup.zsh`/`setup.sh --uninstall`); setup.sh --uninstall warns `print "⚠️  WARNING: Starting Uninstall Process"` before requiring `yes`
 - Neovim uses `vim.notify("Mason: Installing ... packages: "..table.concat(to_install, ", "), INFO)` or `"Mason: All packages already installed"` in `nvim/.config/nvim/lua/utils/mason-install-all.lua`; `vim.notify("Failed to load language configs: "..tostring(lang_config), ERROR)` on bootstrap failure
 - No structured/log-level files; prompt-integrated feedback via `starship`/`p10k` showing `status` (exit code) and `command_execution_time`
 - Never log secret values (though `env.nu` contains a committed key — see CONCERNS.md — no runtime logging reveals it per greps)
@@ -191,8 +191,8 @@ Efficiency-first Stow-based dotfiles for Arch/CachyOS/Ubuntu workstations and he
 
 | Component | Responsibility | File |
 |-----------|----------------|------|
-| Bootstrapper (Nushell) | Distro detection, dep verification, stow orchestration, dry-run, keyd prompt | `setup.nu`, `teardown.nu` |
-| Bootstrapper (Zsh) | Same as Nushell path but for Zsh users | `setup.zsh`, `teardown.zsh` |
+| Bootstrapper (Nushell) | Distro detection, dep verification, stow orchestration, dry-run, keyd prompt | `setup.nu`, `setup.sh --uninstall` |
+| Bootstrapper (Zsh) | Same as Nushell path but for Zsh users | `setup.zsh`, `setup.sh --uninstall` |
 | Shell: Nushell | Vi-mode, completions, history menus, zoxide/venv/uv integration | `nushell/.config/nushell/config.nu`, `nushell/.config/nushell/env.nu`, `nushell/.config/nushell/login.nu`, `nushell/.config/nushell/scripts/*.nu` |
 | Shell: Zsh | Zinit plugin mgmt, Powerlevel10k prompt, vi keybindings, zoxide/bun paths | `zsh/.zshrc`, `zsh/.zprofile`, `zsh/.p10k.zsh` |
 | Editor core | Lazy bootstrap, global options, keymaps, autocmds, settings aggregation | `nvim/.config/nvim/init.lua`, `nvim/.config/nvim/lua/base/options.lua`, `nvim/.config/nvim/lua/base/keymaps.lua`, `nvim/.config/nvim/lua/base/autocmds.lua`, `nvim/.config/nvim/lua/settings.lua` |
@@ -215,7 +215,7 @@ Efficiency-first Stow-based dotfiles for Arch/CachyOS/Ubuntu workstations and he
 ## Layers
 
 - Purpose: Validate host, install missing deps, symlink configs, handle privileged `keyd` path
-- Location: `setup.nu`, `setup.zsh`, `teardown.nu`, `teardown.zsh` (repo root)
+- Location: `setup.nu`, `setup.zsh`, `setup.sh --uninstall`, `setup.sh --uninstall` (repo root)
 - Contains: `get-distro()`, `get-deps(distro, mode)`, `verify-deps`, `install-deps`, `run-stow`/`run_unstow` functions, interactive `get-mode-interactive` prompts, `DRY_RUN`/`STOW_KEYD` flags
 - Depends on: Host `stow`, `which`/`command -v`, `git`, `/etc/os-release`, `sudo` for keyd
 - Used by: Manual invocation `nu setup.nu --mode server` or `zsh setup.zsh --mode local`; README documents both
@@ -262,8 +262,8 @@ Efficiency-first Stow-based dotfiles for Arch/CachyOS/Ubuntu workstations and he
 
 ## Entry Points
 
-- Location: `setup.nu`, `setup.zsh` (deploy), `teardown.nu`, `teardown.zsh` (unstow)
-- Triggers: Manual CLI `nu setup.nu [--mode local|server] [--dry-run] [--stow-keyd y|n]` or `zsh setup.zsh --mode local`; teardown asks `Type 'yes' to confirm` (Nushell) or `read REPLY`
+- Location: `setup.nu`, `setup.zsh` (deploy), `setup.sh --uninstall`, `setup.sh --uninstall` (unstow)
+- Triggers: Manual CLI `nu setup.nu [--mode local|server] [--dry-run] [--stow-keyd y|n]` or `zsh setup.zsh --mode local`; setup.sh --uninstall asks `Type 'yes' to confirm` (Nushell) or `read REPLY`
 - Responsibilities: Validate distro, verify deps, optionally install, stow/unstow core vs GUI modules, reload keyd, print summary; `README.md` documents both shell paths
 - Location: `nvim/.config/nvim/init.lua`
 - Triggers: `nvim` launch (or `EDITOR=nvim` via `git commit`, `edit-command-line` in `zsh/.zshrc` Ctrl+X Ctrl+E)
@@ -293,7 +293,7 @@ Efficiency-first Stow-based dotfiles for Arch/CachyOS/Ubuntu workstations and he
 
 - `setup.nu:main` guards `if not ($nu | is-not-empty) { print "Error: must run with Nushell"; exit 1 }` and `if $distro not-in ["arch","cachyos","ubuntu"] { exit 1 }`; `setup.zsh` uses `set -euo pipefail`, `verify_command || missing+=`, `usage; exit 1` for unknown flags
 - Neovim language loading uses `pcall(require, lang_module)` then `vim.notify(..., WARN)` on failure (`nvim/.config/nvim/lua/lang/init.lua:23`), recovers with empty `M`; `init.lua` wraps `pcall(require, "lang")` similarly, notifying on error but continuing
-- `teardown.nu:main` requires `input "Type 'yes' to confirm"` unless `dry_run`; `teardown.zsh` uses `read REPLY` confirmation; both abort unless exact `yes`
+- `setup.sh --uninstall:main` requires `input "Type 'yes' to confirm"` unless `dry_run`; `setup.sh --uninstall` uses `read REPLY` confirmation; both abort unless exact `yes`
 - `mason-install-all.lua:mr.refresh(function() ... if mr.has_package then ... else vim.notify("Warning: Mason doesn't have package: ...", WARN) end)` — missing registry entry is warning not error
 
 ## Cross-Cutting Concerns
