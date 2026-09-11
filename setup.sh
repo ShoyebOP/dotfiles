@@ -20,6 +20,8 @@ ALL_PACKAGES=(nvim zsh nushell alacritty starship wofi keyd)
 GUI_STOW_PACKAGES=(alacritty wofi keyd)
 TERMUX_DISABLED_PACKAGES=(alacritty wofi keyd)
 declare -a SELECTED_PACKAGES=()
+ALL_TOOLCHAIN=(stow neovim starship git zoxide uv ripgrep nodejs npm make gcc fzf zsh)
+declare -a SELECTED_DEPS=()
 
 usage() {
     local prog
@@ -723,6 +725,267 @@ prompt_checklist() {
     return 1
 }
 
+# ──────────────────────────────────────────────
+# 01-05: toolchain selection (13 deps) — second checklist
+# ──────────────────────────────────────────────
+
+_toolchain_ensure_stow() {
+    local found=false
+    local s
+    for s in "${SELECTED_DEPS[@]}"; do if [[ "$s" == "stow" ]]; then found=true; break; fi; done
+    if [[ "$found" == false ]]; then
+        if ! command -v stow >/dev/null 2>&1; then
+            echo "Warning: 'stow' is required for deployment — re-enabling." >&2
+            local -a old=("${SELECTED_DEPS[@]}")
+            SELECTED_DEPS=()
+            local pkg
+            local was_selected
+            for pkg in "${ALL_TOOLCHAIN[@]}"; do
+                if [[ "$pkg" == "stow" ]]; then
+                    SELECTED_DEPS+=("stow")
+                else
+                    was_selected=false
+                    for s in "${old[@]}"; do if [[ "$s" == "$pkg" ]]; then was_selected=true; break; fi; done
+                    if [[ "$was_selected" == true ]]; then SELECTED_DEPS+=("$pkg"); fi
+                fi
+            done
+        fi
+    fi
+}
+
+toolchain_gum() {
+    if ! command -v gum >/dev/null 2>&1; then return 1; fi
+    local -a items=()
+    local pkg
+    for pkg in "${ALL_TOOLCHAIN[@]}"; do
+        local display="$pkg"
+        if [[ "$pkg" == "stow" ]]; then display="$pkg (required for deployment)"; fi
+        items+=("$display")
+    done
+    local out
+    local gum_status=0
+    out=$(printf '%s\n' "${items[@]}" | gum choose --no-limit --header "Toggle toolchain (Space to select, Enter to confirm):" 2>&1) || gum_status=$?
+    if [[ $gum_status -ne 0 ]]; then echo "Checklist cancelled (gum)." >&2; return 2; fi
+    if [[ -z "$out" ]]; then echo "Checklist cancelled (gum empty selection)." >&2; return 2; fi
+    SELECTED_DEPS=()
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        line="${line% \(required for deployment\)}"
+        for pkg in "${ALL_TOOLCHAIN[@]}"; do if [[ "$line" == "$pkg" ]]; then SELECTED_DEPS+=("$pkg"); break; fi; done
+    done <<< "$out"
+    if [[ ${#SELECTED_DEPS[@]} -eq 0 ]]; then echo "Checklist cancelled (no toolchain selected via gum)." >&2; return 2; fi
+    _toolchain_ensure_stow
+    echo "Selected via gum: ${SELECTED_DEPS[*]:-<none>}" >&2
+    echo "13 toolchain offered" >&2
+    return 0
+}
+
+toolchain_whiptail() {
+    if ! command -v whiptail >/dev/null 2>&1; then return 1; fi
+    declare -A preset_state
+    local pkg
+    for pkg in "${ALL_TOOLCHAIN[@]}"; do preset_state["$pkg"]="ON"; done
+    local -a args=()
+    for pkg in "${ALL_TOOLCHAIN[@]}"; do
+        local desc=""
+        local state="${preset_state[$pkg]}"
+        if [[ "$pkg" == "stow" ]]; then desc="(required for deployment)"; fi
+        args+=("$pkg" "$desc" "$state")
+    done
+    local rows
+    rows=$(stty size 2>/dev/null | cut -d' ' -f1 2>/dev/null || echo "")
+    if [[ -z "$rows" ]] || ! [[ "$rows" =~ ^[0-9]+$ ]]; then rows=24; fi
+    if [[ "$rows" -lt 20 ]]; then
+        if toolchain_read; then return 0; fi
+        local rc=$?
+        return $rc
+    fi
+    local list_height=$(( rows - 8 ))
+    if [[ "$list_height" -gt 13 ]]; then list_height=13; fi
+    if [[ "$list_height" -lt 7 ]]; then list_height=7; fi
+    local sel
+    local status=0
+    sel=$(whiptail --title "Toolchain" --checklist "Space to toggle (before any write):" 20 78 "$list_height" "${args[@]}" 3>&1 1>&2 2>&3) || status=$?
+    if [[ $status -ne 0 ]]; then echo "Checklist cancelled (whiptail)." >&2; return 2; fi
+    sel="$(echo "$sel" | xargs 2>/dev/null || echo "$sel")"
+    if [[ -z "$sel" ]]; then echo "Checklist cancelled (empty selection via whiptail)." >&2; return 2; fi
+    local -a parsed=()
+    if ! mapfile -t parsed < <(printf '%s' "$sel" | xargs -n1 2>/dev/null); then parsed=(); fi
+    local -a filtered=()
+    local tok
+    local clean
+    for tok in "${parsed[@]}"; do
+        clean="${tok#\"}"; clean="${clean%\"}"
+        clean="${clean#\'}"; clean="${clean%\'}"
+        clean="$(echo "$clean" | xargs 2>/dev/null || echo "$clean")"
+        [[ -z "$clean" ]] && continue
+        for pkg in "${ALL_TOOLCHAIN[@]}"; do if [[ "$clean" == "$pkg" ]]; then filtered+=("$clean"); break; fi; done
+    done
+    SELECTED_DEPS=("${filtered[@]}")
+    _toolchain_ensure_stow
+    echo "Selected via whiptail: ${SELECTED_DEPS[*]:-<none>}" >&2
+    echo "13 toolchain offered" >&2
+    return 0
+}
+
+toolchain_dialog() {
+    if ! command -v dialog >/dev/null 2>&1; then return 1; fi
+    declare -A preset_state
+    local pkg
+    for pkg in "${ALL_TOOLCHAIN[@]}"; do preset_state["$pkg"]="ON"; done
+    local -a args=()
+    for pkg in "${ALL_TOOLCHAIN[@]}"; do
+        local desc=""
+        local state="${preset_state[$pkg]}"
+        if [[ "$pkg" == "stow" ]]; then desc="(required for deployment)"; fi
+        args+=("$pkg" "$desc" "$state")
+    done
+    local rows
+    rows=$(stty size 2>/dev/null | cut -d' ' -f1 2>/dev/null || echo "")
+    if [[ -z "$rows" ]] || ! [[ "$rows" =~ ^[0-9]+$ ]]; then rows=24; fi
+    if [[ "$rows" -lt 20 ]]; then
+        if toolchain_read; then return 0; fi
+        local rc=$?
+        return $rc
+    fi
+    local list_height=$(( rows - 8 ))
+    if [[ "$list_height" -gt 13 ]]; then list_height=13; fi
+    if [[ "$list_height" -lt 7 ]]; then list_height=7; fi
+    local sel
+    local status=0
+    sel=$(dialog --title "Toolchain" --checklist "Space to toggle (before any write):" 20 78 "$list_height" "${args[@]}" 3>&1 1>&2 2>&3) || status=$?
+    if [[ $status -ne 0 ]]; then echo "Checklist cancelled (dialog)." >&2; return 2; fi
+    sel="$(echo "$sel" | xargs 2>/dev/null || echo "$sel")"
+    if [[ -z "$sel" ]]; then echo "Checklist cancelled (empty selection via dialog)." >&2; return 2; fi
+    local -a parsed=()
+    if ! mapfile -t parsed < <(printf '%s' "$sel" | xargs -n1 2>/dev/null); then parsed=(); fi
+    local -a filtered=()
+    local tok
+    local clean
+    for tok in "${parsed[@]}"; do
+        clean="${tok#\"}"; clean="${clean%\"}"
+        clean="${clean#\'}"; clean="${clean%\'}"
+        clean="$(echo "$clean" | xargs 2>/dev/null || echo "$clean")"
+        [[ -z "$clean" ]] && continue
+        for pkg in "${ALL_TOOLCHAIN[@]}"; do if [[ "$clean" == "$pkg" ]]; then filtered+=("$clean"); break; fi; done
+    done
+    SELECTED_DEPS=("${filtered[@]}")
+    _toolchain_ensure_stow
+    echo "Selected via dialog: ${SELECTED_DEPS[*]:-<none>}" >&2
+    echo "13 toolchain offered" >&2
+    return 0
+}
+
+toolchain_fzf() {
+    if ! command -v fzf >/dev/null 2>&1; then return 1; fi
+    local -a items=()
+    local pkg
+    for pkg in "${ALL_TOOLCHAIN[@]}"; do
+        local display="$pkg"
+        if [[ "$pkg" == "stow" ]]; then display="$pkg (required for deployment)"; fi
+        items+=("$display")
+    done
+    local out
+    local fzf_status=0
+    out=$(printf '%s\n' "${items[@]}" | fzf -m --header "Toggle toolchain (Tab to select, Enter to confirm)" --height=15 --reverse --border 2>&1) || fzf_status=$?
+    if [[ $fzf_status -ne 0 ]]; then echo "Checklist cancelled (fzf)." >&2; return 2; fi
+    if [[ -z "$out" ]]; then echo "Checklist cancelled (fzf empty)." >&2; return 2; fi
+    SELECTED_DEPS=()
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        line="${line% \(required for deployment\)}"
+        for pkg in "${ALL_TOOLCHAIN[@]}"; do if [[ "$line" == "$pkg" ]]; then SELECTED_DEPS+=("$pkg"); break; fi; done
+    done <<< "$out"
+    if [[ ${#SELECTED_DEPS[@]} -eq 0 ]]; then echo "Checklist cancelled (fzf no valid selection)." >&2; return 2; fi
+    _toolchain_ensure_stow
+    echo "Selected via fzf: ${SELECTED_DEPS[*]:-<none>}" >&2
+    echo "13 toolchain offered" >&2
+    return 0
+}
+
+toolchain_read() {
+    declare -A preset_state
+    local pkg
+    for pkg in "${ALL_TOOLCHAIN[@]}"; do preset_state["$pkg"]="ON"; done
+    if [[ ! -t 0 ]]; then
+        SELECTED_DEPS=()
+        for pkg in "${ALL_TOOLCHAIN[@]}"; do if [[ "${preset_state[$pkg]}" == "ON" ]]; then SELECTED_DEPS+=("$pkg"); fi; done
+        _toolchain_ensure_stow
+        echo "Selected toolchain (non-interactive presets): ${SELECTED_DEPS[*]:-<none>}" >&2
+        echo "13 toolchain offered" >&2
+        return 0
+    fi
+    echo "" >&2
+    echo "Toolchain — toggle dependencies before any write (13 individually toggleable):" >&2
+    echo "" >&2
+    local i=1
+    for pkg in "${ALL_TOOLCHAIN[@]}"; do
+        local state="${preset_state[$pkg]}"
+        local marker="[x]"
+        if [[ "$state" != "ON" ]]; then marker="[ ]"; fi
+        local note=""
+        if [[ "$pkg" == "stow" ]]; then note=" (required for deployment)"; fi
+        printf " %2d %s %s%s\n" "$i" "$marker" "$pkg" "$note" >&2
+        i=$((i + 1))
+    done
+    echo "" >&2
+    echo "Enter numbers to toggle (e.g., '1 3' or '1,3'), press Enter to keep presets, or 'c' to cancel:" >&2
+    local reply
+    if ! read -r -p "> " reply; then echo "Error: failed to read toolchain checklist input" >&2; return 1; fi
+    reply="$(echo "$reply" | xargs 2>/dev/null || echo "$reply")"
+    if [[ "$reply" == "c" ]] || [[ "$reply" == "C" ]] || [[ "$reply" == "cancel" ]]; then echo "Checklist cancelled by user." >&2; return 1; fi
+    if [[ -z "$reply" ]]; then
+        SELECTED_DEPS=()
+        for pkg in "${ALL_TOOLCHAIN[@]}"; do if [[ "${preset_state[$pkg]}" == "ON" ]]; then SELECTED_DEPS+=("$pkg"); fi; done
+        _toolchain_ensure_stow
+        echo "Keeping presets: ${SELECTED_DEPS[*]:-<none>}" >&2
+        echo "13 toolchain offered" >&2
+        return 0
+    fi
+    declare -A toggled
+    for pkg in "${ALL_TOOLCHAIN[@]}"; do toggled["$pkg"]="${preset_state[$pkg]}"; done
+    local normalized="${reply//,/ }"
+    local tok
+    for tok in $normalized; do
+        if ! [[ "$tok" =~ ^[0-9]+$ ]]; then echo "Warning: ignoring invalid token '$tok'" >&2; continue; fi
+        if [[ "$tok" -lt 1 ]] || [[ "$tok" -gt ${#ALL_TOOLCHAIN[@]} ]]; then echo "Warning: ignoring out-of-range selection '$tok'" >&2; continue; fi
+        local idx=$((tok - 1))
+        local target_pkg="${ALL_TOOLCHAIN[$idx]}"
+        if [[ "${toggled[$target_pkg]}" == "ON" ]]; then toggled["$target_pkg"]="OFF"; else toggled["$target_pkg"]="ON"; fi
+    done
+    SELECTED_DEPS=()
+    for pkg in "${ALL_TOOLCHAIN[@]}"; do if [[ "${toggled[$pkg]}" == "ON" ]]; then SELECTED_DEPS+=("$pkg"); fi; done
+    _toolchain_ensure_stow
+    echo "13 toolchain offered" >&2
+    return 0
+}
+
+prompt_toolchain_checklist() {
+    if [[ "$YES" == true ]]; then
+        SELECTED_DEPS=("${ALL_TOOLCHAIN[@]}")
+        _toolchain_ensure_stow
+        echo "Selected toolchain (--yes presets): ${SELECTED_DEPS[*]:-<none>}" >&2
+        echo "13 toolchain offered" >&2
+        return 0
+    fi
+    if [[ ! -t 0 ]]; then
+        if ! toolchain_read; then return 1; fi
+        return 0
+    fi
+    local rc
+    if toolchain_gum; then return 0; fi; rc=$?
+    if [[ $rc -eq 2 ]]; then return 1; fi
+    if toolchain_whiptail; then return 0; fi; rc=$?
+    if [[ $rc -eq 2 ]]; then return 1; fi
+    if toolchain_dialog; then return 0; fi; rc=$?
+    if [[ $rc -eq 2 ]]; then return 1; fi
+    if toolchain_fzf; then return 0; fi; rc=$?
+    if [[ $rc -eq 2 ]]; then return 1; fi
+    if toolchain_read; then return 0; fi; rc=$?
+    if [[ $rc -eq 2 ]] || [[ $rc -eq 1 ]]; then return 1; fi
+    return 1
+}
+
 main() {
     parse_args "$@"
     if [[ ! -f "$SCRIPT_DIR/setup.sh" ]]; then echo "Error: run from the dotfiles repo root (setup.sh not found in $SCRIPT_DIR)." >&2; exit 1; fi
@@ -755,6 +1018,12 @@ main() {
     echo "Final package selection: ${SELECTED_PACKAGES[*]}"
     echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
     echo "7 packages offered" >&2
+    echo ""
+    echo "=== Toolchain Selection ==="
+    if ! prompt_toolchain_checklist; then echo "Installation cancelled at toolchain checklist." >&2; exit 1; fi
+    echo ""
+    echo "Final toolchain selection: ${SELECTED_DEPS[*]} (offered 13, selected ${#SELECTED_DEPS[@]})" >&2
+    echo "13 toolchain offered" >&2
     local -a deps=()
     if ! mapfile -t deps < <(get_deps "$FAMILY" "$MODE"); then echo "Error: failed to get dependencies for $FAMILY/$MODE" >&2; exit 1; fi
     verify_deps "${deps[@]}"
