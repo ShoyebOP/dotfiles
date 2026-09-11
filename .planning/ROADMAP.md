@@ -59,12 +59,12 @@ Plans:
   4. User gets Zsh provisioned before stow completes — installer ensures `zsh` binary present, clones Zinit commit-pinned if missing, stows `zsh`, and offers `chsh -s $(which zsh)` only after explicit confirmation (never auto)
   5. User reads `README.md`, `nvim/README.md`, and in-code comments and sees `Default: Zsh | Backup: Nushell`, primary example `bash setup.sh --mode local` / `--dry-run`, and correct `stow --restow nvim zsh starship` vs manual sections
 
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
 
-- [ ] 02-01: Reversible uninstall + privileged keyd safety gate + Hyprland server guard
-- [ ] 02-02: Zsh self-provision (Zinit) + docs flipped to Zsh default
+- [ ] 02-01-PLAN.md — Reversible uninstall + privileged keyd safety gate + Hyprland server guard (tracer)
+- [ ] 02-02-PLAN.md — Zsh self-provision (Zinit) + docs flipped to Zsh default + staged teardown delete
 
 ### Phase 3: Polished Shell, Theme & Local Overrides
 
