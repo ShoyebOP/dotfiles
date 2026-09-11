@@ -581,26 +581,38 @@ install_keyd_privileged() {
 
 # .stow-conflicts/<timestamp>/ is never auto-deleted on uninstall — remains as safety backup per D-04
 run_uninstall() {
-    for pkg in "${SELECTED_PACKAGES[@]}"; do
-        if [[ "$pkg" == "keyd" ]]; then
-            continue
-        fi
-        echo "[DRY RUN] Would run: stow --dir=\"$SCRIPT_DIR\" --target=\"$HOME\" --delete $pkg"
-        if command -v stow >/dev/null 2>&1; then
-            stow --dir="$SCRIPT_DIR" --target="$HOME" --no --verbose --delete "$pkg" 2>&1 | sed 's/^/  /' || true
-        else
-            echo "  (stow not found — would install via package manager first)"
-        fi
-    done
-    if printf '%s\n' "${SELECTED_PACKAGES[@]}" | grep -qx keyd; then
-        echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ --no --verbose --delete keyd"
-        if command -v stow >/dev/null 2>&1; then
-            sudo stow --dir="$SCRIPT_DIR" --target=/ --no --verbose --delete keyd 2>&1 | sed 's/^/  /' || true
-        else
-            echo "  (stow not found — would install via package manager first)"
-        fi
-    fi
+    # DRY_RUN preview for HOME stow -D and privileged keyd -D
     if [[ "$DRY_RUN" == true ]]; then
+        for pkg in "${SELECTED_PACKAGES[@]}"; do
+            if [[ "$pkg" == "keyd" ]]; then
+                continue
+            fi
+            echo "[DRY RUN] Would run: stow --dir=\"$SCRIPT_DIR\" --target=\"$HOME\" --delete $pkg"
+            if command -v stow >/dev/null 2>&1; then
+                stow --dir="$SCRIPT_DIR" --target="$HOME" --no --verbose --delete "$pkg" 2>&1 | sed 's/^/  /' || true
+            else
+                echo "  (stow not found — would install via package manager first)"
+            fi
+        done
+        if printf '%s\n' "${SELECTED_PACKAGES[@]}" | grep -qx keyd; then
+            echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ --no --verbose --delete keyd"
+            if command -v stow >/dev/null 2>&1; then
+                sudo stow --dir="$SCRIPT_DIR" --target=/ --no --verbose --delete keyd 2>&1 | sed 's/^/  /' || true
+            else
+                echo "  (stow not found — would install via package manager first)"
+            fi
+        fi
+        # Mason preview when nvim deselected (D-02)
+        if ! printf '%s\n' "${SELECTED_PACKAGES[@]}" | grep -qx nvim; then
+            if [[ -d "$HOME/.local/share/nvim/mason" ]]; then
+                echo "Removing Mason artefacts: ~/.local/share/nvim/mason (nvim deselected)" >&2
+                echo "[DRY RUN] Would run: rm -rf ~/.local/share/nvim/mason"
+            else
+                echo "[DRY RUN] Would run: rm -rf ~/.local/share/nvim/mason (nvim deselected, dir not present)"
+            fi
+        fi
+        # Legacy mode file preview (no filesystem touch)
+        echo "[DRY RUN] Would run: rm -f ~/.config/dotfiles/mode and $SCRIPT_DIR/.dotfiles-mode (legacy cleanup)"
         return 0
     fi
     if [[ "$YES" != true ]]; then
@@ -645,6 +657,17 @@ run_uninstall() {
         fi
         sudo keyd reload 2>/dev/null || sudo systemctl reload keyd 2>/dev/null || true
     fi
+    # Mason artefact cleanup only when nvim not selected (D-02)
+    if ! printf '%s\n' "${SELECTED_PACKAGES[@]}" | grep -qx nvim; then
+        if [[ -d "$HOME/.local/share/nvim/mason" ]]; then
+            echo "Removing Mason artefacts: ~/.local/share/nvim/mason (nvim deselected)" >&2
+            rm -rf "$HOME/.local/share/nvim/mason"
+            rmdir "$HOME/.local/share/nvim" 2>/dev/null || true
+        fi
+    fi
+    # Legacy mode-file cleanup with no error if absent per D-04 and D-11
+    rm -f "$HOME/.config/dotfiles/mode" 2>/dev/null || true
+    rm -f "$SCRIPT_DIR/.dotfiles-mode" 2>/dev/null || true
     echo ""
     echo "Uninstall complete. Deployed removal for: ${SELECTED_PACKAGES[*]}"
     return 0
