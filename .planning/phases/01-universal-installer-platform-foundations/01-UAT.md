@@ -1,14 +1,14 @@
 ---
-status: diagnosed
+status: complete
 phase: 01-universal-installer-platform-foundations
 source: [01-01-SUMMARY.md, 01-02-SUMMARY.md]
 started: 2026-09-10T18:57:15Z
-updated: 2026-09-11T12:11:53Z
+updated: 2026-09-11T14:42:52.483499Z
 ---
 
 ## Current Test
 
-[testing complete — 1 issue outstanding (G-01-14b expansion of checklist to deps), 1 deferred (G-01-16 shell change)]
+[testing complete]
 
 ## Tests
 
@@ -105,10 +105,10 @@ resolved_by: 01-04-PLAN.md
 
 ### 14. All 7 packages shown as toggleable
 expected: |
-  Package checklist shows all 7 packages (nvim, zsh, nushell, alacritty, starship, wofi, keyd) individually toggleable
-result: issue
-reported: "there is a issue, actually i need all the apps to be toggleable not just the one that has configs to stow - Verifying dependencies...  - stow (missing, need 'stow')  - neovim (missing, need 'nvim')  - starship (missing, need 'starship')  + git (installed)  - zoxide (missing, need 'zoxide')  - uv (missing, need 'uv')  - ripgrep (missing, need 'rg')  - nodejs (missing, need 'node')  - npm (missing, need 'npm')  - make (missing, need 'make')  - gcc (missing, need 'gcc')  - fzf (missing, need 'fzf')  - zsh (missing, need 'zsh')"
-severity: major
+  Package checklist shows all 7 packages (nvim, zsh, nushell, alacritty, starship, wofi, keyd) individually toggleable — expanded via G-01-14b to 7 stow + 13 toolchain individually toggleable
+result: pass
+re-tested: 2026-09-11 — two-step checklist 7+13 before any write with filtered verify/install/preview verified live (dry-run order Package 6 < Toolchain 15 < Verifying 22 < Preview 40, 7/13 offered, Toolchain preview line, --yes/non-TTY presets) — user confirmed yes
+resolved_by: 01-05-PLAN.md
 
 ### 15. Repo update before install (apt update / pacman -Sy)
 expected: |
@@ -126,8 +126,8 @@ reason: "Deferred follow-up: also shell doesnt change after all the changes — 
 ## Summary
 
 total: 16
-passed: 14
-issues: 1
+passed: 15
+issues: 0
 pending: 0
 skipped: 1
 blocked: 0
@@ -202,7 +202,7 @@ blocked: 0
 
 - gap_id: G-01-14b
   truth: "Package checklist shows all 7 packages (nvim, zsh, nushell, alacritty, starship, wofi, keyd) individually toggleable — user now expects dependencies (stow, neovim, starship, zoxide, uv, ripgrep, nodejs, npm, make, gcc, fzf, zsh, git) to also be individually toggleable, not just stow packages"
-  status: failed
+  status: resolved
   reason: "User reported: there is a issue, actually i need all the apps to be toggleable not just the one that has configs to stow - Verifying dependencies lists stow/nvim/starship/zoxide/uv/rg/node/npm/make/gcc/fzf/zsh as non-toggleable deps"
   severity: major
   test: 14
@@ -217,6 +217,8 @@ blocked: 0
     - "If (A): add DEP_OWNERS associative map and checklist second step for deps or expand ALL_PACKAGES to include deps with ON/OFF; ensure dry-run previews both stow and deps under same Preview block"
     - "If (B): add pre-verify echo 'Core deps (auto-installed): stow, git, zoxide, uv, rg, node, npm, make, gcc, fzf, zsh' and checklist header 'Toggle deployable configs (7)' to disambiguate"
   debug_session: ".planning/debug/deps-toggle-scope.md"
+  resolved_by: 01-05-PLAN.md
+  resolved_at: 2026-09-11
 
 
 ## Deferred Follow-Ups
