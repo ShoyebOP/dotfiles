@@ -12,3 +12,4 @@ nvim/.config/nvim/cache/
 
 # Installer quarantine (D-13/D-14) — timestamped collision backup, gitignored
 .stow-conflicts/
+.cache
