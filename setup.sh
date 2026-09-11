@@ -579,6 +579,113 @@ install_keyd_privileged() {
     sudo keyd reload 2>/dev/null || sudo systemctl reload keyd 2>/dev/null || true
 }
 
+# D-05 verbatim: offer to remove all installed deps via manager, not only stow config related ones — reuse per-family install names to removal commands, dry-run preview, same yes gate
+offer_system_package_removal() {
+    if [[ -z "${FAMILY:-}" ]]; then
+        # No family detected — cannot determine manager
+        return 0
+    fi
+    local -a candidates=()
+    if [[ ${#SELECTED_DEPS[@]} -gt 0 ]]; then
+        candidates=("${SELECTED_DEPS[@]}")
+    else
+        candidates=("${ALL_TOOLCHAIN[@]}")
+    fi
+    # Filter candidates through filter_deps_by_selection when SELECTED_DEPS is active
+    # This preserves ALL_TOOLCHAIN order and respects user's toolchain checklist
+    if [[ ${#SELECTED_DEPS[@]} -gt 0 ]]; then
+        local -a filtered=()
+        if ! mapfile -t filtered < <(filter_deps_by_selection "${candidates[@]}"); then
+            filtered=("${candidates[@]}")
+        fi
+        candidates=("${filtered[@]}")
+    fi
+    if [[ ${#candidates[@]} -eq 0 ]]; then
+        return 0
+    fi
+    if [[ "$DRY_RUN" == true ]]; then
+        local pkg
+        for pkg in "${candidates[@]}"; do
+            case "$FAMILY" in
+                arch) echo "[DRY RUN] Would run: sudo pacman -Rns $pkg" ;;
+                debian) echo "[DRY RUN] Would run: sudo apt remove -y $pkg" ;;
+                termux) echo "[DRY RUN] Would run: pkg uninstall $pkg" ;;
+                *) echo "[DRY RUN] Would run: remove $pkg (unknown family $FAMILY)" ;;
+            esac
+        done
+        return 0
+    fi
+    echo ""
+    echo "=== System packages installed via setup.sh ==="
+    printf "  %s\n" "${candidates[@]}"
+    echo ""
+    local confirmed=false
+    if [[ "$YES" == true ]]; then
+        confirmed=true
+    elif command -v gum >/dev/null 2>&1; then
+        local manager="apt"
+        case "$FAMILY" in
+            arch) manager="pacman" ;;
+            debian) manager="apt" ;;
+            termux) manager="pkg" ;;
+        esac
+        if gum confirm "Remove system packages listed above via $manager?"; then
+            confirmed=true
+        else
+            echo "Skipping system package removal." >&2
+            return 0
+        fi
+    else
+        local manager="apt"
+        case "$FAMILY" in
+            arch) manager="pacman" ;;
+            debian) manager="apt" ;;
+            termux) manager="pkg" ;;
+        esac
+        local reply=""
+        printf "Offer to remove system packages via %s for: %s. Type 'yes' to confirm: " "$manager" "${candidates[*]}" >&2
+        if ! read -r reply; then
+            echo "Error: failed to read input" >&2
+            return 1
+        fi
+        if [[ "$reply" == "yes" ]]; then
+            confirmed=true
+        else
+            echo "Skipping system package removal." >&2
+            return 0
+        fi
+    fi
+    if [[ "$confirmed" != true ]]; then
+        echo "Skipping system package removal." >&2
+        return 0
+    fi
+    local pkg
+    for pkg in "${candidates[@]}"; do
+        local cmd_status=0
+        case "$FAMILY" in
+            arch)
+                if ! sudo pacman -Rns --noconfirm "$pkg" 2>&1; then
+                    echo "Warning: failed to remove '$pkg' via 'sudo pacman -Rns --noconfirm $pkg'. Try manually: sudo pacman -Rns $pkg" >&2
+                fi
+                ;;
+            debian)
+                if ! sudo apt remove -y "$pkg" 2>&1; then
+                    echo "Warning: failed to remove '$pkg' via 'sudo apt remove -y $pkg'. Try manually: sudo apt remove -y $pkg" >&2
+                fi
+                ;;
+            termux)
+                if ! pkg uninstall -y "$pkg" 2>&1; then
+                    echo "Warning: failed to remove '$pkg' via 'pkg uninstall -y $pkg'. Try manually: pkg uninstall $pkg" >&2
+                fi
+                ;;
+            *)
+                echo "Warning: unknown family '$FAMILY' — cannot remove '$pkg'" >&2
+                ;;
+        esac
+    done
+    return 0
+}
+
 # .stow-conflicts/<timestamp>/ is never auto-deleted on uninstall — remains as safety backup per D-04
 run_uninstall() {
     # DRY_RUN preview for HOME stow -D and privileged keyd -D
@@ -608,11 +715,16 @@ run_uninstall() {
                 echo "Removing Mason artefacts: ~/.local/share/nvim/mason (nvim deselected)" >&2
                 echo "[DRY RUN] Would run: rm -rf ~/.local/share/nvim/mason"
             else
+                # Even if dir missing, preview the would-run for verification visibility
                 echo "[DRY RUN] Would run: rm -rf ~/.local/share/nvim/mason (nvim deselected, dir not present)"
             fi
         fi
         # Legacy mode file preview (no filesystem touch)
         echo "[DRY RUN] Would run: rm -f ~/.config/dotfiles/mode and $SCRIPT_DIR/.dotfiles-mode (legacy cleanup)"
+        # System package preview is handled by offer_system_package_removal when present; for now show hint
+        if declare -f offer_system_package_removal >/dev/null 2>&1; then
+            offer_system_package_removal
+        fi
         return 0
     fi
     if [[ "$YES" != true ]]; then
@@ -661,6 +773,7 @@ run_uninstall() {
     if ! printf '%s\n' "${SELECTED_PACKAGES[@]}" | grep -qx nvim; then
         if [[ -d "$HOME/.local/share/nvim/mason" ]]; then
             echo "Removing Mason artefacts: ~/.local/share/nvim/mason (nvim deselected)" >&2
+            # DRY_RUN already returned above, so this is live path — remove directly
             rm -rf "$HOME/.local/share/nvim/mason"
             rmdir "$HOME/.local/share/nvim" 2>/dev/null || true
         fi
@@ -668,6 +781,10 @@ run_uninstall() {
     # Legacy mode-file cleanup with no error if absent per D-04 and D-11
     rm -f "$HOME/.config/dotfiles/mode" 2>/dev/null || true
     rm -f "$SCRIPT_DIR/.dotfiles-mode" 2>/dev/null || true
+    # System package removal offer (D-05) — handled by offer_system_package_removal if defined
+    if declare -f offer_system_package_removal >/dev/null 2>&1; then
+        offer_system_package_removal || true
+    fi
     echo ""
     echo "Uninstall complete. Deployed removal for: ${SELECTED_PACKAGES[*]}"
     return 0
