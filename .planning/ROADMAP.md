@@ -59,11 +59,11 @@ Plans:
   4. User gets Zsh provisioned before stow completes — installer ensures `zsh` binary present, clones Zinit commit-pinned if missing, stows `zsh`, and offers `chsh -s $(which zsh)` only after explicit confirmation (never auto)
   5. User reads `README.md`, `nvim/README.md`, and in-code comments and sees `Default: Zsh | Backup: Nushell`, primary example `bash setup.sh --mode local` / `--dry-run`, and correct `stow --restow nvim zsh starship` vs manual sections
 
-**Plans**: 2 plans
+**Plans**: 1/2 plans executed
 
 Plans:
 
-- [ ] 02-01-PLAN.md — Reversible uninstall + privileged keyd safety gate + Hyprland server guard (tracer)
+- [x] 02-01-PLAN.md — Reversible uninstall + privileged keyd safety gate + Hyprland server guard (tracer)
 - [ ] 02-02-PLAN.md — Zsh self-provision (Zinit) + docs flipped to Zsh default + staged teardown delete
 
 ### Phase 3: Polished Shell, Theme & Local Overrides
@@ -115,6 +115,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Universal Installer + Platform Foundations | 5/5 | Complete    | 2026-09-11 |
-| 2. Safe, Reversible & Server-Safe Deployment | 0/2 | Not started | - |
+| 2. Safe, Reversible & Server-Safe Deployment | 1/2 | In Progress|  |
 | 3. Polished Shell, Theme & Local Overrides | 0/1 | Not started | - |
 | 4. Editor Autonomy & Verified Health | 0/2 | Not started | - |

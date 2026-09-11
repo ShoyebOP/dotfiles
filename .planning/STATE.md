@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 2
 current_phase_name: Safe, Reversible & Server-Safe Deployment
 status: planning
-stopped_at: Phase 2 context gathered
-last_updated: "2026-09-11T17:56:06.917Z"
+stopped_at: Completed 02-01-PLAN.md
+last_updated: "2026-09-11T19:54:47.761Z"
 last_activity: 2026-09-11
 last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 2
   completed_phases: 1
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 7
+  completed_plans: 6
 ---
 
 # Project State
@@ -32,7 +32,7 @@ Plan: Not started
 Status: Ready to plan
 Last activity: 2026-09-11 — Phase 01 complete, transitioned to Phase 2
 
-Progress: [██████████] 100%
+Progress: [█████████░] 86%
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Progress: [██████████] 100%
 | Phase 01 P03 | 1 min | 1 tasks | 1 files |
 | Phase 01 P04 | 4 min | 3 tasks | 1 files |
 | Phase 01 P05 | 3 min | 2 tasks | 1 files |
+| Phase 02-safe-reversible-server-safe-deployment P01 | 6 min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Staged delete of setup.nu/setup.zsh with atomic README/.gitignore repair; keyd Phase-2 skip — No shims, git history is recovery; docs now canonical Bash entry with Zsh default, Nushell backup, no --adopt in Phase 1
 - [Phase 01]: POSIX guard via [ -z "${BASH_VERSION-}" ] before strict mode ensures sh fails fast with guidance — Preserves bash/shebang paths; uses POSIX [ and ${BASH_VERSION-} so dash executes guidance before pipefail crash
 - [Phase 01]: Two-step checklist (7 stow + 13 toolchain) before any write with SELECTED_DEPS filtering — Honors user's explicit toggleable deps decision, closes G-01-14b
+- [Phase ?]: Use DRY_RUN early-return before every filesystem mutation including stow -D and privileged writes — Ensures preview safety per D-03/D-06/D-09
+- [Phase ?]: Privileged keyd gate with preview + diff -u + conditional --adopt + reload || true — Prevents surprise /etc writes per STOW-02
 
 ### Pending Todos
 
@@ -109,6 +112,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-11T17:56:06.908Z
-Stopped at: Phase 2 context gathered
-Resume file: /home/shoyeb/dotfiles/.planning/phases/02-safe-reversible-server-safe-deployment/02-CONTEXT.md
+Last session: 2026-09-11T19:54:47.750Z
+Stopped at: Completed 02-01-PLAN.md
+Resume file: None
