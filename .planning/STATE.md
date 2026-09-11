@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 2
 current_phase_name: Safe, Reversible & Server-Safe Deployment
 status: planning
-stopped_at: Completed 01-04-PLAN.md
-last_updated: "2026-09-10T20:13:19.571Z"
+stopped_at: Completed 01-05-PLAN.md
+last_updated: "2026-09-11T13:42:23.696Z"
 last_activity: 2026-09-11
 last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 1
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  total_plans: 5
+  completed_plans: 5
 ---
 
 # Project State
@@ -38,7 +38,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: -
 - Total execution time: 0.0 hours
 
@@ -50,7 +50,7 @@ Progress: [██████████] 100%
 | 2. Safe, Reversible & Server-Safe Deployment | 0/2 | - | - |
 | 3. Polished Shell, Theme & Local Overrides | 0/1 | - | - |
 | 4. Editor Autonomy & Verified Health | 0/2 | - | - |
-| 01 | 4 | - | - |
+| 01 | 5 | - | - |
 
 **Recent Trend:**
 
@@ -66,6 +66,7 @@ Progress: [██████████] 100%
 | Phase 01 P02 | 5 min | 3 tasks | 5 files |
 | Phase 01 P03 | 1 min | 1 tasks | 1 files |
 | Phase 01 P04 | 4 min | 3 tasks | 1 files |
+| Phase 01 P05 | 3 min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -88,6 +89,7 @@ Recent decisions affecting current work:
 - [Phase ?]: Outside-repo-root guard requires ./setup.sh in CWD alongside SCRIPT_DIR/setup.sh — Fixes donor CWD-relative stow defect and prevents privileged writes from wrong directory
 - [Phase ?]: Staged delete of setup.nu/setup.zsh with atomic README/.gitignore repair; keyd Phase-2 skip — No shims, git history is recovery; docs now canonical Bash entry with Zsh default, Nushell backup, no --adopt in Phase 1
 - [Phase 01]: POSIX guard via [ -z "${BASH_VERSION-}" ] before strict mode ensures sh fails fast with guidance — Preserves bash/shebang paths; uses POSIX [ and ${BASH_VERSION-} so dash executes guidance before pipefail crash
+- [Phase 01]: Two-step checklist (7 stow + 13 toolchain) before any write with SELECTED_DEPS filtering — Honors user's explicit toggleable deps decision, closes G-01-14b
 
 ### Pending Todos
 
@@ -107,6 +109,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-10T20:08:57.477Z
-Stopped at: Completed 01-04-PLAN.md
+Last session: 2026-09-11T13:42:23.687Z
+Stopped at: Completed 01-05-PLAN.md
 Resume file: None
