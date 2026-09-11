@@ -197,7 +197,48 @@ get_deps() {
             return 1
             ;;
     esac
-    if [[ "$mode" == "local" ]]; then printf '%s\n' "${common[@]}" "${gui[@]}"; else printf '%s\n' "${common[@]}"; fi
+    local -a _all=()
+    if [[ "$mode" == "local" ]]; then _all=("${common[@]}" "${gui[@]}"); else _all=("${common[@]}"); fi
+    if [[ ${#SELECTED_DEPS[@]} -gt 0 ]]; then
+        local -a _f=()
+        local _d
+        for _d in "${_all[@]}"; do
+            local _is_tc=false
+            local _tt
+            for _tt in "${ALL_TOOLCHAIN[@]}"; do if [[ "$_d" == "$_tt" ]]; then _is_tc=true; break; fi; done
+            if [[ "$_is_tc" == true ]]; then
+                local _sel=false
+                for _tt in "${SELECTED_DEPS[@]}"; do if [[ "$_tt" == "$_d" ]]; then _sel=true; break; fi; done
+                if [[ "$_sel" == true ]]; then _f+=("$_d"); fi
+            else
+                _f+=("$_d")
+            fi
+        done
+        printf '%s\n' "${_f[@]}"
+    else
+        printf '%s\n' "${_all[@]}"
+    fi
+}
+
+# 01-05: filter deps by toolchain selection — only toolchain names are toggleable;
+# gui extras (hyprland/waybar/etc.) bypass the filter and are governed by mode alone
+filter_deps_by_selection() {
+    local -a input=("$@")
+    local -a out=()
+    local dep
+    for dep in "${input[@]}"; do
+        local is_toolchain=false
+        local t
+        for t in "${ALL_TOOLCHAIN[@]}"; do if [[ "$dep" == "$t" ]]; then is_toolchain=true; break; fi; done
+        if [[ "$is_toolchain" == true ]]; then
+            local sel=false
+            for t in "${SELECTED_DEPS[@]}"; do if [[ "$t" == "$dep" ]]; then sel=true; break; fi; done
+            if [[ "$sel" == true ]]; then out+=("$dep"); fi
+        else
+            out+=("$dep")
+        fi
+    done
+    printf '%s\n' "${out[@]}"
 }
 
 verify_command() { command -v "${1-}" >/dev/null 2>&1; }
@@ -277,7 +318,13 @@ reverify_deps() {
     local mode="${2-}"
     local -a deps=()
     if ! mapfile -t deps < <(get_deps "$family" "$mode"); then echo "Error: failed to get deps for re-verify" >&2; return 1; fi
-    verify_deps "${deps[@]}"
+    local -a filtered=()
+    if [[ ${#SELECTED_DEPS[@]} -eq 0 ]]; then
+        filtered=("${deps[@]}")
+    else
+        if ! mapfile -t filtered < <(filter_deps_by_selection "${deps[@]}"); then echo "Error: failed to filter deps for re-verify" >&2; return 1; fi
+    fi
+    verify_deps "${filtered[@]}"
     local -a still_missing=("${VERIFY_MISSING[@]}")
     if [[ ${#still_missing[@]} -gt 0 ]]; then
         echo ""; echo "Error: Still missing dependencies after install: ${still_missing[*]}" >&2
@@ -1026,7 +1073,9 @@ main() {
     echo "13 toolchain offered" >&2
     local -a deps=()
     if ! mapfile -t deps < <(get_deps "$FAMILY" "$MODE"); then echo "Error: failed to get dependencies for $FAMILY/$MODE" >&2; exit 1; fi
-    verify_deps "${deps[@]}"
+    local -a filtered_deps=()
+    if ! mapfile -t filtered_deps < <(filter_deps_by_selection "${deps[@]}"); then echo "Error: failed to filter deps" >&2; exit 1; fi
+    verify_deps "${filtered_deps[@]}"
     local -a missing=("${VERIFY_MISSING[@]}")
     local -a gui_list=()
     case "$FAMILY" in arch) gui_list=(hyprland alacritty wofi keyd waybar grim slurp wl-copy) ;; debian) gui_list=(alacritty wofi waybar grim slurp wl-copy) ;; termux) gui_list=() ;; esac
@@ -1050,10 +1099,15 @@ main() {
             fi
         fi
         if [[ "$outdated" == true ]]; then
-            echo "Stow $stow_ver < 2.4.1 — will upgrade via $FAMILY manager."
-            local found=false; local p
-            for p in "${missing[@]}"; do if [[ "$p" == "stow" ]]; then found=true; break; fi; done
-            if [[ "$found" == false ]]; then missing+=("stow"); core_missing+=("stow"); fi
+            local stow_selected=false
+            local _sd
+            for _sd in "${SELECTED_DEPS[@]}"; do if [[ "$_sd" == "stow" ]]; then stow_selected=true; break; fi; done
+            if [[ "$stow_selected" == true ]]; then
+                echo "Stow $stow_ver < 2.4.1 — will upgrade via $FAMILY manager."
+                local found=false; local p
+                for p in "${missing[@]}"; do if [[ "$p" == "stow" ]]; then found=true; break; fi; done
+                if [[ "$found" == false ]]; then missing+=("stow"); core_missing+=("stow"); fi
+            fi
         fi
     fi
     if [[ "$DRY_RUN" == true ]]; then
@@ -1078,6 +1132,7 @@ main() {
             echo ""
             echo "DRY RUN: deps already satisfied."
         fi
+        echo "Toolchain preview: ${#missing[@]} to install among ${#SELECTED_DEPS[@]} selected"
         preview_selection
         echo ""
         echo "DRY RUN complete — no writes performed."
