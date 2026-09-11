@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 2
-current_phase_name: Safe, Reversible & Server-Safe Deployment
-status: planning
-stopped_at: Completed 02-01-PLAN.md
-last_updated: "2026-09-11T19:54:47.761Z"
+current_phase: 3
+current_phase_name: Polished Shell, Theme & Local Overrides
+status: ready
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-09-11T20:07:05Z"
 last_activity: 2026-09-11
-last_activity_desc: Phase 01 execution started
+last_activity_desc: Completed 02-02 Zsh self-provision + docs flip + staged teardown delete
 progress:
-  total_phases: 2
-  completed_phases: 1
-  total_plans: 7
-  completed_plans: 6
+  total_phases: 4
+  completed_phases: 2
+  total_plans: 8
+  completed_plans: 7
 ---
 
 # Project State
@@ -28,11 +28,11 @@ See: .planning/PROJECT.md (updated 2026-09-10)
 ## Current Position
 
 Phase: 2 — Safe, Reversible & Server-Safe Deployment
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-09-11 — Phase 01 complete, transitioned to Phase 2
+Plan: 02-02 Complete
+Status: Complete
+Last activity: 2026-09-11 — Completed 02-02 Zsh self-provision + docs flip + staged teardown delete
 
-Progress: [█████████░] 86%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -68,6 +68,7 @@ Progress: [█████████░] 86%
 | Phase 01 P04 | 4 min | 3 tasks | 1 files |
 | Phase 01 P05 | 3 min | 2 tasks | 1 files |
 | Phase 02-safe-reversible-server-safe-deployment P01 | 6 min | 3 tasks | 2 files |
+| Phase 02-safe-reversible-server-safe-deployment P02 | 5 min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -92,7 +93,11 @@ Recent decisions affecting current work:
 - [Phase 01]: POSIX guard via [ -z "${BASH_VERSION-}" ] before strict mode ensures sh fails fast with guidance — Preserves bash/shebang paths; uses POSIX [ and ${BASH_VERSION-} so dash executes guidance before pipefail crash
 - [Phase 01]: Two-step checklist (7 stow + 13 toolchain) before any write with SELECTED_DEPS filtering — Honors user's explicit toggleable deps decision, closes G-01-14b
 - [Phase ?]: Use DRY_RUN early-return before every filesystem mutation including stow -D and privileged writes — Ensures preview safety per D-03/D-06/D-09
-- [Phase ?]: Privileged keyd gate with preview + diff -u + conditional --adopt + reload || true — Prevents surprise /etc writes per STOW-02
+ - [Phase ?]: Privileged keyd gate with preview + diff -u + conditional --adopt + reload || true — Prevents surprise /etc writes per STOW-02
+ - [Phase 02-02]: Zsh provision via common deps before stow, Zinit self-clones on first zsh launch via zsh/.zshrc — no installer clone, no commit pin per D-12
+ - [Phase 02-02]: chsh -s $(which zsh) offered only at very end after quarantine_scan+run_stow+post_verify succeed, explicit Type 'yes', --yes does NOT bypass, dry-run previews, Termux/already-zsh skipped per D-13
+ - [Phase 02-02]: Docs flipped to Default: Zsh | Backup: Nushell — README shell-path table, quick-start, manual stow one-liners, keyd preview+sudoers reload, Zinit note per D-14
+ - [Phase 02-02]: Staged delete teardown.zsh/teardown.nu with atomic doc fix, no shims, recoverable via git history per D-15
 
 ### Pending Todos
 
@@ -112,6 +117,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-11T19:54:47.750Z
-Stopped at: Completed 02-01-PLAN.md
+Last session: 2026-09-11T20:07:05Z
+Stopped at: Completed 02-02-PLAN.md
 Resume file: None

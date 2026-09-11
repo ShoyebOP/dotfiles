@@ -29,7 +29,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Shell — Zsh (Default)
 
-- [ ] **SHEL-01**: User gets Zsh provisioned before stow — installer ensures `zsh` binary present, clones Zinit (commit-pinned) if missing, and offers `chsh -s $(which zsh)` only after explicit user confirmation (never auto)
+- [x] **SHEL-01**: User gets Zsh provisioned before stow — installer ensures `zsh` binary present, clones Zinit (commit-pinned) if missing, and offers `chsh -s $(which zsh)` only after explicit user confirmation (never auto)
 - [ ] **SHEL-02**: User can fuzzy-search command history with `Ctrl+R` via `fzf` without conflicts — `fzf` in core deps, version-branch `source <(fzf --zsh)` ≥0.48 else legacy, plugin order fixed (`zsh-autocomplete` vs `zsh-fzf-history-search` double-bind resolved), `bindkey '^R' fzf-history-widget` normalized
 - [ ] **SHEL-03**: User's `PATH` is deduped and stable — `typeset -U path` in `zsh/.zshrc`, no duplicates after reload (`echo $PATH | tr : '\n' | sort | uniq -d` empty)
 - [ ] **SHEL-04**: User can add machine-local Zsh overrides via gitignored `~/.zshrc.local` (and `zsh/.zshrc.local`) auto-sourced at tail of `zsh/.zshrc` after `zoxide init` and before `p10k` apply — git stays clean on second machine
@@ -44,7 +44,7 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Docs, Theme & Health
 
 - [ ] **THEM-01**: User's theme is consistent — single `THEME` token (e.g., `theme.toml`/`THEME` env) and `setup.sh apply_theme()` validates `alacritty catppuccin-mocha` vs `starship catppuccin_latte` vs `nvim` mismatch warns instead of silent 4-file drift
-- [ ] **DOCS-01**: User sees documentation flipped to Zsh default — `README.md` table shows `Default: Zsh | Backup: Nushell`, primary example is `bash setup.sh --mode local`, manual `stow --restow nvim zsh starship` vs `nvim nushell starship` sections, plus `nvim/README.md` and in-code comments updated; `AGENTS.md` guidance included
+- [x] **DOCS-01**: User sees documentation flipped to Zsh default — `README.md` table shows `Default: Zsh | Backup: Nushell`, primary example is `bash setup.sh --mode local`, manual `stow --restow nvim zsh starship` vs `nvim nushell starship` sections, plus `nvim/README.md` and in-code comments updated; `AGENTS.md` guidance included
 - [ ] **HLTH-01**: User or agent can validate without a VM via `--self-test`/`--verify` health gates — TAP output checks Stow symlinks (`readlink -f`), `z`/`zi`/`zoxide`, `starship`/`zoxide` hooks, `nvim --headless -c "checkhealth"` zero errors, Mason packages, `bindkey '^R'`, `PATH` dedup, `stow --no --verbose` folding
 
 ## v2 Requirements
@@ -98,7 +98,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STOW-01 | Phase 1 | Complete |
 | STOW-02 | Phase 2 | Complete |
 | STOW-03 | Phase 2 | Complete |
-| SHEL-01 | Phase 2 | Pending |
+| SHEL-01 | Phase 2 | Complete |
 | SHEL-02 | Phase 3 | Pending |
 | SHEL-03 | Phase 3 | Pending |
 | SHEL-04 | Phase 3 | Pending |
@@ -107,7 +107,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EDIT-03 | Phase 4 | Pending |
 | EDIT-04 | Phase 3 | Pending |
 | THEM-01 | Phase 3 | Pending |
-| DOCS-01 | Phase 2 | Pending |
+| DOCS-01 | Phase 2 | Complete |
 | HLTH-01 | Phase 4 | Pending |
 
 **Coverage:**

@@ -142,3 +142,9 @@ None - no external service configuration required.
 ---
 *Phase: 02-safe-reversible-server-safe-deployment*
 *Completed: 2026-09-11*
+
+## Self-Check: PASSED
+
+- All task commits verified: bcd2552, dafa44d, 867388c, ae49cfe (SUMMARY) all present in git log
+- All key files verified on disk: setup.sh, zsh/.zshrc, README.md, AGENTS.md present; teardown.zsh/teardown.nu deleted as expected
+- SUMMARY.md exists and is committed
