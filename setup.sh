@@ -178,6 +178,8 @@ get_deps() {
     local mode="${2-}"
     local -a common=()
     local -a gui=()
+    # zsh in common ensures Zsh provision before stow per D-12 (Phase 1 make+gcc+fzf+zsh decision)
+    # Zinit self-clones on first zsh launch via zsh/.zshrc — no installer clone, no commit pin per D-12
     case "$family" in
         arch)
             common=(stow neovim starship git zoxide uv ripgrep nodejs npm make gcc fzf zsh)
@@ -684,6 +686,45 @@ offer_system_package_removal() {
         esac
     done
     return 0
+}
+
+offer_chsh() {
+    local zsh_path
+    if ! zsh_path="$(command -v zsh 2>/dev/null)"; then
+        echo "Warning: zsh not found — cannot offer chsh." >&2
+        return 0
+    fi
+    if [[ -n "${SHELL-}" ]] && [[ "$zsh_path" == "$SHELL" ]]; then
+        echo "Default shell already zsh ($SHELL) — skipping chsh offer." >&2
+        return 0
+    fi
+    if [[ "${FAMILY:-}" == "termux" ]]; then
+        echo "Termux detected — chsh not applicable; skipping default shell change." >&2
+        return 0
+    fi
+    if ! command -v chsh >/dev/null 2>&1; then
+        echo "chsh not found — skipping. Run manually: chsh -s $zsh_path" >&2
+        return 0
+    fi
+    if [[ "$DRY_RUN" == true ]]; then
+        echo "[DRY RUN] Would run: chsh -s $zsh_path" >&2
+        return 0
+    fi
+    local reply
+    printf "Change default shell to zsh? Type 'yes' to run chsh -s %s: " "$zsh_path" >&2
+    if ! read -r reply; then
+        echo "Error: failed to read input" >&2
+        return 1
+    fi
+    if [[ "$reply" != "yes" ]]; then
+        echo "Skipping chsh (expected 'yes'). Manually run: chsh -s $zsh_path" >&2
+        return 0
+    fi
+    if ! chsh -s "$zsh_path"; then
+        echo "Warning: chsh failed (check /etc/shells contains $zsh_path, or use sudo chsh)." >&2
+        return 1
+    fi
+    echo "Default shell changed to $zsh_path — relogin to take effect." >&2
 }
 
 # .stow-conflicts/<timestamp>/ is never auto-deleted on uninstall — remains as safety backup per D-04
@@ -1470,6 +1511,21 @@ main() {
         fi
         echo "Toolchain preview: ${#missing[@]} to install among ${#SELECTED_DEPS[@]} selected"
         preview_selection
+        # DRY_RUN chsh preview — mirrors live offer_chsh when zsh binary exists and SHELL differs
+        {
+            local _chsh_zsh_path=""
+            if _chsh_zsh_path="$(command -v zsh 2>/dev/null)"; then
+                if [[ -z "${SHELL-}" ]] || [[ "$_chsh_zsh_path" != "$SHELL" ]]; then
+                    if [[ "${FAMILY:-}" != "termux" ]]; then
+                        if command -v chsh >/dev/null 2>&1; then
+                            echo "[DRY RUN] Would run: chsh -s $_chsh_zsh_path"
+                        fi
+                    fi
+                else
+                    echo "Default shell already zsh ($SHELL) — skipping chsh offer."
+                fi
+            fi
+        } || true
         echo ""
         echo "DRY RUN complete — no writes performed."
         return 0
@@ -1491,6 +1547,7 @@ main() {
     quarantine_scan
     if ! run_stow; then echo "Error: stow deployment failed." >&2; exit 1; fi
     if ! post_verify; then echo "Error: post-verify failed — deployment incomplete." >&2; exit 1; fi
+    offer_chsh || true
     echo ""
     echo "Setup complete. Deployed: ${SELECTED_PACKAGES[*]}"
 }

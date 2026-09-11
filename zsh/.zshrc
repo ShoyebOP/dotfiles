@@ -1,8 +1,9 @@
 #!/usr/bin/env zsh
 
 # =============================================================================
-# ZSH Configuration File (.zshrc)
+# ZSH Configuration File (.zshrc) — default shell, Nushell is backup
 # A modern, clean setup with Zinit plugin manager and Powerlevel10k theme
+# Zinit clones itself on first zsh launch via this block — no installer clone, no commit pin per D-12
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -134,6 +135,7 @@ autoload -Uz zmv
 # -----------------------------------------------------------------------------
 # ZINIT PLUGIN MANAGER INSTALLATION
 # -----------------------------------------------------------------------------
+# Zinit clones itself on first zsh launch via this block — no installer clone, no commit pin per D-12
 # Auto-install Zinit if not present
 if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
     # Only show output if not using instant prompt
