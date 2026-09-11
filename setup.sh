@@ -6,6 +6,7 @@ shopt -s inherit_errexit
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 DRY_RUN=false
+UNINSTALL=false
 MODE=""
 SHELL_CHOICE=""
 YES=false
@@ -35,9 +36,9 @@ OPTIONS:
     --mode MODE         Deployment mode: 'local' (full GUI) or 'server' (headless)
     --shell SHELL       Shell choice: 'zsh' (default) or 'nushell' (backup)
     --dry-run           Show what would be done without making changes
-    --yes               Assume yes for prompts (CI bypass, reserved for Phase 2)
+    --yes               Assume yes for prompts (CI bypass for uninstall and privileged flows)
     --help, -h          Show this help and exit
-    --uninstall, --remove  Deferred: removal via teardown scripts until Phase 2
+    --uninstall, --remove  Cleanly unstows selected packages via stow -D plus privileged keyd cleanup and Mason when nvim deselected, typed yes required with --yes bypass for CI, --dry-run previews before every mutation
 
 EXAMPLES:
     $prog --mode local
@@ -104,10 +105,8 @@ parse_args() {
                 shift
                 ;;
             --uninstall|--remove)
-                echo "Note: uninstall/remove is deferred to Phase 2." >&2
-                echo "Use teardown scripts for now:" >&2
-                echo "  bash teardown.zsh --help  or  nu teardown.nu --help" >&2
-                exit 0
+                UNINSTALL=true
+                shift
                 ;;
             --help|-h)
                 usage
@@ -382,7 +381,30 @@ preview_selection() {
     echo "=== DRY RUN: Preview of selected packages ==="
     echo "Selection: ${SELECTED_PACKAGES[*]:-<none>}"
     for pkg in "${SELECTED_PACKAGES[@]}"; do
-        if [[ "$pkg" == "keyd" ]]; then echo "[DRY RUN] Would skip keyd — privileged install lands in Phase 2 (no /etc writes in Phase 1)"; continue; fi
+        if [[ "$pkg" == "keyd" ]]; then
+            if [[ "${FAMILY:-}" == "termux" ]]; then
+                echo "[DRY RUN] Would skip keyd — not available on Termux"
+                continue
+            fi
+            echo ""
+            echo "=== Privileged keyd preview (no writes) ==="
+            echo "[PREVIEW] stow --dir=\"$SCRIPT_DIR\" --target=/ --no --verbose keyd"
+            if command -v stow >/dev/null 2>&1; then
+                stow --dir="$SCRIPT_DIR" --target=/ --no --verbose keyd 2>&1 | sed 's/^/  /' || true
+            else
+                echo "  (stow not found — would install via package manager first)"
+            fi
+            local host_conf="/etc/keyd/default.conf"
+            local repo_conf="$SCRIPT_DIR/keyd/etc/keyd/default.conf"
+            if [[ -f "$host_conf" ]] && [[ ! -L "$host_conf" ]]; then
+                echo ""
+                echo "Conflict: $host_conf exists as a regular file (not a symlink) — showing diff:"
+                diff -u "$host_conf" "$repo_conf" 2>&1 | sed 's/^/  /' || true
+            fi
+            echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ keyd"
+            echo "[DRY RUN] Would run: sudo keyd reload || sudo systemctl reload keyd || true"
+            continue
+        fi
         echo "[DRY RUN] Would run: stow --dir=\"$SCRIPT_DIR\" --target=\"\$HOME\" --restow $pkg"
         if command -v stow >/dev/null 2>&1; then echo "[DRY RUN] stow --no --verbose preview for $pkg:"; stow --dir="$SCRIPT_DIR" --target="$HOME" --no --verbose "$pkg" 2>&1 | sed 's/^/  /' || true
         else echo "  (stow not found — would install via package manager first)"; fi
@@ -472,10 +494,172 @@ post_verify() {
     return 0
 }
 
+install_keyd_privileged() {
+    if [[ "${FAMILY:-}" == "termux" ]]; then
+        echo "Warning: 'keyd' is not available on Termux — skipping privileged install." >&2
+        return 0
+    fi
+    echo ""
+    echo "=== Privileged keyd preview (no writes) ==="
+    echo "[PREVIEW] stow --dir=\"$SCRIPT_DIR\" --target=/ --no --verbose keyd"
+    if command -v stow >/dev/null 2>&1; then
+        stow --dir="$SCRIPT_DIR" --target=/ --no --verbose keyd 2>&1 | sed 's/^/  /' || true
+    else
+        echo "  (stow not found — would install via package manager first)"
+    fi
+    local host_conf="/etc/keyd/default.conf"
+    local repo_conf="$SCRIPT_DIR/keyd/etc/keyd/default.conf"
+    local has_regular_conflict=false
+    if [[ -f "$host_conf" ]] && [[ ! -L "$host_conf" ]]; then
+        has_regular_conflict=true
+        echo ""
+        echo "Conflict: $host_conf exists as a regular file (not a symlink) — showing diff:"
+        diff -u "$host_conf" "$repo_conf" 2>&1 | sed 's/^/  /' || true
+    fi
+    if [[ "$DRY_RUN" == true ]]; then
+        echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ keyd"
+        if [[ "$has_regular_conflict" == true ]]; then
+            echo "[DRY RUN] (conflict detected — would prompt for adopt vs plain stow)"
+        fi
+        echo "[DRY RUN] Would run: sudo keyd reload || sudo systemctl reload keyd || true"
+        return 0
+    fi
+    local confirmed=false
+    if [[ "$YES" == true ]]; then
+        confirmed=true
+    elif command -v gum >/dev/null 2>&1; then
+        if gum confirm "Write privileged keyd config to /etc/keyd/default.conf ?"; then
+            confirmed=true
+        else
+            echo "Privileged keyd install cancelled (gum)." >&2
+            return 1
+        fi
+    else
+        local reply=""
+        printf "Type 'yes' to confirm privileged keyd install: " >&2
+        if ! read -r reply; then
+            echo "Error: failed to read input" >&2
+            return 1
+        fi
+        if [[ "$reply" == "yes" ]]; then
+            confirmed=true
+        else
+            echo "Cancelled (expected 'yes')." >&2
+            return 1
+        fi
+    fi
+    if [[ "$confirmed" != true ]]; then
+        return 1
+    fi
+    local use_adopt=false
+    if [[ "$has_regular_conflict" == true ]]; then
+        local adopt_reply=""
+        if [[ "$YES" == true ]]; then
+            use_adopt=false
+        elif command -v gum >/dev/null 2>&1; then
+            if gum confirm "Conflict file exists. Adopt host file into repo (moves $host_conf into repo)?"; then
+                use_adopt=true
+            fi
+        else
+            printf "Conflict file exists at %s.\n" "$host_conf" >&2
+            printf "Type 'adopt' to move host file into repo (stow --adopt), or Enter for plain stow: " >&2
+            if ! read -r adopt_reply; then
+                adopt_reply=""
+            fi
+            if [[ "$adopt_reply" == "adopt" ]]; then
+                use_adopt=true
+            fi
+        fi
+    fi
+    if [[ "$use_adopt" == true ]]; then
+        sudo stow --dir="$SCRIPT_DIR" --target=/ --adopt keyd
+    else
+        sudo stow --dir="$SCRIPT_DIR" --target=/ keyd
+    fi
+    sudo keyd reload 2>/dev/null || sudo systemctl reload keyd 2>/dev/null || true
+}
+
+# .stow-conflicts/<timestamp>/ is never auto-deleted on uninstall — remains as safety backup per D-04
+run_uninstall() {
+    for pkg in "${SELECTED_PACKAGES[@]}"; do
+        if [[ "$pkg" == "keyd" ]]; then
+            continue
+        fi
+        echo "[DRY RUN] Would run: stow --dir=\"$SCRIPT_DIR\" --target=\"$HOME\" --delete $pkg"
+        if command -v stow >/dev/null 2>&1; then
+            stow --dir="$SCRIPT_DIR" --target="$HOME" --no --verbose --delete "$pkg" 2>&1 | sed 's/^/  /' || true
+        else
+            echo "  (stow not found — would install via package manager first)"
+        fi
+    done
+    if printf '%s\n' "${SELECTED_PACKAGES[@]}" | grep -qx keyd; then
+        echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ --no --verbose --delete keyd"
+        if command -v stow >/dev/null 2>&1; then
+            sudo stow --dir="$SCRIPT_DIR" --target=/ --no --verbose --delete keyd 2>&1 | sed 's/^/  /' || true
+        else
+            echo "  (stow not found — would install via package manager first)"
+        fi
+    fi
+    if [[ "$DRY_RUN" == true ]]; then
+        return 0
+    fi
+    if [[ "$YES" != true ]]; then
+        if command -v gum >/dev/null 2>&1; then
+            if ! gum confirm "Run uninstall (stow -D) for: ${SELECTED_PACKAGES[*]} ?"; then
+                echo "Uninstall cancelled." >&2
+                return 1
+            fi
+        else
+            local reply=""
+            printf "Type 'yes' to confirm: " >&2
+            if ! read -r reply; then
+                echo "Error: failed to read input" >&2
+                return 1
+            fi
+            if [[ "$reply" != "yes" ]]; then
+                echo "Uninstall cancelled (expected 'yes')." >&2
+                return 1
+            fi
+        fi
+    fi
+    local pkg
+    for pkg in "${SELECTED_PACKAGES[@]}"; do
+        if [[ "$pkg" == "keyd" ]]; then
+            continue
+        fi
+        if [[ ! -d "$SCRIPT_DIR/$pkg" ]]; then
+            echo "Warning: package dir not found: $SCRIPT_DIR/$pkg — skipping unstow for $pkg" >&2
+            continue
+        fi
+        if ! stow --dir="$SCRIPT_DIR" --target="$HOME" -D "$pkg" 2>&1; then
+            echo "Warning: stow -D $pkg returned non-zero (already unstowed or not owned — continuing)" >&2
+        else
+            echo "Unstowed: $pkg"
+        fi
+    done
+    if printf '%s\n' "${SELECTED_PACKAGES[@]}" | grep -qx keyd; then
+        if ! sudo stow --dir="$SCRIPT_DIR" --target=/ -D keyd 2>&1; then
+            echo "Warning: sudo stow -D -t / keyd failed (not stowed or not owned — continuing)" >&2
+        else
+            echo "Unstowed privileged: keyd"
+        fi
+        sudo keyd reload 2>/dev/null || sudo systemctl reload keyd 2>/dev/null || true
+    fi
+    echo ""
+    echo "Uninstall complete. Deployed removal for: ${SELECTED_PACKAGES[*]}"
+    return 0
+}
+
 run_stow() {
     local pkg
     for pkg in "${SELECTED_PACKAGES[@]}"; do
-        if [[ "$pkg" == "keyd" ]]; then echo "Notice: keyd privileged install lands in Phase 2 — skipping stow for 'keyd' (no /etc writes in Phase 1)." >&2; continue; fi
+        if [[ "$pkg" == "keyd" ]]; then
+            if ! install_keyd_privileged; then
+                echo "Error: privileged keyd install failed." >&2
+                return 1
+            fi
+            continue
+        fi
         echo "Stowing $pkg -> \$HOME via stow --dir=\"$SCRIPT_DIR\" --target=\"\$HOME\" --restow $pkg"
         if ! stow --dir="$SCRIPT_DIR" --target="$HOME" --restow "$pkg"; then echo "Error: stow failed for package '$pkg'" >&2; return 1; fi
     done
@@ -1057,6 +1241,18 @@ main() {
     echo "Selected mode: $MODE"
     echo "Selected shell: $SHELL_CHOICE"
     if [[ "$DRY_RUN" == true ]]; then echo "=== DRY RUN MODE: No changes will be applied ==="; fi
+    if [[ "$UNINSTALL" == true ]]; then
+        echo ""
+        echo "=== Package Selection (uninstall) ==="
+        if ! prompt_checklist; then echo "Uninstall cancelled at package checklist." >&2; exit 1; fi
+        if [[ ${#SELECTED_PACKAGES[@]} -eq 0 ]]; then echo "No packages selected — nothing to unstow. Exiting." >&2; echo "No packages to unstow."; exit 0; fi
+        echo ""
+        echo "Final package selection (uninstall): ${SELECTED_PACKAGES[*]}"
+        echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
+        echo "7 packages offered" >&2
+        if ! run_uninstall; then exit 1; fi
+        exit 0
+    fi
     echo ""
     echo "=== Package Selection ==="
     if ! prompt_checklist; then echo "Installation cancelled at package checklist." >&2; exit 1; fi
