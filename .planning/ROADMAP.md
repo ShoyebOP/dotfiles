@@ -115,6 +115,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Universal Installer + Platform Foundations | 5/5 | Complete    | 2026-09-11 |
-| 2. Safe, Reversible & Server-Safe Deployment | 2/2 | Complete   | 2026-09-11 |
+| 2. Safe, Reversible & Server-Safe Deployment | 2/2 | Complete    | 2026-09-11 |
 | 3. Polished Shell, Theme & Local Overrides | 0/1 | Not started | - |
 | 4. Editor Autonomy & Verified Health | 0/2 | Not started | - |
