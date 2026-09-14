@@ -74,8 +74,12 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
+**Wave 1**
 
 - [ ] 02.1-01-PLAN.md — Hyprland-6 removal + wofi tree delete + remnant sweep, verified end-to-end (tracer)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 02.1-02-PLAN.md — Unified single-page checklist merge with tick-authoritative filter + Debian keyd notice
 
 ### Phase 3: Polished Shell, Theme & Local Overrides
