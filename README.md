@@ -31,7 +31,7 @@ git clone <repo> dotfiles && cd dotfiles
 bash setup.sh
 ```
 
-Interactive flow (before any write): **mode** (`local` desktop extras vs `server` headless) → **shell** (`zsh` default / `nushell` backup) → **package checklist** (6 toggleable: `nvim`, `zsh`, `nushell`, `alacritty`, `starship`, `keyd`). Server mode pre-unchecks GUI (`alacritty`, `keyd`); shell choice pre-checks only the chosen shell — you can toggle any before any write.
+Interactive flow (before any write): **mode** (`local` desktop extras vs `server` headless) → **shell** (`zsh` default / `nushell` backup) → **single-page checklist** shown once (16 toggleable rows: `nvim`, `zsh`, `nushell`, `alacritty`, `starship`, `keyd` plus toolchain `stow`, `git`, `zoxide`, `uv`, `ripgrep`, `nodejs`, `npm`, `make`, `gcc`, `fzf`; `zsh`/`starship` shared rows, `nvim` covers `neovim`). Mode and shell only set pre-selection defaults — server mode pre-unchecks GUI (`alacritty`, `keyd`), shell choice pre-checks only the chosen shell. Strict tick semantics: tick installs the binary and stows its config when one exists; untick never installs and never stows. The same single page appears once on `--uninstall` before any removal.
 
 **Options:**
 
@@ -39,7 +39,7 @@ Interactive flow (before any write): **mode** (`local` desktop extras vs `server
 - `--shell zsh|nushell` — Zsh default, Nushell backup
 - `--dry-run` — preview every write (`[DRY RUN] Would run:` + `stow --no --verbose` for the exact post-checklist selection) with zero writes
 - `--help, -h` — show usage (wins anywhere, exits 0 before any write)
-- `--yes` — Assume yes for prompts (CI bypass for --uninstall and privileged flows)
+- `--yes` — Use mode/shell/family presets with zero prompts (identical to the non-interactive no-TTY path, NOT all-ON: server keeps GUI rows OFF, Termux keeps disabled rows OFF); also CI bypass for `--uninstall` and privileged flows
 - `--uninstall, --remove` — cleanly unstows selected configs via `stow -D` plus privileged `sudo stow -D -t / keyd` when keyd selected plus Mason artefacts when `nvim` deselected plus offers system package removal; typed `yes` required (bypass with `--yes`)
 
 Examples:
@@ -63,7 +63,7 @@ bash setup.sh --mode local --shell zsh --dry-run
 Safety:
 
 - Must be run from the clone root (`./setup.sh` must exist in CWD alongside `SCRIPT_DIR` resolution for `stow --dir`); outside-root aborts with a `run-from-clone` message before any prompt or write.
-- Checklist uses a five-backend ladder `gum → whiptail → dialog → fzf → read` (probed, skipped silently) with Termux `keyd`/`alacritty` rendered as visible-but-disabled and never selectable.
+- Single-page checklist uses a five-backend ladder `gum → whiptail → dialog → fzf → read` in locked order (probed, missing tools skipped silently; cancel never cascades to the next backend) with Termux `keyd`/`alacritty` rendered as visible-but-disabled and never selectable.
 - Existing non-symlink targets are quarantined (never deleted, never force-adopted) to `.stow-conflicts/<timestamp>/` preserving relative paths with a `MANIFEST` and restore hint.
 - Strict post-verify (`test -e` + `readlink -f` prefix check, folding-aware) aborts with a link→expected-target report if any link is wrong. Selecting `keyd` previews with `stow --dir=. --target=/ --no --verbose keyd` plus `diff -u` when `/etc/keyd/default.conf` exists as a regular file, requires `gum confirm` or `Type 'yes' to confirm privileged keyd install:` before `sudo stow --dir=. --target=/ keyd` (or `sudo stow --dir=. --target=/ --adopt keyd` only with explicit adopt confirmation), then `sudo keyd reload || sudo systemctl reload keyd || true`.
 

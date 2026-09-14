@@ -41,7 +41,7 @@ OPTIONS:
     --mode MODE         Deployment mode: 'local' (desktop extras: Alacritty terminal, Keyd remap) or 'server' (headless, no GUI packages)
     --shell SHELL       Shell choice: 'zsh' (default) or 'nushell' (backup)
     --dry-run           Show what would be done without making changes
-    --yes               Assume yes for prompts (CI bypass for uninstall and privileged flows)
+    --yes               Use mode/shell/family presets with zero prompts (same as non-interactive defaults, NOT all-ON; CI bypass for uninstall and privileged flows)
     --help, -h          Show this help and exit
     --uninstall, --remove  Cleanly unstows selected packages via stow -D plus privileged keyd cleanup and Mason when nvim deselected, typed yes required with --yes bypass for CI, --dry-run previews before every mutation
 
