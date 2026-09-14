@@ -66,6 +66,18 @@ Plans:
 - [x] 02-01-PLAN.md — Reversible uninstall + privileged keyd safety gate + Hyprland server guard (tracer)
 - [x] 02-02-PLAN.md — Zsh self-provision (Zinit) + docs flipped to Zsh default + staged teardown delete
 
+### Phase 02.1: remove hyperland and hyperland related configs and make sure anything related to hyperland is not installed in local installation (INSERTED)
+
+**Goal:** Local installs never touch the Hyprland/Wayland-capture stack, and install/uninstall show one single-page checklist where every remaining app is toggleable (tick = install+stow, untick = never)
+**Requirements**: TBD (inserted phase — scope locked in 02.1-CONTEXT.md decisions D-01 through D-13)
+**Depends on:** Phase 2
+**Plans:** 2 plans
+
+Plans:
+
+- [ ] 02.1-01-PLAN.md — Hyprland-6 removal + wofi tree delete + remnant sweep, verified end-to-end (tracer)
+- [ ] 02.1-02-PLAN.md — Unified single-page checklist merge with tick-authoritative filter + Debian keyd notice
+
 ### Phase 3: Polished Shell, Theme & Local Overrides
 
 **Mode:** mvp
