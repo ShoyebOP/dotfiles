@@ -31,7 +31,7 @@ git clone <repo> dotfiles && cd dotfiles
 bash setup.sh
 ```
 
-Interactive flow (before any write): **mode** (`local` full GUI vs `server` headless) → **shell** (`zsh` default / `nushell` backup) → **package checklist** (7 toggleable: `nvim`, `zsh`, `nushell`, `alacritty`, `starship`, `wofi`, `keyd`). Server mode pre-unchecks GUI (`alacritty`, `wofi`, `keyd`); shell choice pre-checks only the chosen shell — you can toggle any before any write.
+Interactive flow (before any write): **mode** (`local` desktop extras vs `server` headless) → **shell** (`zsh` default / `nushell` backup) → **package checklist** (6 toggleable: `nvim`, `zsh`, `nushell`, `alacritty`, `starship`, `keyd`). Server mode pre-unchecks GUI (`alacritty`, `keyd`); shell choice pre-checks only the chosen shell — you can toggle any before any write.
 
 **Options:**
 
@@ -56,14 +56,14 @@ bash setup.sh --mode local
 bash setup.sh --mode server --shell zsh --dry-run
 bash setup.sh --mode server --shell zsh
 
-# Local full GUI with Zsh
+# Local desktop extras with Zsh
 bash setup.sh --mode local --shell zsh --dry-run
 ```
 
 Safety:
 
 - Must be run from the clone root (`./setup.sh` must exist in CWD alongside `SCRIPT_DIR` resolution for `stow --dir`); outside-root aborts with a `run-from-clone` message before any prompt or write.
-- Checklist uses a five-backend ladder `gum → whiptail → dialog → fzf → read` (probed, skipped silently) with Termux `keyd`/`wofi`/`alacritty` rendered as visible-but-disabled and never selectable.
+- Checklist uses a five-backend ladder `gum → whiptail → dialog → fzf → read` (probed, skipped silently) with Termux `keyd`/`alacritty` rendered as visible-but-disabled and never selectable.
 - Existing non-symlink targets are quarantined (never deleted, never force-adopted) to `.stow-conflicts/<timestamp>/` preserving relative paths with a `MANIFEST` and restore hint.
 - Strict post-verify (`test -e` + `readlink -f` prefix check, folding-aware) aborts with a link→expected-target report if any link is wrong. Selecting `keyd` previews with `stow --dir=. --target=/ --no --verbose keyd` plus `diff -u` when `/etc/keyd/default.conf` exists as a regular file, requires `gum confirm` or `Type 'yes' to confirm privileged keyd install:` before `sudo stow --dir=. --target=/ keyd` (or `sudo stow --dir=. --target=/ --adopt keyd` only with explicit adopt confirmation), then `sudo keyd reload || sudo systemctl reload keyd || true`.
 
@@ -76,8 +76,8 @@ If you prefer to set things up manually without the unified installer:
 #### Install Dependencies
 
 - **Core:** `stow`, `neovim`, `starship`, `git`, `zoxide`, `uv`, `ripgrep`, `nodejs`, `npm`, `make`, `gcc`, `fzf`, `zsh`
-- **GUI (Arch):** `hyprland`, `alacritty`, `wofi`, `keyd`, `waybar`, `grim`, `slurp`, `wl-copy`
-- **GUI (Debian):** `alacritty`, `wofi`, `waybar`, `grim`, `slurp`, `wl-copy`
+- **GUI (Arch):** `alacritty`, `keyd`
+- **GUI (Debian):** `alacritty`
 - **Termux:** `stow`, `neovim`, `starship`, `git`, `zoxide`, `uv`, `ripgrep`, `nodejs`, `npm`, `make`, `gcc`, `fzf`, `zsh` via `pkg install` (no `sudo`, no GUI packages)
 
 #### Deploy Configurations
@@ -92,13 +92,13 @@ stow --dir=. --target="$HOME" --restow nvim zsh starship
 stow --dir=. --target="$HOME" --restow nvim nushell starship
 
 # GUI extras (local mode)
-stow --dir=. --target="$HOME" --restow alacritty wofi
+stow --dir=. --target="$HOME" --restow alacritty
 ```
 
 For a full local deploy with Zsh:
 
 ```bash
-stow --dir=. --target="$HOME" --restow nvim zsh starship alacritty wofi
+stow --dir=. --target="$HOME" --restow nvim zsh starship alacritty
 ```
 
 #### keyd Setup
@@ -143,7 +143,7 @@ uv generate-shell-completion zsh > ~/.config/zsh/completions/_uv
 |-------|--------|-----|
 | Prompt | Powerlevel10k | Starship |
 | Manager | Zinit | Built-in |
-| Utilities | keyd, wofi, zoxide, rg, uv | keyd, wofi, zoxide, rg, uv |
+| Utilities | keyd, zoxide, rg, uv | keyd, zoxide, rg, uv |
 
 Installer: `bash setup.sh` (Bash 5.2+, GNU Stow ≥2.4.1 auto-upgraded, `gum`/`whiptail`/`dialog`/`fzf`/`read` ladder, `mv`-only quarantine, `readlink -f` post-verify)
 
