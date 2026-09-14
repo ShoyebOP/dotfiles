@@ -94,4 +94,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-11 after Phase 1 completion*
+*Last updated: 2026-09-14 after Phase 02.1 completion — Hyprland-six removal (hyprland/waybar/grim/slurp/wl-copy/wofi) with single-page 16-row checklist, SELECTION_ACTIVE tick-authoritative filter, Debian keyd manual-build pointer, family-aware uninstall allowlist, DRY_RUN zero-sudo preview; 02.1-01/02/03 verified 9/9; ROADMAP 02.1 3/3 complete → Phase 3 ready*
