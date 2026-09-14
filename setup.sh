@@ -402,7 +402,7 @@ strip_termux_disabled() {
 preview_selection() {
     echo ""
     echo "=== DRY RUN: Preview of selected packages ==="
-    echo "selection: ${SELECTED_PACKAGES[*]:-<none>}"
+    echo "Selection: ${SELECTED_PACKAGES[*]:-<none>}"
     for pkg in "${SELECTED_PACKAGES[@]}"; do
         if [[ "$pkg" == "keyd" ]]; then
             if [[ "${FAMILY:-}" == "termux" ]]; then
@@ -828,11 +828,12 @@ run_uninstall() {
             fi
         done
         if printf '%s\n' "${SELECTED_PACKAGES[@]}" | grep -qx keyd; then
-            echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ --no --verbose --delete keyd"
-            if command -v stow >/dev/null 2>&1; then
-                sudo stow --dir="$SCRIPT_DIR" --target=/ --no --verbose --delete keyd 2>&1 | sed 's/^/  /' || true
+            if [[ "${FAMILY:-}" == "termux" ]]; then
+                echo "[DRY RUN] Would skip keyd — not available on Termux"
+            elif [[ "${FAMILY:-}" == "debian" ]] && ! command -v keyd >/dev/null 2>&1; then
+                echo "[DRY RUN] Would skip privileged keyd stow — keyd binary not found (build from https://github.com/rvaiya/keyd first)"
             else
-                echo "  (stow not found — would install via package manager first)"
+                echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ --no --verbose --delete keyd"
             fi
         fi
         # Mason preview when nvim deselected (D-02)
