@@ -220,7 +220,16 @@ get_deps() {
                 for _tt in "${SELECTED_DEPS[@]}"; do if [[ "$_tt" == "$_d" ]]; then _sel=true; break; fi; done
                 if [[ "$_sel" == true ]]; then _f+=("$_d"); fi
             else
-                _f+=("$_d")
+                # 02.1-02 tick-authoritative rule (D-09/D-10): a system dep
+                # matching an unticked stow row is dropped from the install
+                # set — post-removal only alacritty/keyd can reach here, both
+                # governed by their unified rows. Mode/shell govern presets only.
+                local _row
+                _row="$(_dep_to_stow_row "$_d")"
+                local _ticked=false
+                local _sp
+                for _sp in "${SELECTED_PACKAGES[@]}"; do if [[ "$_sp" == "$_row" ]]; then _ticked=true; break; fi; done
+                if [[ "$_ticked" == true ]]; then _f+=("$_d"); fi
             fi
         done
         printf '%s\n' "${_f[@]}"
@@ -229,9 +238,15 @@ get_deps() {
     fi
 }
 
-# 01-05: filter deps by toolchain selection — only toolchain names are toggleable;
-# remaining gui extras (alacritty/keyd) bypass the filter and are governed by mode alone
-# (tick contract: toolchain rows toggle via SELECTED_DEPS; gui extras follow mode)
+# 02.1-02: filter deps by unified selection — tick authoritative (D-09/D-10):
+# toolchain names toggle via SELECTED_DEPS; a system dep matching an unticked
+# stow row (post-removal only alacritty/keyd reach here, both unified rows)
+# is dropped, so untick means never install. The nvim row maps to neovim,
+# reusing the verify_deps dep-to-binary map direction.
+_dep_to_stow_row() {
+    case "${1-}" in neovim) echo "nvim" ;; *) echo "${1-}" ;; esac
+}
+
 filter_deps_by_selection() {
     local -a input=("$@")
     local -a out=()
@@ -245,7 +260,12 @@ filter_deps_by_selection() {
             for t in "${SELECTED_DEPS[@]}"; do if [[ "$t" == "$dep" ]]; then sel=true; break; fi; done
             if [[ "$sel" == true ]]; then out+=("$dep"); fi
         else
-            out+=("$dep")
+            local row
+            row="$(_dep_to_stow_row "$dep")"
+            local ticked=false
+            local p
+            for p in "${SELECTED_PACKAGES[@]}"; do if [[ "$p" == "$row" ]]; then ticked=true; break; fi; done
+            if [[ "$ticked" == true ]]; then out+=("$dep"); fi
         fi
     done
     printf '%s\n' "${out[@]}"
@@ -397,6 +417,12 @@ preview_selection() {
                 echo "[DRY RUN] Would skip keyd — not available on Termux"
                 continue
             fi
+            # 02.1-02 (D-06): mirror the install_keyd_privileged gate so the
+            # preview stays honest — no privileged keyd stow without the binary.
+            if [[ "${FAMILY:-}" == "debian" ]] && ! command -v keyd >/dev/null 2>&1; then
+                echo "[DRY RUN] Would skip privileged keyd stow — keyd binary not found (build from https://github.com/rvaiya/keyd first)"
+                continue
+            fi
             echo ""
             echo "=== Privileged keyd preview (no writes) ==="
             echo "[PREVIEW] stow --dir=\"$SCRIPT_DIR\" --target=/ --no --verbose keyd"
@@ -505,9 +531,40 @@ post_verify() {
     return 0
 }
 
+# 02.1-02 Debian-only keyd manual-build notice (D-06): informational only —
+# prints the build pointer when keyd is ticked on Debian-family without a keyd
+# binary present. Never installs, never invokes sudo, never appends keyd to
+# any apt missing list. Install path only, called after the unified checklist.
+prompt_debian_keyd_notice() {
+    if [[ "${FAMILY:-}" != "debian" ]]; then return 0; fi
+    local _ticked=false
+    local _p
+    for _p in "${SELECTED_PACKAGES[@]}"; do if [[ "$_p" == "keyd" ]]; then _ticked=true; break; fi; done
+    if [[ "$_ticked" != true ]]; then return 0; fi
+    if command -v keyd >/dev/null 2>&1; then return 0; fi
+    local _prefix=""
+    if [[ "$DRY_RUN" == true ]]; then _prefix="[DRY RUN] "; fi
+    echo ""
+    echo "${_prefix}Notice: 'keyd' is ticked but Debian-family apt has no keyd package."
+    echo "${_prefix}Build and install it manually from https://github.com/rvaiya/keyd, then re-run to stow /etc/keyd."
+    echo "${_prefix}Continuing without keyd for now (privileged stow runs only when the keyd binary exists)."
+    return 0
+}
+
 install_keyd_privileged() {
     if [[ "${FAMILY:-}" == "termux" ]]; then
         echo "Warning: 'keyd' is not available on Termux — skipping privileged install." >&2
+        return 0
+    fi
+    # 02.1-02 (D-06): on Debian-family without a keyd binary there is nothing
+    # to stow privileged — the notice above already pointed at the manual
+    # build. Never route keyd through apt; never sudo from the notice path.
+    if [[ "${FAMILY:-}" == "debian" ]] && ! command -v keyd >/dev/null 2>&1; then
+        if [[ "$DRY_RUN" == true ]]; then
+            echo "[DRY RUN] Would skip privileged keyd stow — keyd binary not found (build from https://github.com/rvaiya/keyd first)"
+        else
+            echo "Warning: 'keyd' binary not found on Debian-family — skipping privileged install (build from https://github.com/rvaiya/keyd)." >&2
+        fi
         return 0
     fi
     echo ""
@@ -602,6 +659,32 @@ offer_system_package_removal() {
     else
         candidates=("${ALL_TOOLCHAIN[@]}")
     fi
+    # 02.1-02 (D-10/D-13): extend with ticked stow rows that map to system deps
+    # (nvim maps to neovim; alacritty/keyd install under their own names),
+    # then scope to the post-removal set so legacy binaries are never offered.
+    local -a _allowed=("${ALL_TOOLCHAIN[@]}" alacritty keyd)
+    local _sp
+    for _sp in "${SELECTED_PACKAGES[@]}"; do
+        local _sdep="$_sp"
+        if [[ "$_sp" == "nvim" ]]; then _sdep="neovim"; fi
+        local _known=false
+        local _a
+        for _a in "${_allowed[@]}"; do if [[ "$_a" == "$_sdep" ]]; then _known=true; break; fi; done
+        if [[ "$_known" != true ]]; then continue; fi
+        local _present=false
+        local _c
+        for _c in "${candidates[@]}"; do if [[ "$_c" == "$_sdep" ]]; then _present=true; break; fi; done
+        if [[ "$_present" != true ]]; then candidates+=("$_sdep"); fi
+    done
+    local -a _scoped=()
+    local _c
+    for _c in "${candidates[@]}"; do
+        local _ok=false
+        local _a
+        for _a in "${_allowed[@]}"; do if [[ "$_a" == "$_c" ]]; then _ok=true; break; fi; done
+        if [[ "$_ok" == true ]]; then _scoped+=("$_c"); fi
+    done
+    candidates=("${_scoped[@]}")
     # Filter candidates through filter_deps_by_selection when SELECTED_DEPS is active
     # This preserves ALL_TOOLCHAIN order and respects user's toolchain checklist
     if [[ ${#SELECTED_DEPS[@]} -gt 0 ]]; then
@@ -1813,6 +1896,8 @@ main() {
     echo "Final unified checklist: packages ${SELECTED_PACKAGES[*]} / deps ${SELECTED_DEPS[*]}"
     echo "Final selection: ${SELECTED_PACKAGES[*]} (offered ${#UNIFIED_ROWS[@]}, selected ${#SELECTED_PACKAGES[@]})" >&2
     echo "${#UNIFIED_ROWS[@]} unified rows offered" >&2
+    # 02.1-02 (D-06): Debian-only keyd manual-build notice, install path only.
+    prompt_debian_keyd_notice
     local -a deps=()
     if ! mapfile -t deps < <(get_deps "$FAMILY" "$MODE"); then echo "Error: failed to get dependencies for $FAMILY/$MODE" >&2; exit 1; fi
     local -a filtered_deps=()
