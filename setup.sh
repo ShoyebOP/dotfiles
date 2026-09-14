@@ -17,9 +17,9 @@ OS_RELEASE_FILE="${OS_RELEASE_FILE:-/etc/os-release}"
 declare -a VERIFY_MISSING=()
 
 # 01-02: stow orchestration constants
-ALL_PACKAGES=(nvim zsh nushell alacritty starship wofi keyd)
-GUI_STOW_PACKAGES=(alacritty wofi keyd)
-TERMUX_DISABLED_PACKAGES=(alacritty wofi keyd)
+ALL_PACKAGES=(nvim zsh nushell alacritty starship keyd)
+GUI_STOW_PACKAGES=(alacritty keyd)
+TERMUX_DISABLED_PACKAGES=(alacritty keyd)
 declare -a SELECTED_PACKAGES=()
 ALL_TOOLCHAIN=(stow neovim starship git zoxide uv ripgrep nodejs npm make gcc fzf zsh)
 declare -a SELECTED_DEPS=()
@@ -33,7 +33,7 @@ Usage: $prog [OPTIONS]
 Unified Dotfiles Installer (Bash) — Zsh default, Nushell backup
 
 OPTIONS:
-    --mode MODE         Deployment mode: 'local' (full GUI) or 'server' (headless)
+    --mode MODE         Deployment mode: 'local' (desktop extras: Alacritty terminal, Keyd remap) or 'server' (headless, no GUI packages)
     --shell SHELL       Shell choice: 'zsh' (default) or 'nushell' (backup)
     --dry-run           Show what would be done without making changes
     --yes               Assume yes for prompts (CI bypass for uninstall and privileged flows)
@@ -186,11 +186,11 @@ get_deps() {
     case "$family" in
         arch)
             common=(stow neovim starship git zoxide uv ripgrep nodejs npm make gcc fzf zsh)
-            gui=(hyprland alacritty wofi keyd waybar grim slurp wl-copy)
+            gui=(alacritty keyd)
             ;;
         debian)
             common=(stow neovim starship git zoxide uv ripgrep nodejs npm make gcc fzf zsh)
-            gui=(alacritty wofi waybar grim slurp wl-copy)
+            gui=(alacritty)
             ;;
         termux)
             common=(stow neovim starship git zoxide uv ripgrep nodejs npm make gcc fzf zsh)
@@ -225,7 +225,8 @@ get_deps() {
 }
 
 # 01-05: filter deps by toolchain selection — only toolchain names are toggleable;
-# gui extras (hyprland/waybar/etc.) bypass the filter and are governed by mode alone
+# remaining gui extras (alacritty/keyd) bypass the filter and are governed by mode alone
+# (tick contract: toolchain rows toggle via SELECTED_DEPS; gui extras follow mode)
 filter_deps_by_selection() {
     local -a input=("$@")
     local -a out=()
@@ -342,8 +343,8 @@ reverify_deps() {
 
 prompt_mode() {
     echo "" >&2; echo "Select Deployment Mode:" >&2
-    echo "1. Local Mode (Full GUI: Hyprland, Alacritty, keyd, etc.)" >&2
-    echo "2. Server Mode (Headless: Nvim, Zsh, Starship only)" >&2
+    echo "1. Local Mode (Desktop extras: Alacritty terminal, Keyd remap)" >&2
+    echo "2. Server Mode (Headless: no GUI packages)" >&2
     local reply
     while true; do
         if ! read -r -p "Enter choice (1 or 2): " reply; then echo "Error: failed to read input" >&2; exit 1; fi
@@ -895,8 +896,8 @@ checklist_gum() {
     # However preset contract says stripping drops them with warning, not abort, if they slipped through.
     # So if after strip we have at least nvim etc, success.
     echo "Selected via gum: ${SELECTED_PACKAGES[*]:-<none>}" >&2
-    echo "7 packages offered" >&2
-    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
+    echo "6 packages offered" >&2
+    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 6, selected ${#SELECTED_PACKAGES[@]})" >&2
     return 0
 }
 
@@ -929,7 +930,7 @@ checklist_whiptail() {
         return $rc
     fi
     local list_height=$(( rows - 8 ))
-    if [[ "$list_height" -gt 7 ]]; then list_height=7; fi
+    if [[ "$list_height" -gt 6 ]]; then list_height=6; fi
     if [[ "$list_height" -lt 7 ]]; then list_height=7; fi
     local sel
     local status=0
@@ -953,8 +954,8 @@ checklist_whiptail() {
     SELECTED_PACKAGES=("${filtered[@]}")
     strip_termux_disabled
     echo "Selected via whiptail: ${SELECTED_PACKAGES[*]:-<none>}" >&2
-    echo "7 packages offered" >&2
-    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
+    echo "6 packages offered" >&2
+    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 6, selected ${#SELECTED_PACKAGES[@]})" >&2
     return 0
 }
 
@@ -987,7 +988,7 @@ checklist_dialog() {
         return $rc
     fi
     local list_height=$(( rows - 8 ))
-    if [[ "$list_height" -gt 7 ]]; then list_height=7; fi
+    if [[ "$list_height" -gt 6 ]]; then list_height=6; fi
     if [[ "$list_height" -lt 7 ]]; then list_height=7; fi
     local sel
     local status=0
@@ -1011,8 +1012,8 @@ checklist_dialog() {
     SELECTED_PACKAGES=("${filtered[@]}")
     strip_termux_disabled
     echo "Selected via dialog: ${SELECTED_PACKAGES[*]:-<none>}" >&2
-    echo "7 packages offered" >&2
-    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
+    echo "6 packages offered" >&2
+    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 6, selected ${#SELECTED_PACKAGES[@]})" >&2
     return 0
 }
 
@@ -1043,8 +1044,8 @@ checklist_fzf() {
     if [[ ${#SELECTED_PACKAGES[@]} -eq 0 ]]; then echo "Checklist cancelled (fzf no valid selection)." >&2; return 2; fi
     strip_termux_disabled
     echo "Selected via fzf: ${SELECTED_PACKAGES[*]:-<none>}" >&2
-    echo "7 packages offered" >&2
-    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
+    echo "6 packages offered" >&2
+    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 6, selected ${#SELECTED_PACKAGES[@]})" >&2
     return 0
 }
 
@@ -1061,13 +1062,13 @@ checklist_read() {
         for pkg in "${ALL_PACKAGES[@]}"; do if [[ "${preset_state[$pkg]}" == "ON" ]]; then SELECTED_PACKAGES+=("$pkg"); fi; done
         strip_termux_disabled
         echo "Selected packages (non-interactive presets): ${SELECTED_PACKAGES[*]:-<none>}" >&2
-        echo "7 packages offered" >&2
-        echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
+        echo "6 packages offered" >&2
+        echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 6, selected ${#SELECTED_PACKAGES[@]})" >&2
         return 0
     fi
     echo "" >&2
     echo "Package checklist — toggle packages before any write (Zsh default, Nushell backup):" >&2
-    echo "All 7 packages are individually toggleable. Server mode pre-unchecks GUI; shell choice pre-checks only chosen shell." >&2
+    echo "All 6 packages are individually toggleable. Server mode pre-unchecks GUI; shell choice pre-checks only chosen shell." >&2
     echo "" >&2
     local i=1
     for pkg in "${ALL_PACKAGES[@]}"; do
@@ -1092,8 +1093,8 @@ checklist_read() {
         for pkg in "${ALL_PACKAGES[@]}"; do if [[ "${preset_state[$pkg]}" == "ON" ]]; then SELECTED_PACKAGES+=("$pkg"); fi; done
         strip_termux_disabled
         echo "Keeping presets: ${SELECTED_PACKAGES[*]:-<none>}" >&2
-        echo "7 packages offered" >&2
-        echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
+        echo "6 packages offered" >&2
+        echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 6, selected ${#SELECTED_PACKAGES[@]})" >&2
         return 0
     fi
     declare -A toggled
@@ -1114,8 +1115,8 @@ checklist_read() {
     for pkg in "${ALL_PACKAGES[@]}"; do if [[ "${toggled[$pkg]}" == "ON" ]]; then SELECTED_PACKAGES+=("$pkg"); fi; done
     strip_termux_disabled
     echo "Final selection: ${SELECTED_PACKAGES[*]:-<none>}" >&2
-    echo "7 packages offered" >&2
-    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
+    echo "6 packages offered" >&2
+    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 6, selected ${#SELECTED_PACKAGES[@]})" >&2
     return 0
 }
 
@@ -1432,8 +1433,8 @@ main() {
         if [[ ${#SELECTED_PACKAGES[@]} -eq 0 ]]; then echo "No packages selected — nothing to unstow. Exiting." >&2; echo "No packages to unstow."; exit 0; fi
         echo ""
         echo "Final package selection (uninstall): ${SELECTED_PACKAGES[*]}"
-        echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
-        echo "7 packages offered" >&2
+        echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 6, selected ${#SELECTED_PACKAGES[@]})" >&2
+        echo "6 packages offered" >&2
         if ! run_uninstall; then exit 1; fi
         exit 0
     fi
@@ -1443,8 +1444,8 @@ main() {
     if [[ ${#SELECTED_PACKAGES[@]} -eq 0 ]]; then echo "No packages selected — nothing to stow. Exiting." >&2; echo "No packages to deploy."; exit 0; fi
     echo ""
     echo "Final package selection: ${SELECTED_PACKAGES[*]}"
-    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 7, selected ${#SELECTED_PACKAGES[@]})" >&2
-    echo "7 packages offered" >&2
+    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 6, selected ${#SELECTED_PACKAGES[@]})" >&2
+    echo "6 packages offered" >&2
     echo ""
     echo "=== Toolchain Selection ==="
     if ! prompt_toolchain_checklist; then echo "Installation cancelled at toolchain checklist." >&2; exit 1; fi
@@ -1458,7 +1459,7 @@ main() {
     verify_deps "${filtered_deps[@]}"
     local -a missing=("${VERIFY_MISSING[@]}")
     local -a gui_list=()
-    case "$FAMILY" in arch) gui_list=(hyprland alacritty wofi keyd waybar grim slurp wl-copy) ;; debian) gui_list=(alacritty wofi waybar grim slurp wl-copy) ;; termux) gui_list=() ;; esac
+    case "$FAMILY" in arch) gui_list=(alacritty keyd) ;; debian) gui_list=(alacritty) ;; termux) gui_list=() ;; esac
     local -a core_missing=()
     local -a gui_missing=()
     local m; local g; local is_gui
