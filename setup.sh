@@ -24,6 +24,11 @@ declare -a SELECTED_PACKAGES=()
 ALL_TOOLCHAIN=(stow neovim starship git zoxide uv ripgrep nodejs npm make gcc fzf zsh)
 declare -a SELECTED_DEPS=()
 
+# 02.1-02: unified single-page row universe — post-removal ALL_PACKAGES (6)
+# plus toolchain-only survivors (10). zsh/starship exist in both registries so
+# they render once; the nvim row covers the neovim system dep (mapped on split).
+UNIFIED_ROWS=(nvim zsh nushell alacritty starship keyd stow git zoxide uv ripgrep nodejs npm make gcc fzf)
+
 usage() {
     local prog
     prog="$(basename -- "${BASH_SOURCE[0]}")"
@@ -385,7 +390,7 @@ strip_termux_disabled() {
 preview_selection() {
     echo ""
     echo "=== DRY RUN: Preview of selected packages ==="
-    echo "Selection: ${SELECTED_PACKAGES[*]:-<none>}"
+    echo "selection: ${SELECTED_PACKAGES[*]:-<none>}"
     for pkg in "${SELECTED_PACKAGES[@]}"; do
         if [[ "$pkg" == "keyd" ]]; then
             if [[ "${FAMILY:-}" == "termux" ]]; then
@@ -1402,6 +1407,368 @@ prompt_toolchain_checklist() {
     return 1
 }
 
+# ──────────────────────────────────────────────
+# 02.1-02: unified single-page checklist (one page for install + uninstall)
+# ──────────────────────────────────────────────
+# Every remaining installable app is toggleable here with strict tick semantics:
+# tick installs the binary AND stows its config when one exists; untick never
+# installs and never stows. Mode/shell/family only set pre-selection defaults.
+# The five-backend ladder (gum→whiptail→dialog→fzf→read) and the
+# cancel-never-cascades contract mirror prompt_checklist exactly.
+
+_unified_fill_presets() {
+    # Fill caller-provided assoc array ($1, by name) with ON/OFF per UNIFIED_ROWS.
+    # Single source for preset rules: all-ON defaults, server GUI OFF,
+    # shell-choice single-ON, Termux disabled OFF.
+    local -n _dst="${1-}"
+    local _row
+    for _row in "${UNIFIED_ROWS[@]}"; do _dst["$_row"]="ON"; done
+    if [[ "$MODE" == "server" ]]; then
+        local _g
+        for _g in "${GUI_STOW_PACKAGES[@]}"; do _dst["$_g"]="OFF"; done
+    fi
+    if [[ "$SHELL_CHOICE" == "zsh" ]]; then _dst["zsh"]="ON"; _dst["nushell"]="OFF"
+    elif [[ "$SHELL_CHOICE" == "nushell" ]]; then _dst["zsh"]="OFF"; _dst["nushell"]="ON"; fi
+    if [[ "${FAMILY:-}" == "termux" ]]; then
+        local _d
+        for _d in "${TERMUX_DISABLED_PACKAGES[@]}"; do _dst["$_d"]="OFF"; done
+    fi
+}
+
+_split_unified_to_selected() {
+    # Split ticked unified rows ("$@") back into both downstream arrays:
+    # SELECTED_PACKAGES in ALL_PACKAGES order; SELECTED_DEPS in ALL_TOOLCHAIN
+    # order with zsh/starship landing in both and the nvim row landing as nvim
+    # in packages plus neovim in deps.
+    local -a _ticked=("$@")
+    SELECTED_PACKAGES=()
+    local _p
+    for _p in "${ALL_PACKAGES[@]}"; do
+        local _t
+        for _t in "${_ticked[@]}"; do if [[ "$_t" == "$_p" ]]; then SELECTED_PACKAGES+=("$_p"); break; fi; done
+    done
+    SELECTED_DEPS=()
+    local _dep
+    for _dep in "${ALL_TOOLCHAIN[@]}"; do
+        local _want="$_dep"
+        if [[ "$_dep" == "neovim" ]]; then _want="nvim"; fi
+        local _u
+        for _u in "${_ticked[@]}"; do if [[ "$_u" == "$_want" ]]; then SELECTED_DEPS+=("$_dep"); break; fi; done
+    done
+    strip_termux_disabled
+    _toolchain_ensure_stow
+}
+
+_unified_apply_presets() {
+    # Non-interactive selection: mode/shell/family presets with zero prompts.
+    # $1 labels the audit line ("--yes presets" or "non-interactive presets").
+    local _label="${1-presets}"
+    declare -A preset_state
+    _unified_fill_presets preset_state
+    local -a _picked=()
+    local _row
+    for _row in "${UNIFIED_ROWS[@]}"; do if [[ "${preset_state[$_row]}" == "ON" ]]; then _picked+=("$_row"); fi; done
+    _split_unified_to_selected "${_picked[@]}"
+    echo "Selected unified checklist ($_label): ${SELECTED_PACKAGES[*]:-<none>} / ${SELECTED_DEPS[*]:-<none>}" >&2
+    echo "${#UNIFIED_ROWS[@]} unified rows offered" >&2
+    return 0
+}
+
+unified_checklist_gum() {
+    if ! command -v gum >/dev/null 2>&1; then return 1; fi
+    local -a items=()
+    local row
+    for row in "${UNIFIED_ROWS[@]}"; do
+        local display="$row"
+        if [[ "$row" == "stow" ]]; then display="$row (required for deployment)"; fi
+        local is_disabled=false
+        local d
+        for d in "${TERMUX_DISABLED_PACKAGES[@]}"; do
+            if [[ "$row" == "$d" ]] && [[ "${FAMILY:-}" == "termux" ]]; then is_disabled=true; break; fi
+        done
+        if [[ "$is_disabled" == true ]]; then display="$row (not available on Termux)"; fi
+        items+=("$display")
+    done
+    local out
+    local gum_status=0
+    # gum choose --no-limit expects items on stdin
+    out=$(printf '%s\n' "${items[@]}" | gum choose --no-limit --header "Toggle selection (Space to select, Enter to confirm):" 2>&1) || gum_status=$?
+    if [[ $gum_status -ne 0 ]]; then
+        echo "Checklist cancelled (gum)." >&2
+        return 2
+    fi
+    if [[ -z "$out" ]]; then
+        echo "Checklist cancelled (gum empty selection)." >&2
+        return 2
+    fi
+    # Safe parse without eval: strip known suffixes, allow-list against UNIFIED_ROWS
+    local -a picked=()
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        line="${line% \(not available on Termux\)}"
+        line="${line% \(required for deployment\)}"
+        local r
+        for r in "${UNIFIED_ROWS[@]}"; do
+            if [[ "$line" == "$r" ]]; then picked+=("$r"); break; fi
+        done
+    done <<< "$out"
+    if [[ ${#picked[@]} -eq 0 ]]; then
+        echo "Checklist cancelled (no valid unified selection via gum)." >&2
+        return 2
+    fi
+    _split_unified_to_selected "${picked[@]}"
+    echo "Selected via gum: ${SELECTED_PACKAGES[*]:-<none>} / ${SELECTED_DEPS[*]:-<none>}" >&2
+    echo "${#UNIFIED_ROWS[@]} unified rows offered" >&2
+    return 0
+}
+
+unified_checklist_whiptail() {
+    if ! command -v whiptail >/dev/null 2>&1; then return 1; fi
+    declare -A preset_state
+    _unified_fill_presets preset_state
+    local -a args=()
+    local row
+    for row in "${UNIFIED_ROWS[@]}"; do
+        local desc=""
+        local state="${preset_state[$row]}"
+        if [[ "$row" == "stow" ]]; then desc="(required for deployment)"; fi
+        local is_disabled=false
+        local d
+        for d in "${TERMUX_DISABLED_PACKAGES[@]}"; do
+            if [[ "$row" == "$d" ]] && [[ "${FAMILY:-}" == "termux" ]]; then is_disabled=true; break; fi
+        done
+        if [[ "$is_disabled" == true ]]; then desc="(not available on Termux)"; state="OFF"; fi
+        args+=("$row" "$desc" "$state")
+    done
+    local rows
+    rows=$(stty size 2>/dev/null | cut -d' ' -f1 2>/dev/null || echo "")
+    if [[ -z "$rows" ]] || ! [[ "$rows" =~ ^[0-9]+$ ]]; then rows=24; fi
+    if [[ "$rows" -lt 20 ]]; then
+        if unified_checklist_read; then return 0; fi
+        local rc=$?
+        return $rc
+    fi
+    local list_height=$(( rows - 8 ))
+    local max_height=${#UNIFIED_ROWS[@]}
+    if [[ "$list_height" -gt "$max_height" ]]; then list_height="$max_height"; fi
+    if [[ "$list_height" -lt 7 ]]; then list_height=7; fi
+    local sel
+    local status=0
+    sel=$(whiptail --title "Packages" --checklist "Space to toggle (before any write):" 20 78 "$list_height" "${args[@]}" 3>&1 1>&2 2>&3) || status=$?
+    if [[ $status -ne 0 ]]; then echo "Checklist cancelled (whiptail)." >&2; return 2; fi
+    sel="$(echo "$sel" | xargs 2>/dev/null || echo "$sel")"
+    if [[ -z "$sel" ]]; then echo "Checklist cancelled (empty selection via whiptail)." >&2; return 2; fi
+    # Safe parse without eval: split quoted output via xargs without code execution
+    local -a parsed=()
+    if ! mapfile -t parsed < <(printf '%s' "$sel" | xargs -n1 2>/dev/null); then parsed=(); fi
+    local -a filtered=()
+    local tok
+    local clean
+    for tok in "${parsed[@]}"; do
+        clean="${tok#\"}"; clean="${clean%\"}"
+        clean="${clean#\'}"; clean="${clean%\'}"
+        clean="$(echo "$clean" | xargs 2>/dev/null || echo "$clean")"
+        [[ -z "$clean" ]] && continue
+        local r
+        for r in "${UNIFIED_ROWS[@]}"; do if [[ "$clean" == "$r" ]]; then filtered+=("$clean"); break; fi; done
+    done
+    _split_unified_to_selected "${filtered[@]}"
+    echo "Selected via whiptail: ${SELECTED_PACKAGES[*]:-<none>} / ${SELECTED_DEPS[*]:-<none>}" >&2
+    echo "${#UNIFIED_ROWS[@]} unified rows offered" >&2
+    return 0
+}
+
+unified_checklist_dialog() {
+    if ! command -v dialog >/dev/null 2>&1; then return 1; fi
+    declare -A preset_state
+    _unified_fill_presets preset_state
+    local -a args=()
+    local row
+    for row in "${UNIFIED_ROWS[@]}"; do
+        local desc=""
+        local state="${preset_state[$row]}"
+        if [[ "$row" == "stow" ]]; then desc="(required for deployment)"; fi
+        local is_disabled=false
+        local d
+        for d in "${TERMUX_DISABLED_PACKAGES[@]}"; do
+            if [[ "$row" == "$d" ]] && [[ "${FAMILY:-}" == "termux" ]]; then is_disabled=true; break; fi
+        done
+        if [[ "$is_disabled" == true ]]; then desc="(not available on Termux)"; state="OFF"; fi
+        args+=("$row" "$desc" "$state")
+    done
+    local rows
+    rows=$(stty size 2>/dev/null | cut -d' ' -f1 2>/dev/null || echo "")
+    if [[ -z "$rows" ]] || ! [[ "$rows" =~ ^[0-9]+$ ]]; then rows=24; fi
+    if [[ "$rows" -lt 20 ]]; then
+        if unified_checklist_read; then return 0; fi
+        local rc=$?
+        return $rc
+    fi
+    local list_height=$(( rows - 8 ))
+    local max_height=${#UNIFIED_ROWS[@]}
+    if [[ "$list_height" -gt "$max_height" ]]; then list_height="$max_height"; fi
+    if [[ "$list_height" -lt 7 ]]; then list_height=7; fi
+    local sel
+    local status=0
+    sel=$(dialog --title "Packages" --checklist "Space to toggle (before any write):" 20 78 "$list_height" "${args[@]}" 3>&1 1>&2 2>&3) || status=$?
+    if [[ $status -ne 0 ]]; then echo "Checklist cancelled (dialog)." >&2; return 2; fi
+    sel="$(echo "$sel" | xargs 2>/dev/null || echo "$sel")"
+    if [[ -z "$sel" ]]; then echo "Checklist cancelled (empty selection via dialog)." >&2; return 2; fi
+    # Safe parse without eval: split quoted output via xargs without code execution
+    local -a parsed=()
+    if ! mapfile -t parsed < <(printf '%s' "$sel" | xargs -n1 2>/dev/null); then parsed=(); fi
+    local -a filtered=()
+    local tok
+    local clean
+    for tok in "${parsed[@]}"; do
+        clean="${tok#\"}"; clean="${clean%\"}"
+        clean="${clean#\'}"; clean="${clean%\'}"
+        clean="$(echo "$clean" | xargs 2>/dev/null || echo "$clean")"
+        [[ -z "$clean" ]] && continue
+        local r
+        for r in "${UNIFIED_ROWS[@]}"; do if [[ "$clean" == "$r" ]]; then filtered+=("$clean"); break; fi; done
+    done
+    _split_unified_to_selected "${filtered[@]}"
+    echo "Selected via dialog: ${SELECTED_PACKAGES[*]:-<none>} / ${SELECTED_DEPS[*]:-<none>}" >&2
+    echo "${#UNIFIED_ROWS[@]} unified rows offered" >&2
+    return 0
+}
+
+unified_checklist_fzf() {
+    if ! command -v fzf >/dev/null 2>&1; then return 1; fi
+    local -a items=()
+    local row
+    for row in "${UNIFIED_ROWS[@]}"; do
+        local display="$row"
+        if [[ "$row" == "stow" ]]; then display="$row (required for deployment)"; fi
+        local is_disabled=false
+        local d
+        for d in "${TERMUX_DISABLED_PACKAGES[@]}"; do
+            if [[ "$row" == "$d" ]] && [[ "${FAMILY:-}" == "termux" ]]; then is_disabled=true; break; fi
+        done
+        if [[ "$is_disabled" == true ]]; then display="$row (not available on Termux)"; fi
+        items+=("$display")
+    done
+    local out
+    local fzf_status=0
+    local fzf_height=$(( ${#UNIFIED_ROWS[@]} + 2 ))
+    out=$(printf '%s\n' "${items[@]}" | fzf -m --header "Toggle selection (Tab to select, Enter to confirm)" --height="$fzf_height" --reverse --border 2>&1) || fzf_status=$?
+    if [[ $fzf_status -ne 0 ]]; then echo "Checklist cancelled (fzf)." >&2; return 2; fi
+    if [[ -z "$out" ]]; then echo "Checklist cancelled (fzf empty)." >&2; return 2; fi
+    # Safe parse without eval: strip known suffixes, allow-list against UNIFIED_ROWS
+    local -a picked=()
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+        line="${line% \(not available on Termux\)}"
+        line="${line% \(required for deployment\)}"
+        local r
+        for r in "${UNIFIED_ROWS[@]}"; do if [[ "$line" == "$r" ]]; then picked+=("$r"); break; fi; done
+    done <<< "$out"
+    if [[ ${#picked[@]} -eq 0 ]]; then echo "Checklist cancelled (no valid unified selection via fzf)." >&2; return 2; fi
+    _split_unified_to_selected "${picked[@]}"
+    echo "Selected via fzf: ${SELECTED_PACKAGES[*]:-<none>} / ${SELECTED_DEPS[*]:-<none>}" >&2
+    echo "${#UNIFIED_ROWS[@]} unified rows offered" >&2
+    return 0
+}
+
+unified_checklist_read() {
+    declare -A preset_state
+    _unified_fill_presets preset_state
+    if [[ ! -t 0 ]]; then
+        if ! _unified_apply_presets "non-interactive presets"; then return 1; fi
+        return 0
+    fi
+    echo "" >&2
+    echo "Unified checklist — one page for everything before any write (Zsh default, Nushell backup):" >&2
+    echo "All ${#UNIFIED_ROWS[@]} rows are individually toggleable. Tick installs the binary and stows its config when one exists; untick never installs and never stows. Server mode pre-unchecks GUI; shell choice pre-checks only chosen shell." >&2
+    echo "" >&2
+    local i=1
+    local row
+    for row in "${UNIFIED_ROWS[@]}"; do
+        local state="${preset_state[$row]}"
+        local marker="[x]"
+        if [[ "$state" != "ON" ]]; then marker="[ ]"; fi
+        local note=""
+        if [[ "$row" == "stow" ]]; then note=" (required for deployment)"; fi
+        local is_disabled=false
+        if [[ "${FAMILY:-}" == "termux" ]]; then
+            local d
+            for d in "${TERMUX_DISABLED_PACKAGES[@]}"; do if [[ "$row" == "$d" ]]; then is_disabled=true; break; fi; done
+        fi
+        if [[ "$is_disabled" == true ]]; then
+            marker="[ ]"
+            note=" (not available on Termux — never selectable)"
+        fi
+        printf " %2d %s %s%s\n" "$i" "$marker" "$row" "$note" >&2
+        i=$((i + 1))
+    done
+    echo "" >&2
+    echo "Enter numbers to toggle (e.g., '1 3' or '1,3'), press Enter to keep presets, or 'c' to cancel:" >&2
+    local reply
+    if ! read -r -p "> " reply; then echo "Error: failed to read checklist input" >&2; return 1; fi
+    reply="$(echo "$reply" | xargs 2>/dev/null || echo "$reply")"
+    if [[ "$reply" == "c" ]] || [[ "$reply" == "C" ]] || [[ "$reply" == "cancel" ]]; then echo "Checklist cancelled by user." >&2; return 1; fi
+    if [[ -z "$reply" ]]; then
+        local -a picked=()
+        for row in "${UNIFIED_ROWS[@]}"; do if [[ "${preset_state[$row]}" == "ON" ]]; then picked+=("$row"); fi; done
+        _split_unified_to_selected "${picked[@]}"
+        echo "Keeping presets: ${SELECTED_PACKAGES[*]:-<none>} / ${SELECTED_DEPS[*]:-<none>}" >&2
+        echo "${#UNIFIED_ROWS[@]} unified rows offered" >&2
+        return 0
+    fi
+    declare -A toggled
+    for row in "${UNIFIED_ROWS[@]}"; do toggled["$row"]="${preset_state[$row]}"; done
+    local normalized="${reply//,/ }"
+    local tok
+    for tok in $normalized; do
+        if ! [[ "$tok" =~ ^[0-9]+$ ]]; then echo "Warning: ignoring invalid token '$tok'" >&2; continue; fi
+        if [[ "$tok" -lt 1 ]] || [[ "$tok" -gt ${#UNIFIED_ROWS[@]} ]]; then echo "Warning: ignoring out-of-range selection '$tok'" >&2; continue; fi
+        local idx=$((tok - 1))
+        local target_row="${UNIFIED_ROWS[$idx]}"
+        local is_disabled=false
+        if [[ "${FAMILY:-}" == "termux" ]]; then
+            local d
+            for d in "${TERMUX_DISABLED_PACKAGES[@]}"; do if [[ "$target_row" == "$d" ]]; then is_disabled=true; break; fi; done
+        fi
+        if [[ "$is_disabled" == true ]]; then echo "Warning: '$target_row' is not available on Termux — cannot be selected." >&2; continue; fi
+        if [[ "${toggled[$target_row]}" == "ON" ]]; then toggled["$target_row"]="OFF"; else toggled["$target_row"]="ON"; fi
+    done
+    local -a picked=()
+    for row in "${UNIFIED_ROWS[@]}"; do if [[ "${toggled[$row]}" == "ON" ]]; then picked+=("$row"); fi; done
+    _split_unified_to_selected "${picked[@]}"
+    echo "Final selection: ${SELECTED_PACKAGES[*]:-<none>} / ${SELECTED_DEPS[*]:-<none>}" >&2
+    echo "${#UNIFIED_ROWS[@]} unified rows offered" >&2
+    return 0
+}
+
+prompt_unified_checklist() {
+    # Locked --yes semantics: mode/shell/family presets with zero prompts,
+    # identical to the no-TTY preset path — NOT all-ON, so server mode keeps
+    # GUI rows OFF and Termux keeps disabled rows OFF under --yes.
+    if [[ "$YES" == true ]]; then
+        if ! _unified_apply_presets "--yes presets"; then return 1; fi
+        return 0
+    fi
+    # No-TTY fast path: presets directly, zero prompts
+    if [[ ! -t 0 ]]; then
+        if ! unified_checklist_read; then return 1; fi
+        return 0
+    fi
+    # TTY: five-backend ladder in locked order, cancel never cascades
+    local rc
+    if unified_checklist_gum; then return 0; fi; rc=$?
+    if [[ $rc -eq 2 ]]; then return 1; fi
+    if unified_checklist_whiptail; then return 0; fi; rc=$?
+    if [[ $rc -eq 2 ]]; then return 1; fi
+    if unified_checklist_dialog; then return 0; fi; rc=$?
+    if [[ $rc -eq 2 ]]; then return 1; fi
+    if unified_checklist_fzf; then return 0; fi; rc=$?
+    if [[ $rc -eq 2 ]]; then return 1; fi
+    if unified_checklist_read; then return 0; fi; rc=$?
+    if [[ $rc -eq 2 ]] || [[ $rc -eq 1 ]]; then return 1; fi
+    return 1
+}
+
 main() {
     parse_args "$@"
     if [[ ! -f "$SCRIPT_DIR/setup.sh" ]]; then echo "Error: run from the dotfiles repo root (setup.sh not found in $SCRIPT_DIR)." >&2; exit 1; fi
@@ -1428,30 +1795,24 @@ main() {
     if [[ "$DRY_RUN" == true ]]; then echo "=== DRY RUN MODE: No changes will be applied ==="; fi
     if [[ "$UNINSTALL" == true ]]; then
         echo ""
-        echo "=== Package Selection (uninstall) ==="
-        if ! prompt_checklist; then echo "Uninstall cancelled at package checklist." >&2; exit 1; fi
+        echo "=== Unified Selection (single-page checklist, uninstall) ==="
+        if ! prompt_unified_checklist; then echo "Uninstall cancelled at unified checklist." >&2; exit 1; fi
         if [[ ${#SELECTED_PACKAGES[@]} -eq 0 ]]; then echo "No packages selected — nothing to unstow. Exiting." >&2; echo "No packages to unstow."; exit 0; fi
         echo ""
-        echo "Final package selection (uninstall): ${SELECTED_PACKAGES[*]}"
-        echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 6, selected ${#SELECTED_PACKAGES[@]})" >&2
-        echo "6 packages offered" >&2
+        echo "Final unified checklist (uninstall): packages ${SELECTED_PACKAGES[*]} / deps ${SELECTED_DEPS[*]:-<none>}"
+        echo "Final selection: ${SELECTED_PACKAGES[*]} (offered ${#UNIFIED_ROWS[@]}, selected ${#SELECTED_PACKAGES[@]})" >&2
+        echo "${#UNIFIED_ROWS[@]} unified rows offered" >&2
         if ! run_uninstall; then exit 1; fi
         exit 0
     fi
     echo ""
-    echo "=== Package Selection ==="
-    if ! prompt_checklist; then echo "Installation cancelled at package checklist." >&2; exit 1; fi
+    echo "=== Unified Selection (single-page checklist) ==="
+    if ! prompt_unified_checklist; then echo "Installation cancelled at unified checklist." >&2; exit 1; fi
     if [[ ${#SELECTED_PACKAGES[@]} -eq 0 ]]; then echo "No packages selected — nothing to stow. Exiting." >&2; echo "No packages to deploy."; exit 0; fi
     echo ""
-    echo "Final package selection: ${SELECTED_PACKAGES[*]}"
-    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered 6, selected ${#SELECTED_PACKAGES[@]})" >&2
-    echo "6 packages offered" >&2
-    echo ""
-    echo "=== Toolchain Selection ==="
-    if ! prompt_toolchain_checklist; then echo "Installation cancelled at toolchain checklist." >&2; exit 1; fi
-    echo ""
-    echo "Final toolchain selection: ${SELECTED_DEPS[*]} (offered 13, selected ${#SELECTED_DEPS[@]})" >&2
-    echo "13 toolchain offered" >&2
+    echo "Final unified checklist: packages ${SELECTED_PACKAGES[*]} / deps ${SELECTED_DEPS[*]}"
+    echo "Final selection: ${SELECTED_PACKAGES[*]} (offered ${#UNIFIED_ROWS[@]}, selected ${#SELECTED_PACKAGES[@]})" >&2
+    echo "${#UNIFIED_ROWS[@]} unified rows offered" >&2
     local -a deps=()
     if ! mapfile -t deps < <(get_deps "$FAMILY" "$MODE"); then echo "Error: failed to get dependencies for $FAMILY/$MODE" >&2; exit 1; fi
     local -a filtered_deps=()
