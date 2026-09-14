@@ -17,12 +17,6 @@
 # You can remove these comments if you want or leave
 # them for future reference.
 
-# Only run if we are in an interactive session and on TTY1
-# if ($env.LAST_EXIT_CODE? == 0) and ((tty) == "/dev/tty1") {
-#     print "🚀 Launching Hyprland..."
-#     exec start-hyprland
-# }
-
 # XDG Paths (Standard)
 $env.XDG_CACHE_HOME = ($env.HOME | path join ".cache")
 $env.XDG_CONFIG_HOME = ($env.HOME | path join ".config")
