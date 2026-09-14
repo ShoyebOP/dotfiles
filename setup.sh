@@ -654,7 +654,8 @@ offer_system_package_removal() {
     # 02.1-02 (D-10/D-13): extend with ticked stow rows that map to system deps
     # (nvim maps to neovim; alacritty/keyd install under their own names),
     # then scope to the post-removal set so legacy binaries are never offered.
-    local -a _allowed=("${ALL_TOOLCHAIN[@]}" alacritty keyd)
+    # D-06 never-apt invariant: keyd never apt-managed on Debian — family-aware allowlist.
+    local -a _allowed=("${ALL_TOOLCHAIN[@]}" alacritty); if [[ "${FAMILY:-}" != "debian" ]]; then _allowed+=(keyd); fi
     local _sp
     for _sp in "${SELECTED_PACKAGES[@]}"; do
         local _sdep="$_sp"
@@ -677,9 +678,9 @@ offer_system_package_removal() {
         if [[ "$_ok" == true ]]; then _scoped+=("$_c"); fi
     done
     candidates=("${_scoped[@]}")
-    # Filter candidates through filter_deps_by_selection when SELECTED_DEPS is active
+    # Filter candidates through filter_deps_by_selection when selection is active
     # This preserves ALL_TOOLCHAIN order and respects user's toolchain checklist
-    if [[ ${#SELECTED_DEPS[@]} -gt 0 ]]; then
+    if [[ "${SELECTION_ACTIVE:-false}" == true ]]; then
         local -a filtered=()
         if ! mapfile -t filtered < <(filter_deps_by_selection "${candidates[@]}"); then
             filtered=("${candidates[@]}")
