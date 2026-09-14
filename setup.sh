@@ -23,6 +23,7 @@ TERMUX_DISABLED_PACKAGES=(alacritty keyd)
 declare -a SELECTED_PACKAGES=()
 ALL_TOOLCHAIN=(stow neovim starship git zoxide uv ripgrep nodejs npm make gcc fzf zsh)
 declare -a SELECTED_DEPS=()
+SELECTION_ACTIVE=false
 
 # 02.1-02: unified single-page row universe — post-removal ALL_PACKAGES (6)
 # plus toolchain-only survivors (10). zsh/starship exist in both registries so
@@ -208,35 +209,26 @@ get_deps() {
     esac
     local -a _all=()
     if [[ "$mode" == "local" ]]; then _all=("${common[@]}" "${gui[@]}"); else _all=("${common[@]}"); fi
-    if [[ ${#SELECTED_DEPS[@]} -gt 0 ]]; then
-        local -a _f=()
-        local _d
-        for _d in "${_all[@]}"; do
-            local _is_tc=false
-            local _tt
-            for _tt in "${ALL_TOOLCHAIN[@]}"; do if [[ "$_d" == "$_tt" ]]; then _is_tc=true; break; fi; done
-            if [[ "$_is_tc" == true ]]; then
-                local _sel=false
-                for _tt in "${SELECTED_DEPS[@]}"; do if [[ "$_tt" == "$_d" ]]; then _sel=true; break; fi; done
-                if [[ "$_sel" == true ]]; then _f+=("$_d"); fi
-            else
-                # 02.1-02 tick-authoritative rule (D-09/D-10): a system dep
-                # matching an unticked stow row is dropped from the install
-                # set — post-removal only alacritty/keyd can reach here, both
-                # governed by their unified rows. Mode/shell govern presets only.
-                local _row
-                _row="$(_dep_to_stow_row "$_d")"
-                local _ticked=false
-                local _sp
-                for _sp in "${SELECTED_PACKAGES[@]}"; do if [[ "$_sp" == "$_row" ]]; then _ticked=true; break; fi; done
-                if [[ "$_ticked" == true ]]; then _f+=("$_d"); fi
-            fi
-        done
-        printf '%s\n' "${_f[@]}"
-    else
-        printf '%s\n' "${_all[@]}"
-    fi
+    # Tick-authoritative filtering now lives solely in filter_deps_by_selection (SELECTION_ACTIVE gate).
+    printf '%s\n' "${_all[@]}"
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # 02.1-02: filter deps by unified selection — tick authoritative (D-09/D-10):
 # toolchain names toggle via SELECTED_DEPS; a system dep matching an unticked
@@ -349,10 +341,10 @@ reverify_deps() {
     local -a deps=()
     if ! mapfile -t deps < <(get_deps "$family" "$mode"); then echo "Error: failed to get deps for re-verify" >&2; return 1; fi
     local -a filtered=()
-    if [[ ${#SELECTED_DEPS[@]} -eq 0 ]]; then
-        filtered=("${deps[@]}")
-    else
+    if [[ "${SELECTION_ACTIVE:-false}" == true ]]; then
         if ! mapfile -t filtered < <(filter_deps_by_selection "${deps[@]}"); then echo "Error: failed to filter deps for re-verify" >&2; return 1; fi
+    else
+        filtered=("${deps[@]}")
     fi
     verify_deps "${filtered[@]}"
     local -a still_missing=("${VERIFY_MISSING[@]}")
@@ -1540,6 +1532,7 @@ _split_unified_to_selected() {
     done
     strip_termux_disabled
     _toolchain_ensure_stow
+    SELECTION_ACTIVE=true
 }
 
 _unified_apply_presets() {
@@ -1552,6 +1545,7 @@ _unified_apply_presets() {
     local _row
     for _row in "${UNIFIED_ROWS[@]}"; do if [[ "${preset_state[$_row]}" == "ON" ]]; then _picked+=("$_row"); fi; done
     _split_unified_to_selected "${_picked[@]}"
+    SELECTION_ACTIVE=true
     echo "Selected unified checklist ($_label): ${SELECTED_PACKAGES[*]:-<none>} / ${SELECTED_DEPS[*]:-<none>}" >&2
     echo "${#UNIFIED_ROWS[@]} unified rows offered" >&2
     return 0
@@ -1901,7 +1895,11 @@ main() {
     local -a deps=()
     if ! mapfile -t deps < <(get_deps "$FAMILY" "$MODE"); then echo "Error: failed to get dependencies for $FAMILY/$MODE" >&2; exit 1; fi
     local -a filtered_deps=()
-    if ! mapfile -t filtered_deps < <(filter_deps_by_selection "${deps[@]}"); then echo "Error: failed to filter deps" >&2; exit 1; fi
+    if [[ "${SELECTION_ACTIVE:-false}" == true ]]; then
+        if ! mapfile -t filtered_deps < <(filter_deps_by_selection "${deps[@]}"); then echo "Error: failed to filter deps" >&2; exit 1; fi
+    else
+        filtered_deps=("${deps[@]}")
+    fi
     verify_deps "${filtered_deps[@]}"
     local -a missing=("${VERIFY_MISSING[@]}")
     local -a gui_list=()
