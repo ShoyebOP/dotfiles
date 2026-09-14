@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 3
-current_phase_name: Polished Shell, Theme & Local Overrides
+current_phase: 2.1
 status: planning
-stopped_at: Completed 02-02-PLAN.md
-last_updated: "2026-09-11T20:22:12.562Z"
+stopped_at: Phase 2.1 context gathered
+last_updated: "2026-09-14T09:04:29.149Z"
 last_activity: 2026-09-12
 last_activity_desc: Phase 02 complete, transitioned to Phase 3
 progress:
-  total_phases: 2
+  total_phases: 3
   completed_phases: 2
   total_plans: 7
   completed_plans: 7
+current_phase_name: Polished Shell, Theme & Local Overrides
 ---
 
 # Project State
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-09-10)
 
 ## Current Position
 
-Phase: 3 — Polished Shell, Theme & Local Overrides
+Phase: 2.1
 Plan: Not started
 Status: Ready to plan
 Last activity: 2026-09-12 — Phase 02 complete, transitioned to Phase 3
@@ -108,6 +108,10 @@ None yet.
 
 None yet.
 
+### Roadmap Evolution
+
+- Phase 2.1 inserted after Phase 2: remove hyperland and hyperland related configs and make sure anything related to hyperland is not installed in local installation (URGENT)
+
 ## Deferred Items
 
 Items acknowledged and carried forward from previous milestone close:
@@ -118,6 +122,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-11T20:07:05Z
-Stopped at: Completed 02-02-PLAN.md
-Resume file: None
+Last session: 2026-09-14T09:04:29.139Z
+Stopped at: Phase 2.1 context gathered
+Resume file: /home/shoyeb/dotfiles/.planning/phases/02.1-remove-hyperland-and-hyperland-related-configs-and-make-sure/02.1-CONTEXT.md
