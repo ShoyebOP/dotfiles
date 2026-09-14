@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 2.1
-status: executing
+current_phase: 3
+current_phase_name: Polished Shell, Theme & Local Overrides
+status: planning
 stopped_at: Phase 2.1 context gathered
-last_updated: "2026-09-14T09:24:29.907Z"
-last_activity: 2026-09-12
-last_activity_desc: Phase 02 complete, transitioned to Phase 3
+last_updated: "2026-09-14T11:08:44.568Z"
+last_activity: 2026-09-14
+last_activity_desc: Phase 02.1 execution started
 progress:
   total_phases: 3
-  completed_phases: 2
-  total_plans: 9
-  completed_plans: 7
-current_phase_name: Polished Shell, Theme & Local Overrides
+  completed_phases: 3
+  total_plans: 10
+  completed_plans: 10
 ---
 
 # Project State
@@ -23,14 +23,14 @@ current_phase_name: Polished Shell, Theme & Local Overrides
 See: .planning/PROJECT.md (updated 2026-09-10)
 
 **Core value:** A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop environment on any supported distro/derivative with one interactive run, and cleanly reverse itself — no manual `stow` or `MasonInstallAll` required.
-**Current focus:** Phase 01 — universal-installer-platform-foundations
+**Current focus:** Phase 02.1 — remove-hyperland-and-hyperland-related-configs-and-make-sure
 
 ## Current Position
 
-Phase: 2.1
+Phase: 3 — Polished Shell, Theme & Local Overrides
 Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-12 — Phase 02 complete, transitioned to Phase 3
+Status: Ready to plan
+Last activity: 2026-09-14 — Phase 02.1 complete, transitioned to Phase 3
 
 Progress: [██████████] 100%
 
@@ -38,7 +38,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 7
+- Total plans completed: 10
 - Average duration: -
 - Total execution time: 0.0 hours
 
@@ -52,6 +52,7 @@ Progress: [██████████] 100%
 | 4. Editor Autonomy & Verified Health | 0/2 | - | - |
 | 01 | 5 | - | - |
 | 02 | 2 | - | - |
+| 02.1 | 3 | - | - |
 
 **Recent Trend:**
 

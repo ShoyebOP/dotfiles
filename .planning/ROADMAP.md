@@ -71,7 +71,7 @@ Plans:
 **Goal:** Local installs never touch the Hyprland/Wayland-capture stack, and install/uninstall show one single-page checklist where every remaining app is toggleable (tick = install+stow, untick = never)
 **Requirements**: TBD (inserted phase — scope locked in 02.1-CONTEXT.md decisions D-01 through D-13)
 **Depends on:** Phase 2
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 
 Plans:
 **Wave 1**
@@ -84,7 +84,7 @@ Plans:
 
 **Gap closure Wave 1** *(depends_on: [] — fixes 02.1 VERIFICATION.md 7/9 gaps)*
 
-- [ ] 02.1-03-PLAN.md — Gap closure: SELECTION_ACTIVE empty-bypass fix (WR-01/02) + family-aware uninstall allowlist (WR-05) + DRY_RUN privilege-boundary + Termux/Debian mirrors (WR-04/IN-04) (IN-01/WR-07 cleanup)
+- [x] 02.1-03-PLAN.md — Gap closure: SELECTION_ACTIVE empty-bypass fix (WR-01/02) + family-aware uninstall allowlist (WR-05) + DRY_RUN privilege-boundary + Termux/Debian mirrors (WR-04/IN-04) (IN-01/WR-07 cleanup)
 
 ### Phase 3: Polished Shell, Theme & Local Overrides
 
