@@ -32,6 +32,10 @@ export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 
+# Why: dedupe every PATH mutation below (keep-first). `path`/`PATH` are a tied
+# array/scalar pair, so `typeset -U` on the array covers later PATH exports too.
+# Must precede the first PATH export — the unique attribute is forward-looking.
+typeset -U path
 # Local bins
 export PATH="$HOME/.local/bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
@@ -296,13 +300,48 @@ zi light-mode for \
     $ZI_REPO/fast-syntax-highlighting
 
 # FZF history search - Fuzzy search through command history
-zi ice joshskidmore/zsh-fzf-history-search
+# Why: each plugin needs its own `zi light` — a bare `zi ice <repo>` with no
+# following load command stages modifiers for the NEXT load and installs nothing
+# (this plugin was silently never loading). Load order is load-bearing:
+# fzf-history-search (owns Ctrl+R) BEFORE marlonrichert/zsh-autocomplete
+# (owns Tab/^I); autocomplete stays the LAST plugin load.
+zi light joshskidmore/zsh-fzf-history-search
 
 # Zsh autocomplete - Real-time type-ahead autocompletion
 zi ice atload'
 bindkey              "^I" menu-select
 bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete'
 zi light marlonrichert/zsh-autocomplete
+
+# -----------------------------------------------------------------------------
+# FZF DEGRADATION LADDER (best-effort, never breaks autocomplete)
+# -----------------------------------------------------------------------------
+# Why: fzf is optional — autocomplete must survive total fzf absence. Probe the
+# system binary, then branch on version with `sort -V` (numeric dotted compare):
+# >=0.48 uses the native `fzf --zsh` integration, older releases use the legacy
+# key-bindings file. Every probe failure falls through silently to warn-and-
+# continue; no probe failure may return nonzero at top level.
+if command -v fzf >/dev/null 2>&1; then
+    _fzf_ver="$(fzf --version 2>/dev/null | awk '{print $1}')"
+    if [[ -n "${_fzf_ver:-}" ]] && [[ "$(printf '%s\n%s\n' "$_fzf_ver" "0.48" | sort -V | head -n1)" == "0.48" ]]; then
+        source <(fzf --zsh) 2>/dev/null || true
+    elif [[ -f /usr/share/fzf/key-bindings.zsh ]]; then
+        source /usr/share/fzf/key-bindings.zsh 2>/dev/null || true
+    elif [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]]; then
+        # Why: Debian-family fzf ships the legacy scripts under doc/examples,
+        # not /usr/share/fzf — without this rung Ctrl+R would warn even though
+        # fzf is installed (verified: fzf 0.44.1 on Debian has only this path).
+        source /usr/share/doc/fzf/examples/key-bindings.zsh 2>/dev/null || true
+    fi
+    unset _fzf_ver
+fi
+# Unconditional Ctrl+R bind per split ownership (fzf-history-search owns ^R,
+# autocomplete owns ^I — never rebind ^I here). Warns instead of leaving a
+# silent dead key when the widget is absent (e.g. fzf not installed).
+bindkey '^R' fzf-history-widget
+if ! zle -l 2>/dev/null | grep -q fzf-history-widget; then
+    print -P "%F{yellow}[WARN]%f fzf history widget missing — install fzf to enable Ctrl+R history search."
+fi
 
 # -----------------------------------------------------------------------------
 # FINALIZATION
@@ -324,6 +363,11 @@ unset ZI_REPO
 # POWERLEVEL10K CUSTOMIZATION
 # -----------------------------------------------------------------------------
 # Load Powerlevel10k configuration (run `p10k configure` to customize)
+# Why: machine-local overrides (HOME-only, gitignored) load after every tool
+# init (zoxide, fzf, completions) so user tweaks win, but before prompt apply
+# so prompt/alias overrides render. Only HOME is sourced — nothing under the
+# repo — so machine secrets never dirty git. Template: zsh/.zshrc.local.example.
+[[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # Apply Catppuccin rainbow latte theme
@@ -390,4 +434,12 @@ typeset -g POWERLEVEL9K_VI_INSERT_MODE_STRING=INSERT
 typeset -g POWERLEVEL9K_VI_MODE_INSERT_FOREGROUND=66
 
 # bun completions
-[ -s "/home/shoyeb/.bun/_bun" ] && source "/home/shoyeb/.bun/_bun"
+# Why: HOME-variable form keeps second-machine clones working (no hard-coded user).
+[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
+
+# Why: converge PATH duplicate-free on every source pass (D-09). Scalar
+# `export PATH=...` assignments do not dedupe at assignment time even with the
+# top-of-file `typeset -U` guard set (verified on zsh 5.9); an array
+# self-assignment under the still-set unique attribute retro-dedupes instead.
+# Must stay the last PATH-relevant line — nothing below may mutate PATH.
+path=( $path )
