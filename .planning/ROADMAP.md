@@ -8,7 +8,7 @@ From a broken set of mirrored Nushell/Zsh bootstrappers that crash on derivative
 
 - [x] **Phase 1: Universal Installer + Platform Foundations** - Bash entry + Termux-aware deps + correct stow; dry-run and checklist before any write (completed 2026-09-11)
 - [x] **Phase 2: Safe, Reversible & Server-Safe Deployment** - Uninstall/clean, privileged keyd gate, Hyprland guard, Zsh provisioned, docs flipped to Zsh default (completed 2026-09-11)
-- [ ] **Phase 3: Polished Shell, Theme & Local Overrides** - Ctrl+R fzf conflict-free, PATH dedup, machine-local gitignored, theme token consistent
+- [x] **Phase 3: Polished Shell, Theme & Local Overrides** - Ctrl+R fzf conflict-free, PATH dedup, machine-local gitignored, theme token consistent (completed 2026-09-17; 1 item deferred — typing auto-show → dedicated future phase, see STATE.md Deferred Items)
 - [ ] **Phase 4: Editor Autonomy & Verified Health** - Mason auto-install/cleanup, which-key popup, telescope fzf fast, headless health gates
 
 ## Phase Details
@@ -146,5 +146,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Universal Installer + Platform Foundations | 5/5 | Complete    | 2026-09-11 |
 | 2. Safe, Reversible & Server-Safe Deployment | 2/2 | Complete    | 2026-09-11 |
-| 3. Polished Shell, Theme & Local Overrides | 2/2 | In Progress|  |
+| 3. Polished Shell, Theme & Local Overrides | 2/2 | Complete    | 2026-09-17 |
 | 4. Editor Autonomy & Verified Health | 0/2 | Not started | - |

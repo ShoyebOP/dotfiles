@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 03
-current_phase_name: polished-shell-theme-local-overrides
-status: executing
+current_phase: 04
+current_phase_name: Editor Autonomy & Verified Health
+status: planning
 stopped_at: Completed 03-polished-shell-theme-local-overrides-02-PLAN.md
-last_updated: "2026-09-17T07:54:41.792Z"
+last_updated: "2026-09-17T08:03:13.000Z"
 last_activity: 2026-09-17
-last_activity_desc: Phase 03 execution started
+last_activity_desc: Phase 03 complete with 1 deferred debt (typing auto-show → future phase), transitioned to Phase 4
 progress:
   total_phases: 4
   completed_phases: 4
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-10)
 
 **Core value:** A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop environment on any supported distro/derivative with one interactive run, and cleanly reverse itself — no manual `stow` or `MasonInstallAll` required.
-**Current focus:** Phase 03 — polished-shell-theme-local-overrides
+**Current focus:** Phase 04 — Editor Autonomy & Verified Health
 
 ## Current Position
 
-Phase: 03 (polished-shell-theme-local-overrides) — EXECUTING
-Plan: 2 of 2
-Status: Ready to execute
-Last activity: 2026-09-17 — Phase 03 execution started
+Phase: 4 — Editor Autonomy & Verified Health
+Plan: Not started
+Status: Ready to plan
+Last activity: 2026-09-17 — Phase 03 complete with 1 deferred debt (typing auto-show → future phase), transitioned to Phase 4
 
 Progress: [██████████] 100%
 
@@ -38,7 +38,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 10
+- Total plans completed: 11
 - Average duration: -
 - Total execution time: 0.0 hours
 
@@ -48,7 +48,7 @@ Progress: [██████████] 100%
 |-------|-------|-------|----------|
 | 1. Universal Installer + Platform Foundations | 0/2 | - | - |
 | 2. Safe, Reversible & Server-Safe Deployment | 0/2 | - | - |
-| 3. Polished Shell, Theme & Local Overrides | 0/1 | - | - |
+| 3. Polished Shell, Theme & Local Overrides | 2/2 | - | - |
 | 4. Editor Autonomy & Verified Health | 0/2 | - | - |
 | 01 | 5 | - | - |
 | 02 | 2 | - | - |
@@ -72,6 +72,7 @@ Progress: [██████████] 100%
 | Phase 02-safe-reversible-server-safe-deployment P01 | 6 min | 3 tasks | 2 files |
 | Phase 02-safe-reversible-server-safe-deployment P02 | 5 min | 3 tasks | 6 files |
 | Phase 03-polished-shell-theme-local-overrides P01 | 9 min | 3 tasks | 7 files |
+| Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
 | Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
 
 ## Accumulated Context
@@ -124,10 +125,10 @@ Items acknowledged and carried forward from previous milestone close:
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
-| *(none)* | | | |
+| Phase 03 gap | Typing auto-show feel (SHEL-02 half): typing 2–3 chars + pause shows no completion list despite correct zsh-autocomplete wiring; Tab menu-select + ghost text unverified. User deferred to a dedicated future phase — no code attempted in 03-02. VERIFICATION.md 5/6, phase completed with debt. | Deferred — needs dedicated diagnosis/fix phase | 2026-09-17 |
 
 ## Session Continuity
 
-Last session: 2026-09-17T07:54:37.015Z
-Stopped at: Completed 03-polished-shell-theme-local-overrides-02-PLAN.md
+Last session: 2026-09-17T08:03:13.000Z
+Stopped at: Completed 03-polished-shell-theme-local-overrides-02-PLAN.md — Phase 03 complete with 1 deferred debt, transitioned to Phase 4
 Resume file: None
