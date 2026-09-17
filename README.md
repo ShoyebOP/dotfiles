@@ -137,6 +137,27 @@ uv generate-shell-completion zsh > ~/.config/zsh/completions/_uv
 
 ---
 
+## Machine-local overrides
+
+Machine-specific tweaks live in HOME-only files that are auto-sourced when present and never enter git:
+
+| File | Destination | Sourced/Loaded |
+|------|-------------|----------------|
+| Shell | `~/.zshrc.local` | Sourced at the tail of `~/.zshrc` (after tool inits, before the p10k prompt apply) |
+| Editor | `~/.config/nvim/lua/local.lua` | Loaded last at the end of `init.lua`, so machine tweaks win |
+
+Copy from the documented templates (the only valid destinations):
+
+```bash
+cp zsh/.zshrc.local.example ~/.zshrc.local
+cp nvim/.config/nvim/lua/local.lua.example ~/.config/nvim/lua/local.lua
+```
+
+- **Absent means silent:** a fresh clone works with both files missing — no error, no warning.
+- **Git stays clean:** the real files are gitignored (`*.local`, the deployed `local.lua`, shell history); only the `*.example` templates are committed. `bash setup.sh` creates both empty HOME files after a successful deploy (previewed, never written, under `--dry-run`) without touching existing content.
+
+---
+
 ## Tech Stack
 
 | Shell | Zsh (Default) | Nushell (Backup) |

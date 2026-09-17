@@ -773,6 +773,25 @@ offer_system_package_removal() {
     return 0
 }
 
+# Phase 3 (D-12): bootstrap empty HOME machine-local files post-stow.
+# Create-only-when-absent — never truncates existing user content, never writes
+# under --dry-run, never writes under the repo dir (paths derive from HOME).
+ensure_local_files() {
+    local shell_local="$HOME/.zshrc.local"
+    local nvim_local="$HOME/.config/nvim/lua/local.lua"
+    local nvim_local_dir="$HOME/.config/nvim/lua"
+    if [[ "$DRY_RUN" == true ]]; then
+        echo "[DRY RUN] Would run: touch HOME ~/.zshrc.local (if absent) and deployed nvim lua/local.lua (if absent)"
+        return 0
+    fi
+    [[ -d "$HOME" ]] || mkdir -p "$HOME"
+    [[ -f "$shell_local" ]] || touch "$shell_local"
+    if [[ ! -f "$nvim_local" ]]; then
+        mkdir -p "$nvim_local_dir"
+        touch "$nvim_local"
+    fi
+}
+
 offer_chsh() {
     local zsh_path
     if ! zsh_path="$(command -v zsh 2>/dev/null)"; then
@@ -1997,6 +2016,7 @@ main() {
     quarantine_scan
     if ! run_stow; then echo "Error: stow deployment failed." >&2; exit 1; fi
     if ! post_verify; then echo "Error: post-verify failed — deployment incomplete." >&2; exit 1; fi
+    ensure_local_files
     offer_chsh || true
     echo ""
     echo "Setup complete. Deployed: ${SELECTED_PACKAGES[*]}"
