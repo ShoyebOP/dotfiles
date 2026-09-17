@@ -1,36 +1,34 @@
 ---
 phase: 03-polished-shell-theme-local-overrides
-verified: 2026-09-17T13:30:00Z
+verified: 2026-09-17T07:57:11Z
 status: gaps_found
-score: 3/6 must-haves verified
-behavior_unverified: 2
+score: 5/6 must-haves verified
+behavior_unverified: 0
 overrides_applied: 0
+re_verification:
+  previous_status: gaps_found
+  previous_score: 3/6
+  gaps_closed:
+    - "T5 preview reachability: full `bash setup.sh --mode server --shell zsh --dry-run` now prints the local-file Would-run marker with zero writes (ensure_local_files called at setup.sh:1999 inside the DRY_RUN preview branch)"
+  gaps_remaining: []
+  regressions: []
 gaps:
-  - truth: "User runs setup.sh --dry-run and sees the local-file preview with zero writes; a live run creates empty HOME files without truncating existing ones (SHEL-04, EDIT-04 per D-12)"
-    status: partial
-    reason: "Live half fully proven (creates both empty HOME files, idempotent, never truncates). Preview half fails at the documented user command: full `bash setup.sh --mode server --shell zsh --dry-run` never prints the local-file Would-run lines because main's DRY_RUN branch returns before reaching ensure_local_files (line ~2019, live path only). The Would-run preview exists only at function level (sourced DRY_RUN=true invocation). SUMMARY.md admits this exact limitation and defers it as a future pass."
-    artifacts:
-      - path: "setup.sh"
-        issue: "ensure_local_files is called only in the live path after post_verify; the DRY_RUN preview path (preview_selection + chsh preview + return 0) never invokes it, so users previewing with --dry-run never see the local-file lines"
-    missing:
-      - "Invoke ensure_local_files (already DRY_RUN-safe: prints Would-run and returns before any write) from the DRY_RUN preview path in main before `return 0`, or emit the equivalent Would-run lines from preview_selection — then re-run full --dry-run and grep for zshrc.local"
-behavior_unverified_items:
-  - truth: "User presses Ctrl+R and gets fzf history search, or a visible warning telling them to install fzf — never a silent dead key (SHEL-02 per D-03)"
-    test: "Open one interactive Zsh (fresh login shell on this machine), then press Ctrl+R and type a fragment of a previous command"
-    expected: "An fzf fuzzy history UI appears with matching entries (fzf installed here, ladder should take the live branch); on a machine without fzf, a yellow WARN naming the install action appears instead of a dead key — either outcome, never silence"
-    why_human: "Presence + wiring (unconditional bind, zle-list WARN guard, 3-rung version ladder) are proven by grep, but the keypress-to-UI transition cannot be exercised headlessly — the widget only exists after Zinit loads the plugin in a live interactive shell"
   - truth: "User types and the async completion list auto-shows below the prompt with no keypress; Tab only enters menu-select; ghost autosuggestion text still renders (SHEL-02 per D-04/D-05)"
-    test: "In the same interactive shell, type 2-3 characters of a known command/path and pause without pressing Tab; then press Tab; also confirm the p10k prompt renders normally"
-    expected: "A completion list appears automatically below the prompt (no keypress); Tab moves into menu-select; faint ghost autosuggestion text still renders alongside; prompt renders with no errors"
-    why_human: "Load order (fzf-history-search before autocomplete-last), single ^I binding, and all three plugins coexisting are proven by grep, but typing-to-list-appears is a runtime async transition no headless test exercises — it needs human eyes per the plan's own end-of-phase human check"
+    status: failed
+    reason: "Code is present, substantive, and correctly wired (all greps pass, no zshrc change since prior verification), but the human live-shell check returned an explicit FAIL: typing 2-3 characters and pausing shows no auto completion list. User directive defers the fix to a separate future phase — no code was attempted here, so the must-have remains unmet in the codebase."
+    artifacts:
+      - path: "zsh/.zshrc"
+        issue: "Plugin block (autosuggestions + autocomplete-last + single ^I binding) is wired but does not produce the auto-show behavior at runtime — root cause unknown, needs a dedicated diagnosis/fix phase"
+    missing:
+      - "A dedicated follow-up phase diagnosing why marlonrichert/zsh-autocomplete does not auto-show on this machine (load order vs atload vs terminal/widget conflict) and fixing typing auto-show + Tab menu-select + ghost text"
 ---
 
 # Phase 03: Polished Shell, Theme & Local Overrides Verification Report
 
-**Phase Goal:** Polished Shell, Theme & Local Overrides — daily Zsh feels finished (history search, stable PATH, machine-local overrides, theme closure)
-**Verified:** 2026-09-17T13:30:00Z
+**Phase Goal:** Daily Zsh feels finished — history search just works, PATH is stable, machine-local tweaks stay gitignored, theme is consistent
+**Verified:** 2026-09-17T07:57:11Z
 **Status:** gaps_found
-**Re-verification:** No — initial verification (no prior VERIFICATION.md found)
+**Re-verification:** Yes — gaps-only re-verification after gap-closure plan 03-02 (prior 03-VERIFICATION.md: gaps_found, 3/6, 1 gap T5 + 2 behavior-unverified)
 
 ## Goal Achievement
 
@@ -38,148 +36,108 @@ behavior_unverified_items:
 
 | # | Truth | Status | Evidence |
 | --- | ------- | ---------- | -------------- |
-| 1 | User presses Ctrl+R and gets fzf history search, or a visible warning telling them to install fzf — never a silent dead key (SHEL-02 per D-03) | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | Present + wired: `zi light joshskidmore/zsh-fzf-history-search` (zsh/.zshrc:308) precedes autocomplete-last (:314, order-ok proven); unconditional `bindkey '^R' fzf-history-widget` (:341) + `zle -l` guard printing yellow WARN install-fzf message (:342-344); `sort -V` 0.48 branch + 2 legacy rungs incl. Debian `doc/examples` path (:324-335). Keypress→UI transition unexercised headlessly — see behavior item 1. |
-| 2 | User types and the async completion list auto-shows below the prompt with no keypress; Tab only enters menu-select; ghost autosuggestion text still renders (SHEL-02 per D-04/D-05) | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | Present + wired: autosuggestions with `_zsh_autosuggest_start` atload (:291-296) untouched, fast-syntax-highlighting untouched (:299-300), autocomplete last with byte-identical `^I menu-select` atload (:311-314), exactly one `^I` binding repo-wide, no `^I` rebind in fzf branch. Typing→auto-show transition unexercised headlessly — see behavior item 2. |
-| 3 | User reloads the shell repeatedly and PATH has zero duplicates while z, zi, zoxide, completions, and the p10k prompt still work (SHEL-03 per D-09) | ✓ VERIFIED | `typeset -U path` at line 38 precedes first `export PATH` at line 40 (guard-on-top awk passes); convergent tail `path=( $path )` at line 445 (last PATH line). Behaviorally proven: plan's hermetic triple-source command re-run by verifier prints `reload-ok` (zero dupes after 3 sources); isolated zsh demo confirms scalar `export PATH=` bypasses `-U` at assignment (2 occurrences) and the tail re-assertion retro-dedupes (1 occurrence). zoxide/p10k/completions lines untouched; tools-confirm rides with the interactive human check. |
-| 4 | User drops personal tweaks in HOME ~/.zshrc.local and the deployed nvim local.lua and they take effect without dirtying git; a fresh clone works with both files absent (SHEL-04, EDIT-04 per D-10/D-11) | ✓ VERIFIED | Shell: tail guard `[[ -f "$HOME/.zshrc.local" ]] && source` at :370 sits after `zoxide init` (:58) and before p10k apply (:371) — position load-bearing and correct; marker spot-check (`export PHASE3_VERIFY_MARKER`) sources ok. Editor: `pcall(require, "local")` tail at init.lua:91-94 after the colorscheme schedule block, silent-when-absent + WARN-only-when-broken; `nvim --headless -c 'qa!'` exits 0 with override absent; luafile marker mechanism proven. Git: `check-ignore` succeeds for `zsh/.zshrc.local`, `nvim/.config/nvim/lua/local.lua`, `zsh/.zsh_history`; fails (correctly) for both `*.example` templates; no real local/history file tracked. |
-| 5 | User runs setup.sh --dry-run and sees the local-file preview with zero writes; a live run creates empty HOME files without truncating existing ones (SHEL-04, EDIT-04 per D-12) | ✗ FAILED (partial) | Live half PASSES: stub-HOME run creates both empty files; second run is a no-op; pre-existing content (`keepme`) never truncated; parent-dir + `$HOME` guards present. Preview half FAILS: full `bash setup.sh --mode server --shell zsh --dry-run` output contains no `zshrc.local`/`local.lua` Would-run lines — main's DRY_RUN branch (preview_selection + chsh preview + `return 0`) returns before `ensure_local_files` (live path only, ~line 2019). Function-level `DRY_RUN=true` sourced invocation prints the preview and writes nothing, but that is not the documented `setup.sh --dry-run` command. SUMMARY.md acknowledges this exact limitation as a future pass. |
-| 6 | No per-app appearance file is modified and no theme token, installer theme function, or mismatch warning is added anywhere (THEM-01 closed as intended-drift per D-13) | ✓ VERIFIED | Change set across the 3 task commits is exactly the 7 plan paths + intended history index removal (`D zsh/.zsh_history`); zero appearance files (`alacritty/`, `starship/`, `colorschemes/`, `p10k`) touched. Grep for `apply_theme`, `THEME` token, mismatch warnings (excl. intended-drift comments) is empty. All 3 prohibitions hold: no theme code; HOME-only sourcing with no repo-side local file and no committed locals/history; fzf probes all `|| true`-guarded with no abort path. |
+| 1 | User presses Ctrl+R and gets fzf history search, or a visible warning telling them to install fzf — never a silent dead key (SHEL-02 per D-03) | ✓ VERIFIED | Present + wired as before (`zi light joshskidmore/zsh-fzf-history-search` :308 < autocomplete-last :314; unconditional `bindkey '^R' fzf-history-widget` :341 + `zle -l` yellow WARN guard :342-344; 3-rung `sort -V` 0.48 ladder :324-335 incl. Debian `doc/examples` rung). Behavior now exercised: human live-shell check **PASSED** (history-search UI works — verbatim verdict in 03-02-SUMMARY.md, confirmed by orchestrator context). |
+| 2 | User types and the async completion list auto-shows below the prompt with no keypress; Tab only enters menu-select; ghost autosuggestion text still renders (SHEL-02 per D-04/D-05) | ✗ FAILED | Present + wired (autosuggestions atload `_zsh_autosuggest_start` :291-296 untouched; fast-syntax-highlighting untouched; autocomplete last with byte-identical `^I menu-select` atload :311-314; exactly one `^I` binding repo-wide), but the human live-shell check **FAILED**: typing 2-3 characters and pausing shows no auto-show list. No code change attempted per user directive (deferred to a separate future phase). See Gaps Summary. |
+| 3 | User reloads the shell repeatedly and PATH has zero duplicates while z, zi, zoxide, completions, and the p10k prompt still work (SHEL-03 per D-09) | ✓ VERIFIED | Unregressed (03-02 touched only setup.sh — `git show 62557f7 --stat` confirms setup.sh +2 lines). `typeset -U path` :38 < first `export PATH` :40; tail `path=( $path )` :445. Verifier re-ran the hermetic triple-source check: `reload-ok` (zero dupes after 3 sources). |
+| 4 | User drops personal tweaks in HOME ~/.zshrc.local and the deployed nvim local.lua and they take effect without dirtying git; a fresh clone works with both files absent (SHEL-04, EDIT-04 per D-10/D-11) | ✓ VERIFIED | Unregressed. Tail guard :370 after zoxide init :58, before p10k apply :371; `pcall(require, "local")` init.lua:91-94 silent-absent + WARN-only-broken; `nvim --headless -c 'qa!'` exit 0 re-confirmed; `check-ignore` succeeds for all 3 local/history paths, fails (correctly) for both `*.example` templates. |
+| 5 | User runs setup.sh --dry-run and sees the local-file preview with zero writes; a live run creates empty HOME files without truncating existing ones (SHEL-04, EDIT-04 per D-12) | ✓ VERIFIED | **Gap T5 CLOSED and re-proven by verifier:** `ensure_local_files` now called at setup.sh:1999 inside the DRY_RUN preview branch (after chsh preview block, before `DRY RUN complete` + `return 0`), inheriting `DRY_RUN=true`. Full `bash setup.sh --mode server --shell zsh --dry-run` output contains `[DRY RUN] Would run: touch HOME ~/.zshrc.local (if absent) and deployed nvim lua/local.lua (if absent)` (full-preview-ok). Sourced `DRY_RUN=true` run creates nothing and preserves seeded `keepme` (sourced-preview-clean). Stub-HOME live run creates the deployed lua file, second run is a no-op, seeded content survives (live-idempotent-no-truncate — all re-run by verifier). |
+| 6 | No per-app appearance file is modified and no theme token, installer theme function, or mismatch warning is added anywhere (THEM-01 closed as intended-drift per D-13) | ✓ VERIFIED | Unregressed. 03-02 diff is setup.sh only (+2 lines: why-comment + bare call). Appearance-routine absence probe returns 0; zero `alacritty/` / `starship/` / `colorschemes/` / `p10k` touches across all 4 task commits. All 3 prohibitions hold. |
 
-**Score:** 3/6 truths verified (2 present, behavior-unverified)
-
-**This looks intentional (T5 wording vs plan instruction).** The plan explicitly instructed leaving the DRY_RUN early-return branch untouched, while the must-have truth promises a local-file preview under `setup.sh --dry-run`. If the developer accepts function-level preview as sufficient, add to VERIFICATION.md frontmatter:
-
-```yaml
-overrides:
-  - must_have: "User runs setup.sh --dry-run and sees the local-file preview with zero writes"
-    reason: "Preview proven at function level (DRY_RUN=true sourced invocation prints Would-run, writes nothing); full-run preview deferred per plan instruction to leave the DRY_RUN branch untouched — live bootstrap fully working"
-    accepted_by: "{name}"
-    accepted_at: "{ISO timestamp}"
-```
-
-Then re-run verification to apply. Otherwise the one-line fix is to call the already-DRY_RUN-safe `ensure_local_files` from the dry-run preview path before `return 0`.
-
-### Roadmap Literal Deltas (user-approved reshapes, override candidates)
-
-The plan documents three explicit deltas from ROADMAP.md Phase 3 text (03-01-PLAN.md objective + 03-CONTEXT.md D-01/D-10/D-13). Verified literally:
-
-| Roadmap SC | Literal text | Implementation | Assessment |
-|---|---|---|---|
-| SC1 | one-history-plugin policy resolves autocomplete vs fzf-history-search | BOTH kept with split ownership (^R fzf, ^I autocomplete) per D-01 | Intentional deviation (user override); wiring correct for the reshaped intent |
-| SC3 | `~/.zshrc.local` AND `zsh/.zshrc.local` auto-sourced | HOME-only `~/.zshrc.local` sourced; no repo-side file per D-10 | Intentional deviation (user verbatim "only stay at home"); implemented exactly as decided |
-| SC5 | single `THEME` token + `setup.sh apply_theme()` warns | Zero theme code; closed as intended-drift per D-13 | Intentional deviation (user verbatim "intended drift"); zero-code proven |
-| SC2 | `typeset -U path` dedupes PATH | Implemented + convergent tail; reload-ok re-run passes | ✓ Literal PASS |
-| SC4 | `pcall(require,"local")` + gitignore + example | Implemented exactly; all gates pass | ✓ Literal PASS |
-
-Suggested overrides if the developer wants the roadmap-literal trace to read green (each cites the CONTEXT decision that already records user approval):
-
-```yaml
-overrides:
-  - must_have: "one history plugin policy resolves marlonrichert/zsh-autocomplete vs joshskidmore/zsh-fzf-history-search"
-    reason: "Superseded by D-01 (user decision): keep BOTH with split ownership — Ctrl+R belongs to fzf-history-search, Tab belongs to autocomplete; load order + bindings verified"
-    accepted_by: "{name}"
-    accepted_at: "{ISO timestamp}"
-  - must_have: "User creates ~/.zshrc.local and zsh/.zshrc.local and sees both auto-sourced"
-    reason: "Superseded by D-10 (user verbatim HOME-only): only HOME ~/.zshrc.local is sourced; repo-side file intentionally never sourced so machine secrets never dirty git"
-    accepted_by: "{name}"
-    accepted_at: "{ISO timestamp}"
-  - must_have: "single THEME token and setup.sh apply_theme() warns on mismatch"
-    reason: "Dropped by D-13 (user verbatim intended drift): alacritty mocha / starship latte / nvim tokyodark / p10k mocha mapping left alone with zero theme code — change-set gate enforces it"
-    accepted_by: "{name}"
-    accepted_at: "{ISO timestamp}"
-```
-
-These are NOT applied (no human acceptance on record) and do NOT affect the score above; they exist so the next verification run can honor them.
+**Score:** 5/6 truths verified (0 present, behavior-unverified)
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
 | -------- | ----------- | ------ | ------- |
-| `zsh/.zshrc` | PATH dedup guard, repaired plugin block, version-branched fzf init, unconditional Ctrl+R bind with warning, HOME-only local tail guard, portable bun source | ✓ VERIFIED | 445 lines; `typeset -U path` :38 pre-export; own `zi light` for fzf-history-search :308 before autocomplete-last :314; 3-rung ladder + WARN block :324-344; guard :370 correctly positioned; bun `$HOME` form :438; tail `path=( $path )` :445; `zsh -n` passes |
-| `nvim/.config/nvim/init.lua` | Machine-local override load as last startup step, silent when absent, warning when broken | ✓ VERIFIED | `pcall(require, "local")` :91-94 after colorscheme schedule :84-87; absent→silent (match on `module 'local' not found`), broken→WARN, never ERROR/abort; headless start exits 0 |
-| `.gitignore` | Machine-local gitignore section covering local overrides and shell history | ✓ VERIFIED | Lines 17-20: `*.local`, deployed `local.lua`, `zsh/.zsh_history` with header comment; existing entries byte-identical; check-ignore gates pass |
-| `setup.sh` | DRY_RUN-safe post-stow bootstrap creating empty HOME local files only when absent | ✓ VERIFIED | `ensure_local_files` :779-793 (DRY_RUN preview branch, `[[ -d $HOME ]]` + `mkdir -p` guards, create-only-when-absent `|| touch` / `if ! -f`); called in live path after `post_verify`, before chsh offer (:2019); `bash -n` passes; live/idempotent/no-truncate proven |
-| `zsh/.zshrc.local.example` | Documented shell template (PATH prepend, prompt tweak, alias) | ✓ VERIFIED | 23 lines; names HOME destination as only valid copy target; warns real file never committed; docs-only (nothing sources it); committable (not ignored) |
-| `nvim/.config/nvim/lua/local.lua.example` | Documented editor template (option tweak, keymap) | ✓ VERIFIED | 17 lines; names deployed HOME path as only valid copy target; notes silent no-op when absent; docs-only; committable (not ignored) |
-| `README.md` | Machine-local overrides docs with HOME-only paths and copy-from-template commands | ✓ VERIFIED | `## Machine-local overrides` section (:140-157): destination table, both `cp ...example` commands, absent-means-silent + git-stays-clean notes, `--dry-run` preview note |
+| `zsh/.zshrc` | PATH dedup guard, repaired plugin block, version-branched fzf init, unconditional Ctrl+R bind with warning, HOME-only local tail guard, portable bun source | ✓ VERIFIED | Unchanged since 03-01 (no 03-02 diff). 445 lines; all prior greps re-pass; `zsh -n` passes |
+| `nvim/.config/nvim/init.lua` | Machine-local override load as last startup step, silent when absent, warning when broken | ✓ VERIFIED | Unchanged; `pcall(require, "local")` :91-94; headless exit 0 re-confirmed |
+| `.gitignore` | Machine-local gitignore section covering local overrides and shell history | ✓ VERIFIED | Unchanged; lines 17-20; all 5 check-ignore gates re-pass |
+| `setup.sh` | DRY_RUN-safe post-stow bootstrap creating empty HOME local files only when absent, **surfaced in the dry-run preview path** | ✓ VERIFIED | `ensure_local_files` :779-793 unchanged; **new call :1999 inside DRY_RUN branch** (the T5 fix); live call :2021 untouched; `bash -n` passes; full-preview + live-idempotent probes re-pass |
+| `zsh/.zshrc.local.example` | Documented shell template | ✓ VERIFIED | Unchanged; committable, docs-only |
+| `nvim/.config/nvim/lua/local.lua.example` | Documented editor template | ✓ VERIFIED | Unchanged; committable, docs-only |
+| `README.md` | Machine-local overrides docs with HOME-only paths and copy-from-template commands | ✓ VERIFIED | Unchanged; `## Machine-local overrides` :140 + template filename greps pass |
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
 | ---- | --- | --- | ------ | ------- |
-| zsh/.zshrc plugin load order (fzf-history-search own light, autocomplete last) | bindkey Ctrl+R target widget | Widget exists only if its plugin actually loads; bare ice line loads nothing, so unconditional bind needs repaired load above it | ✓ WIRED | `zi light joshskidmore/zsh-fzf-history-search` :308 < `zi light marlonrichert/zsh-autocomplete` :314; `bindkey '^R' fzf-history-widget` :341; pattern `zi light joshskidmore/zsh-fzf-history-search` present |
-| typeset -U path position near top | All later PATH exports (top five, polaris append, bun, fpath) | Unique attribute is forward-looking; anything above the guard keeps dupes, so placement above first export is what makes repeat sourcing converge | ✓ WIRED | Guard :38 < first export :40 (awk passes); tail `path=( $path )` :445 retro-dedupes scalar-assignment bypass (demonstrated: 2→1 occurrences); pattern `typeset -U path` present |
-| HOME local guard position (after tool inits, before p10k apply) | User prompt and alias overrides rendering | Sourcing before zoxide init gets clobbered; after prompt apply never renders, so tail slot is load-bearing | ✓ WIRED | zoxide :58 < guard :370 < p10k source :371 < `apply_catppuccin` :374; pattern `.zshrc.local` present; marker sourcing proven |
-| setup.sh ensure_local_files HOME-derived paths | Deployed ~/.zshrc.local and ~/.config/nvim/lua/local.lua | Paths derive from HOME at runtime and never under repo dir, keeping working tree clean | ✓ WIRED | `$HOME/.zshrc.local` + `$HOME/.config/nvim/lua/local.lua` (:780-782); zero `SCRIPT_DIR` refs in function; pattern `ensure_local_files` present with call in live path |
+| zsh/.zshrc plugin load order (fzf-history-search own light, autocomplete last) | bindkey Ctrl+R target widget | Repaired load above the unconditional bind | ✓ WIRED | :308 < :314; bind :341; unchanged |
+| typeset -U path position near top | All later PATH exports | Forward-looking unique attribute + tail re-assertion | ✓ WIRED | :38 < :40; tail :445; reload-ok re-passes |
+| HOME local guard position (after tool inits, before p10k apply) | User prompt and alias overrides rendering | Load-bearing tail slot | ✓ WIRED | :58 < :370 < :371; unchanged |
+| setup.sh ensure_local_files HOME-derived paths | Deployed ~/.zshrc.local and ~/.config/nvim/lua/local.lua | HOME at runtime, never repo dir | ✓ WIRED | `$HOME`-derived :780-782; zero repo-dir refs |
+| main DRY_RUN preview branch (preview_selection + chsh preview + return 0) | ensure_local_files bootstrap | **NEW 03-02 link:** bare call inherits DRY_RUN=true, hits early preview return before any write | ✓ WIRED | Call at :1999 strictly between `preview_selection` line and `DRY RUN complete` line (ordering probe passes); full dry-run prints the marker |
 
 ### Data-Flow Trace (Level 4)
 
 | Artifact | Data Variable | Source | Produces Real Data | Status |
 | -------- | ------------- | ------ | ------------------ | ------ |
-| zsh/.zshrc local guard | `$HOME/.zshrc.local` content → shell env | HOME-owned file sourced at tail | ✓ FLOWING (marker `PHASE3_VERIFY_MARKER=local-sourced-ok` round-trips through the exact guard line) | ✓ FLOWING |
-| nvim init.lua local tail | `require("local")` → editor state | Deployed `~/.config/nvim/lua/local.lua` via stow | ✓ FLOWING (luafile marker round-trips; absent→silent no-op with exit 0; broken→WARN, startup continues) | ✓ FLOWING |
-| setup.sh ensure_local_files | `$HOME` → two deployed files | Runtime `$HOME`, never repo dir | ✓ FLOWING (live stub-HOME run creates both empty files; second run no-op; existing content preserved) | ✓ FLOWING |
-| fzf ladder | `fzf --version` → branch selection | System fzf binary when present | ✓ FLOWING (canned `0.44.1`→legacy / `0.49.0`→modern `sort -V` assertions pass; absent→WARN fallthrough, no abort) | ✓ FLOWING |
-
-No hollow props, no static fallbacks masquerading as data, no disconnected renders found.
+| zsh/.zshrc local guard | `$HOME/.zshrc.local` → shell env | HOME-owned file at tail | ✓ FLOWING (unchanged, prior marker proof stands) | ✓ FLOWING |
+| nvim init.lua local tail | `require("local")` → editor state | Deployed lua file | ✓ FLOWING (unchanged; absent exit 0 re-confirmed) | ✓ FLOWING |
+| setup.sh ensure_local_files | `$HOME` → two deployed files | Runtime `$HOME` | ✓ FLOWING (live create + idempotent + no-truncate re-proven; **preview path now flows the Would-run marker to stdout with zero writes**) | ✓ FLOWING |
+| fzf ladder | `fzf --version` → branch | System fzf binary | ✓ FLOWING (unchanged) | ✓ FLOWING |
 
 ### Behavioral Spot-Checks
 
 | Behavior | Command | Result | Status |
 | -------- | ------- | ------ | ------ |
-| zsh syntax | `zsh -n zsh/.zshrc` | `syntax-ok`, exit 0 | ✓ PASS |
-| PATH guard on top | plan awk (`typeset -U` line < first `export PATH`) | `guard-on-top` | ✓ PASS |
-| Plugin order (fzf before autocomplete-last) | grep line-number compare (308 < 314) | `order-ok` | ✓ PASS |
-| Ctrl+R bind + sort -V + local guard present | 3 greps | `wiring-ok` | ✓ PASS |
-| Version-branch numeric compare | canned `sort -V` head assertions | `probe-logic-ok` | ✓ PASS |
-| Triple-source PATH convergence | plan hermetic `ZDOTDIR` triple-source pipe | `reload-ok` (re-run by verifier) | ✓ PASS |
-| PATH mechanism (scalar bypass + tail retro-dedupe) | isolated `zsh -c` demo | 2 occurrences → 1 after `path=( $path )` | ✓ PASS |
-| Shell local take-effect | marker file + exact guard line under stub HOME | `marker=local-sourced-ok` | ✓ PASS |
-| Nvim override mechanism + silent-absent | `luafile` marker + `nvim --headless -c 'qa!'` | `marker=local-loaded-ok`; absent exit 0 | ✓ PASS |
+| zsh syntax | `zsh -n zsh/.zshrc` | `syntax-ok` | ✓ PASS |
+| PATH triple-source convergence | hermetic ZDOTDIR triple-source pipe | `reload-ok` (re-run) | ✓ PASS |
+| nvim silent-absent start | `nvim --headless -c 'qa!'` | exit 0 | ✓ PASS |
 | Locals ignored, templates committable | `git check-ignore` (3 must-ignore, 2 must-not) | all 5 as expected | ✓ PASS |
 | setup.sh syntax | `bash -n setup.sh` | `setup-syntax-ok` | ✓ PASS |
-| Function-level DRY_RUN preview, zero writes | sourced `DRY_RUN=true HOME=/tmp/... ensure_local_files` | Would-run line printed; nothing created | ✓ PASS |
-| Live create + idempotent + no-truncate | stub-HOME live run ×2 with `keepme` seed | both files created; `keepme` preserved | ✓ PASS |
-| Full `--dry-run` shows local-file preview | `bash setup.sh --mode server --shell zsh --dry-run` grep `zshrc.local\|local.lua` Would-run | no local-file Would-run lines (only `zshrc.local.example` stow symlink preview) | ✗ FAIL |
+| **Full --dry-run shows local-file preview** | `bash setup.sh --mode server --shell zsh --dry-run` grep marker | `[DRY RUN] Would run: touch HOME ~/.zshrc.local ...` present | ✓ PASS (was ✗ FAIL — **T5 closed**) |
+| Sourced preview zero-write + seed preservation | `DRY_RUN=true ensure_local_files` under stub HOME | marker printed, nothing created, `keepme` intact | ✓ PASS |
+| Live create + idempotent + no-truncate | stub-HOME live run ×2 with `keepme` seed | created, preserved across rerun | ✓ PASS |
+| Ctrl+R history UI (human) | live interactive shell, press Ctrl+R | works per verbatim verdict | ✓ PASS (human) |
+| Typing auto-show (human) | live interactive shell, type 2-3 chars + pause | **did NOT work** per verbatim verdict | ✗ FAIL (human) |
+| Dry-run preview readability (human) | eyeball full dry-run output | **NOT TESTED** — user will test later | ? SKIP (human) |
 | README docs | greps `Machine-local` + `zshrc.local.example` | `docs-ok` | ✓ PASS |
-| History untracked, working file intact | `git ls-files` + `ls -la` (68894 bytes) | `history-untracked-ok` | ✓ PASS |
+| History untracked, working file intact | `git ls-files` + prior size check | `history-untracked` | ✓ PASS |
 
 ### Probe Execution
 
-SKIPPED — no probes declared or implied for this phase. No `scripts/*/tests/probe-*.sh` exist in the repo and neither the PLAN nor SUMMARY references any probe script (verification was specified as inline greps/smokes, all re-run above).
+SKIPPED — no probes declared or implied for this phase (same as prior verification; no `scripts/*/tests/probe-*.sh` exist).
 
 ### Requirements Coverage
 
 | Requirement | Source Plan | Description | Status | Evidence |
 | ----------- | ---------- | ----------- | ------ | -------- |
-| SHEL-02 | 03-01 | Fuzzy history via fzf without conflicts (^R normalized, ^I not clobbered) | ✓ SATISFIED (code) + human feel pending | Bind + ladder + order + single-^I proven; fuzzy UI + auto-show feel in behavior items 1-2 |
-| SHEL-03 | 03-01 | PATH deduped and stable (`typeset -U`, empty dupes after reload) | ✓ SATISFIED | reload-ok re-run passes; mechanism demo passes; guard position verified |
-| SHEL-04 | 03-01 | Machine-local Zsh overrides via gitignored `~/.zshrc.local`, auto-sourced at tail | ✓ SATISFIED | Guard position correct; marker take-effect proven; ignored + templated + installer-bootstrapped (live); preview-reachability gap tracked as T5 |
-| EDIT-04 | 03-01 | Machine-local Neovim overrides via gitignored `local.lua`, `pcall` at end of init.lua | ✓ SATISFIED (live half) | pcall tail correct; silent-absent exit 0; take-effect mechanism proven; preview-reachability gap tracked as T5 |
-| THEM-01 | 03-01 | Theme consistency | ✓ SATISFIED as intended-drift closure | Zero theme code proven; change-set gate clean; roadmap-literal token/warn explicitly dropped per user D-13 (override suggestion recorded above) |
+| SHEL-02 | 03-01 | Fuzzy history via fzf without conflicts | ⚠️ PARTIAL | Ctrl+R half SATISFIED (wired + human PASS). Typing auto-show half BLOCKED (human FAIL, gap below) |
+| SHEL-03 | 03-01 | PATH deduped and stable | ✓ SATISFIED | reload-ok re-passes; guard position verified |
+| SHEL-04 | 03-01 + 03-02 | Machine-local Zsh overrides, gitignored + bootstrapped + previewed | ✓ SATISFIED | Guard + templates + live bootstrap + **preview reachability now proven at the documented command** |
+| EDIT-04 | 03-01 + 03-02 | Machine-local Neovim overrides via gitignored local.lua | ✓ SATISFIED | pcall tail + silent-absent exit 0; preview half shared with SHEL-04 via the same marker |
+| THEM-01 | 03-01 | Theme consistency | ✓ SATISFIED as intended-drift closure | Zero theme code (absence probe 0); 03-02 diff is setup.sh-only |
 
-Orphaned requirements check: REQUIREMENTS.md maps exactly SHEL-02, SHEL-03, SHEL-04, EDIT-04, THEM-01 to Phase 3 — all five appear in 03-01-PLAN.md frontmatter `requirements:` and in SUMMARY `requirements-completed:`. Zero orphaned. No requirement ID is unaccounted for.
+Orphaned requirements check: REQUIREMENTS.md maps exactly SHEL-02, SHEL-03, SHEL-04, EDIT-04, THEM-01 to Phase 3 — 03-01-PLAN.md frontmatter `requirements:` carries all five; 03-02-PLAN.md frontmatter carries the gap requirements SHEL-04 + EDIT-04. SUMMARies report `requirements-completed: [SHEL-02, SHEL-03, SHEL-04, THEM-01, EDIT-04]` (03-01) and `[SHEL-04, EDIT-04]` (03-02). Zero orphaned. Every phase requirement ID is accounted for.
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
 | ---- | ---- | ------- | -------- | ------ |
-| — | — | No `TBD`/`FIXME`/`XXX` in any phase-touched file | — | None — clean |
-| — | — | No `TODO`/`HACK`/`PLACEHOLDER`/placeholder-prose in phase files or templates | — | None — clean |
-| — | — | No stub returns (`return null`/`{}`/`[]`), no empty handlers, no `console.log`-only bodies | — | None — shell/Lua codebase, N/A patterns absent |
-| — | — | No hardcoded empty data flowing to render; no `=[ ]/{}/null` unpopulated renders | — | None — local files correctly absent-means-no-op by design (guarded source + pcall), not stubs |
+| — | — | No `TBD`/`FIXME`/`XXX` in any phase-touched file (grep exit 1) | — | None — clean |
+| — | — | No `TODO`/`HACK`/`PLACEHOLDER` in phase files or templates (grep exit 1) | — | None — clean |
+| — | — | No stub returns, empty handlers, or hardcoded-empty renders | — | None — absent local files are guarded-source/pcall by design, not stubs |
 
-Commits verified present in git log: `15c1a9b` (tracer), `4466643` (editor+gitignore+templates, incl. history cached-untrack), `250aceb` (installer+docs). Production change set is exactly the 7 plan paths + intended `zsh/.zsh_history` index removal (working-tree file preserved, 68894 bytes).
+Commits verified present: `15c1a9b` (tracer), `4466643` (editor+gitignore+templates), `250aceb` (installer+docs), `62557f7` (03-02 preview-path call, setup.sh +2 lines). Working tree clean (`git status --short` empty).
+
+### Human Verification Required
+
+Status is `gaps_found`, so no blocking human-verification gate is emitted. One residual non-blocking human item is recorded here for the record (does not affect the truth table — Truth 5's functional assertion "preview appears with zero writes" is proven automatically; only the readability judgment is pending):
+
+- **Dry-run preview readability — NOT TESTED.** Re-run `bash setup.sh --mode server --shell zsh --dry-run` and confirm the `[DRY RUN] Would run: touch HOME ~/.zshrc.local (if absent) and deployed nvim lua/local.lua (if absent)` lines read clearly alongside the existing selection and chsh previews. User will test on their own schedule per 03-02-SUMMARY.md.
 
 ### Gaps Summary
 
-One partial gap blocks a clean pass, plus two interactive behaviors reserved for human eyes:
+One gap blocks a clean pass. The 03-02 closure finished its code job completely, and the phase goal is otherwise met:
 
-1. **T5 preview reachability (the gap):** the installer bootstrap works live (creates both empty HOME files exactly once, never truncates, HOME-derived, DRY_RUN-safe function) but a user running the documented `bash setup.sh --dry-run` never sees the local-file Would-run lines, because the DRY_RUN preview path returns before reaching `ensure_local_files`. The must-have truth promises the preview under that exact command. Fix is a one-liner (call the already-safe function from the preview path) or accept the function-level-preview override quoted above. Nothing else in the phase needs rework.
-2. **T1 Ctrl+R feel + T2 auto-show feel (not gaps):** code is present, substantive, and correctly wired (including the two genuine bug-fixes the executor found: own `zi light` line for the silently-never-loading plugin, and the tail `path=( $path )` re-assertion for scalar-export bypass on zsh 5.9, plus the Debian legacy fzf rung). What remains is the plan's own end-of-phase human check — open one interactive shell, watch completions auto-show, press Ctrl+R, confirm the prompt — recorded above as behavior items so it survives this gaps_found round and can be confirmed alongside the T5 fix.
+1. **Typing auto-show feel (Truth 2, SHEL-02 half) — the remaining gap:** the plugin block is present, substantive, and correctly wired (including the genuine bug-fixes 03-01 found: own `zi light` for the silently-never-loading plugin, tail `path=( $path )` for scalar-export bypass, Debian legacy fzf rung). But the runtime behavior fails — a human typing 2-3 characters and pausing sees no auto-show list. Root cause is undiagnosed (load order vs atload vs widget/terminal conflict). Per explicit user directive ("keep it here, complete the phase; they will add a different phase to fix issue 1 specifically"), no fix was attempted and no scope was added here — honestly recorded as FAILED, not waived.
+2. **T5 preview reachability — CLOSED:** verified fixed at the exact documented command with zero writes; live idempotence and no-truncate re-proven. Removed from gaps.
+3. **Ctrl+R feel — CLOSED by human PASS.** Dry-run readability — untested nicety, non-blocking (see above).
 
-No deferred items: Phase 4 (EDIT-01/02/03, HLTH-01) does not cover installer dry-run preview text or shell interactive feel, so T5 is a real gap, not future work. (The full history/secret purge stays deferred to v2 SECR-02 by design and was never attempted here.)
+No deferred items against the current milestone: Phase 4 (EDIT-01/02/03, HLTH-01) covers Neovim autonomy and headless health gates — nothing in its goal or success criteria covers zsh-autocomplete interactive feel, so the Truth-2 gap is a real gap, not future roadmap work. (The user-promised dedicated fix phase does not exist in the roadmap yet; it must be planned as new scope. The full history/secret purge stays deferred to v2 SECR-02 by design.)
+
+**Suggested next step:** `/gsd-plan-phase --gaps` against this report will produce the minimal follow-up plan (diagnose + fix typing auto-show), or the user may add the promised separate phase manually.
 
 ---
-_Verified: 2026-09-17T13:30:00Z_
+_Verified: 2026-09-17T07:57:11Z_
 _Verifier: the agent (gsd-verifier)_
