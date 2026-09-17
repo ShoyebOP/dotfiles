@@ -13,3 +13,8 @@ nvim/.config/nvim/cache/
 # Installer quarantine (D-13/D-14) — timestamped collision backup, gitignored
 .stow-conflicts/
 .cache
+
+# Machine-local overrides (Phase 3) — HOME-only, never committed; see *.example templates
+*.local
+nvim/.config/nvim/lua/local.lua
+zsh/.zsh_history

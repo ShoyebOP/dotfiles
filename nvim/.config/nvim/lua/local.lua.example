@@ -1,0 +1,17 @@
+-- =============================================================================
+-- deployed local.lua — machine-local Neovim overrides (gitignored)
+-- =============================================================================
+-- Copy from template (the ONLY valid destination — never commit the real file):
+--   cp nvim/.config/nvim/lua/local.lua.example ~/.config/nvim/lua/local.lua
+-- (i.e. the deployed path under $HOME once the nvim package is stowed.)
+--
+-- Absent file is a silent no-op (fresh clones just work); a present-but-broken
+-- file only warns at startup and never aborts it. Loaded LAST at the end of
+-- init.lua, so machine tweaks always win over shipped defaults.
+-- =============================================================================
+
+-- Example: option tweak for this machine only
+-- vim.opt.relativenumber = false
+
+-- Example: machine-specific keymap
+-- vim.keymap.set("n", "<leader>ml", "<cmd>echo 'machine-local'<cr>", { desc = "Machine-local probe" })

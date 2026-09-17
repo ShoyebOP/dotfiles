@@ -1,0 +1,23 @@
+# =============================================================================
+# ~/.zshrc.local — machine-local Zsh overrides (HOME-only, gitignored)
+# =============================================================================
+# Copy from template (the ONLY valid destination — never commit the real file):
+#   cp zsh/.zshrc.local.example ~/.zshrc.local
+#
+# WARNING: the real ~/.zshrc.local is never committed to git (see .gitignore
+# `*.local`). Only ever put YOUR OWN machine-specific content here — this file
+# is sourced by every interactive shell with full account privileges.
+#
+# Absent file is a silent no-op (fresh clones just work). Sourced after every
+# tool init (zoxide, fzf, completions) and before the p10k prompt apply, so
+# prompt and alias overrides below render correctly.
+# =============================================================================
+
+# Example: machine-specific PATH prepend (kept-first dedup preserves order)
+# export PATH="$HOME/work/bin:$PATH"
+
+# Example: prompt-element tweak (applies before p10k renders)
+# typeset -g POWERLEVEL9K_TIME_FORMAT="%H:%M"
+
+# Example: machine-specific alias
+# alias proj="cd ~/projects/current"
