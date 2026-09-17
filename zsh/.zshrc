@@ -322,24 +322,34 @@ zi light joshskidmore/zsh-fzf-history-search
 if command -v fzf >/dev/null 2>&1; then
     _fzf_ver="$(fzf --version 2>/dev/null | awk '{print $1}')"
     if [[ -n "${_fzf_ver:-}" ]] && [[ "$(printf '%s\n%s\n' "$_fzf_ver" "0.48" | sort -V | head -n1)" == "0.48" ]]; then
-        source <(fzf --zsh) 2>/dev/null || true
+        # Why (D-10): native rung — disable expendable Ctrl+T / Alt-C plus the
+        # `**` completion trigger via official env mechanism (A1: trigger-disable
+        # assumed; live verdict confirms). Ctrl+R deliberately kept.
+        FZF_CTRL_T_COMMAND= FZF_ALT_C_COMMAND= FZF_COMPLETION_TRIGGER='' source <(fzf --zsh) 2>/dev/null || true
     elif [[ -f /usr/share/fzf/key-bindings.zsh ]]; then
         source /usr/share/fzf/key-bindings.zsh 2>/dev/null || true
+        # Why (D-10): legacy rung binds Ctrl+T / Alt-C unconditionally with zero
+        # Tab binds — strip expendables, keep Ctrl+R.
+        for _k in emacs viins vicmd; do
+            bindkey -M "$_k" -r '^T' 2>/dev/null || true
+            bindkey -M "$_k" -r '\ec' 2>/dev/null || true
+        done; unset _k
     elif [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]]; then
         # Why: Debian-family fzf ships the legacy scripts under doc/examples,
         # not /usr/share/fzf — without this rung Ctrl+R would warn even though
         # fzf is installed (verified: fzf 0.44.1 on Debian has only this path).
         source /usr/share/doc/fzf/examples/key-bindings.zsh 2>/dev/null || true
+        # Why (D-10): same expendable strip as above — Ctrl+T / Alt-C removed,
+        # Ctrl+R kept (D-10 non-negotiable).
+        for _k in emacs viins vicmd; do
+            bindkey -M "$_k" -r '^T' 2>/dev/null || true
+            bindkey -M "$_k" -r '\ec' 2>/dev/null || true
+        done; unset _k
     fi
     unset _fzf_ver
 fi
-# Unconditional Ctrl+R bind per split ownership (fzf-history-search owns ^R,
-# autocomplete owns ^I — never rebind ^I here). Warns instead of leaving a
-# silent dead key when the widget is absent (e.g. fzf not installed).
-bindkey '^R' fzf-history-widget
-if ! zle -l 2>/dev/null | grep -q fzf-history-widget; then
-    print -P "%F{yellow}[WARN]%f fzf history widget missing — install fzf to enable Ctrl+R history search."
-fi
+# Why (D-12): Ctrl+R ownership moved to the Phase-5 ownership block after the
+# engine (last-writer-wins) — never rebind Ctrl+R here, never rebind Tab here.
 
 # Zsh autocomplete - Real-time type-ahead autocompletion
 # Why (D-07, D-12): single main-map Tab binding entering menu-select; the
@@ -348,8 +358,46 @@ fi
 zi ice atload'bindkey "^I" menu-select'
 zi light marlonrichert/zsh-autocomplete
 
-# Why (D-11): commented finalize block deleted — engine owns its deferred
-# compinit at first precmd; nothing turbo-loads so replay adds nothing.
+# -----------------------------------------------------------------------------
+# Ownership (Phase 5): Tab belongs to autocomplete, Ctrl+R to fzf
+# -----------------------------------------------------------------------------
+# Why (D-09, D-12): last-writer-wins in ZLE — this block stays AFTER all
+# plugin/fzf loads so Tab and Ctrl+R survive any plugin rebind.
+# Why (D-07): Tab enters menu-select (plugin default is complete-word);
+# menu cycling (Tab/Shift-Tab/arrows) is stock — kept, zero vi-motion rebinds (D-15).
+bindkey '^I' menu-select
+# Why (D-12): Ctrl+R re-asserted last plus moved missing-widget warn (from the
+# ladder) — warns instead of leaving a silent dead key when fzf is absent.
+bindkey '^R' fzf-history-widget
+if ! zle -l 2>/dev/null | grep -q fzf-history-widget; then
+    print -P "%F{yellow}[WARN]%f fzf history widget missing — install fzf to enable Ctrl+R history search."
+fi
+
+# Why (D-21): prefix-only matching — overrides engine fuzzy defaults (same
+# pattern, later set wins; MUST stay after engine load). Intentionally loses
+# typo-correction (_correct/_approximate) per prefix-only requirement.
+zstyle ':completion:*' completer _expand _complete _ignored
+zstyle ':completion:*' matcher-list 'm:{[:lower:]-}={[:upper:]_}'
+
+# Why (D-01): documentary first-char trigger — engine default min-input is 1,
+# stated explicitly so the intent is grep-visible.
+zstyle ':autocomplete:*' min-input 1
+# Why (D-16): display-line cutoff — full list by default, engine shows its
+# stock (MORE) marker past the cutoff; 200 with 60/16 fallbacks (live verdict).
+zstyle ':autocomplete:*' list-lines 200
+
+# Why (D-08): Right-arrow accepts ghost text in insert mode for both terminfo
+# application-cursor sequences; binds go here after all plugins so the captured
+# original is vi-forward-char, and the widget falls back to plain cursor
+# movement when no suggestion is shown.
+bindkey -M viins '^[[C' autosuggest-accept
+bindkey -M viins '^[OC' autosuggest-accept
+
+# Why (D-06 closest-achievable): Ctrl+C keeps stock SIGINT semantics (aborts the
+# whole line, so it can never be a pure list-dismiss); buffer-preserving menu
+# dismiss is Ctrl+G (send-break) confined to the menuselect keymap. Never rebind
+# Ctrl+C, never touch Esc (D-06 stock vi).
+bindkey -M menuselect '^G' send-break
 
 unset ZI_REPO
 # -----------------------------------------------------------------------------
