@@ -100,12 +100,11 @@ Plans:
   4. User adds `nvim/.config/nvim/lua/local.lua` and it is loaded via `pcall(require,"local")` at end of `init.lua` without dirtying git; `.gitignore` + `local.lua.example` present
   5. User's theme is consistent — single `THEME` token and `setup.sh apply_theme()` warns on mismatch `alacritty catppuccin-mocha` vs `starship catppuccin_latte` vs `nvim` instead of silent 4-file drift
 
-**Plans**: TBD
-**UI hint**: yes
+**Plans**: 1 plan
 
 Plans:
 
-- [ ] 03-01: Zsh fzf history conflict-free + PATH dedup + local overrides + theme token validation
+- [ ] 03-01-PLAN.md — Polished shell spine (autocomplete-first history plus PATH dedup plus HOME-only local overrides) with installer bootstrap, gitignore plus templates, docs, and THEM-01 intended-drift closure
 
 ### Phase 4: Editor Autonomy & Verified Health
 
