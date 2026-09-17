@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 4
-current_phase_name: Editor Autonomy & Verified Health
-status: executing
-stopped_at: Phase 05 context gathered
-last_updated: "2026-09-17T14:35:43.590Z"
+current_phase: 05
+current_phase_name: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
+status: verifying
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-09-17T16:59:50.539Z"
 last_activity: 2026-09-17
 last_activity_desc: Phase 03 complete with 1 deferred debt (typing auto-show → future phase), transitioned to Phase 4
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 13
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-10)
 
 **Core value:** A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop environment on any supported distro/derivative with one interactive run, and cleanly reverse itself — no manual `stow` or `MasonInstallAll` required.
-**Current focus:** Phase 04 — Editor Autonomy & Verified Health
+**Current focus:** Phase 05 — fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
 
 ## Current Position
 
-Phase: 4 — Editor Autonomy & Verified Health
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-17 — Phase 03 complete with 1 deferred debt (typing auto-show → future phase), transitioned to Phase 4
+Phase: 05 (fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-09-17 — Phase 05 execution started
 
 Progress: [██████████] 100%
 
@@ -74,6 +74,7 @@ Progress: [██████████] 100%
 | Phase 03-polished-shell-theme-local-overrides P01 | 9 min | 3 tasks | 7 files |
 | Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
 | Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
+| Phase 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp P01 | 4 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -106,6 +107,9 @@ Recent decisions affecting current work:
 - [Phase 03-polished-shell-theme-local-overrides]: Tail PATH re-assertion via array self-assignment: scalar export bypasses typeset -U at assignment time on zsh 5.9 — Array form keeps the plan first-match awk verify green with identical retro-dedupe semantics
 - [Phase 03-polished-shell-theme-local-overrides]: Debian legacy fzf rung added: doc/examples key-bindings path is the only legacy location for distro fzf 0.44.1 — Without it Ctrl+R warns despite fzf installed; plan single legacy path absent on Debian-family
 - [Phase 03-polished-shell-theme-local-overrides]: Check-1 typing auto-show failure deferred to a separate future phase per user directive; phase 03 completes with the partial human verdict recorded verbatim (1 failed/deferred, 1 passed, 1 untested) — Human verdict was partial-fail; fixing the typing auto-show failure here would violate MVP_MODE no-scope-expansion, so it is deferred to a user-owned future phase
+- [Phase ?]: Keep marlonrichert/zsh-autocomplete as the engine — swap bar not met, bug is ordering/ownership not capability — Research shows stock defaults already cover D-01/D-02/D-03/D-05/D-20; nothing proven unfixable per D-19
+- [Phase ?]: Ladder-before-engine plus ownership-after-engine fixes last-writer-wins — fzf ladder evaluates before the engine and Tab/Ctrl+R re-asserted last so fzf can never clobber engine widgets (D-09/D-11/D-12)
+- [Phase ?]: Prefix-only overrides after engine with intentional typo-correction loss; Ctrl+C stock SIGINT with Ctrl+G dismiss; list-lines 200 with 60/16 fallbacks — D-21/D-06/D-16 discretion; user judges feel live per D-13
 
 ### Pending Todos
 
@@ -130,6 +134,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-17T10:13:04.016Z
-Stopped at: Phase 05 context gathered
-Resume file: /home/shoyeb/dotfiles/.planning/phases/05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/05-CONTEXT.md
+Last session: 2026-09-17T16:59:50.526Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: None
