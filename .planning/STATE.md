@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 03
 current_phase_name: polished-shell-theme-local-overrides
 status: executing
-stopped_at: Completed 03-polished-shell-theme-local-overrides-01-PLAN.md
-last_updated: "2026-09-17T07:42:23.025Z"
+stopped_at: Completed 03-polished-shell-theme-local-overrides-02-PLAN.md
+last_updated: "2026-09-17T07:54:41.792Z"
 last_activity: 2026-09-17
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 4
   completed_phases: 4
   total_plans: 12
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # Project State
@@ -28,7 +28,7 @@ See: .planning/PROJECT.md (updated 2026-09-10)
 ## Current Position
 
 Phase: 03 (polished-shell-theme-local-overrides) — EXECUTING
-Plan: 1 of 1
+Plan: 2 of 2
 Status: Ready to execute
 Last activity: 2026-09-17 — Phase 03 execution started
 
@@ -72,6 +72,7 @@ Progress: [██████████] 100%
 | Phase 02-safe-reversible-server-safe-deployment P01 | 6 min | 3 tasks | 2 files |
 | Phase 02-safe-reversible-server-safe-deployment P02 | 5 min | 3 tasks | 6 files |
 | Phase 03-polished-shell-theme-local-overrides P01 | 9 min | 3 tasks | 7 files |
+| Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -103,6 +104,7 @@ Recent decisions affecting current work:
  - [Phase 02-02]: Staged delete teardown.zsh/teardown.nu with atomic doc fix, no shims, recoverable via git history per D-15
 - [Phase 03-polished-shell-theme-local-overrides]: Tail PATH re-assertion via array self-assignment: scalar export bypasses typeset -U at assignment time on zsh 5.9 — Array form keeps the plan first-match awk verify green with identical retro-dedupe semantics
 - [Phase 03-polished-shell-theme-local-overrides]: Debian legacy fzf rung added: doc/examples key-bindings path is the only legacy location for distro fzf 0.44.1 — Without it Ctrl+R warns despite fzf installed; plan single legacy path absent on Debian-family
+- [Phase 03-polished-shell-theme-local-overrides]: Check-1 typing auto-show failure deferred to a separate future phase per user directive; phase 03 completes with the partial human verdict recorded verbatim (1 failed/deferred, 1 passed, 1 untested) — Human verdict was partial-fail; fixing the typing auto-show failure here would violate MVP_MODE no-scope-expansion, so it is deferred to a user-owned future phase
 
 ### Pending Todos
 
@@ -126,6 +128,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-17T07:18:29.469Z
-Stopped at: Completed 03-polished-shell-theme-local-overrides-01-PLAN.md
+Last session: 2026-09-17T07:54:37.015Z
+Stopped at: Completed 03-polished-shell-theme-local-overrides-02-PLAN.md
 Resume file: None

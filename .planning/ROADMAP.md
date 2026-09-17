@@ -100,9 +100,11 @@ Plans:
   4. User adds `nvim/.config/nvim/lua/local.lua` and it is loaded via `pcall(require,"local")` at end of `init.lua` without dirtying git; `.gitignore` + `local.lua.example` present
   5. User's theme is consistent — single `THEME` token and `setup.sh apply_theme()` warns on mismatch `alacritty catppuccin-mocha` vs `starship catppuccin_latte` vs `nvim` instead of silent 4-file drift
 
-**Plans**: 1/1 plans executed
+**Plans**: 2/2 plans executed
 
 Plans:
+
+- [x] 03-02-PLAN.md
 
 - [x] 03-01-PLAN.md — Polished shell spine (autocomplete-first history plus PATH dedup plus HOME-only local overrides) with installer bootstrap, gitignore plus templates, docs, and THEM-01 intended-drift closure
 
@@ -144,5 +146,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Universal Installer + Platform Foundations | 5/5 | Complete    | 2026-09-11 |
 | 2. Safe, Reversible & Server-Safe Deployment | 2/2 | Complete    | 2026-09-11 |
-| 3. Polished Shell, Theme & Local Overrides | 1/1 | In Progress|  |
+| 3. Polished Shell, Theme & Local Overrides | 2/2 | In Progress|  |
 | 4. Editor Autonomy & Verified Health | 0/2 | Not started | - |
