@@ -359,17 +359,17 @@ done; unset _k
 | A5 | Right-arrow currently does NOT reliably accept (justifying the explicit bind) vs already-accepting via default `ACCEPT_WIDGETS` | D-08 | Negligible — bind is safe in both cases (fallback preserves movement); live test decides the comment wording |
 | A6 | `↑` history-menu-on-keypress does not violate D-20 ("history behind Ctrl+R") | D-20 | Low — flagged as Open Question 1 for the live verdict |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Does `↑`-opened history menu violate D-20?**
+1. **Does `↑`-opened history menu violate D-20? — RESOLVED: Up-arrow history-menu kept stock per D-20-scope assumption (A6); auto-show never includes history, explicit-keypress menu is not auto-show; user judges feel live as the verification method.**
    - What we know: engine stock binds ↑ to history-menu entry on explicit keypress; auto-show never includes history.
    - What's unclear: whether the user reads D-20 as "auto-show only" (recommendation) or "no history UI outside Ctrl+R" (would need `up-line-or-search` rebinds — touches stock arrows, conflicts with D-07).
    - Recommendation: keep stock; ask during live verdict; a `zstyle ':autocomplete:up-line-or-search:' ignore`-class kill-switch exists per-widget (`:autocomplete:<LASTWIDGET>: ignore`) if the user insists.
 
-2. **Final `list-lines` number?**
+2. **Final `list-lines` number? — RESOLVED: list-lines 200 with 200→60→16 fallback ladder (A4, D-16 discretion); user judges feel live as the verification method.**
    - Researcher pick: 200 with fallback ladder. User judges live (D-16 discretion).
 
-3. **Result ordering (D-22)?**
+3. **Result ordering (D-22)? — RESOLVED: stock ordering per D-22 (upstream stock `group-order`/`tag-order`, no overrides); user judges feel live as the verification method.**
    - Researcher pick: upstream stock `group-order`/`tag-order`. User judges feel live.
 
 ## Environment Availability

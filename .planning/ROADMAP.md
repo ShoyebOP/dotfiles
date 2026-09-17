@@ -148,3 +148,14 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 2. Safe, Reversible & Server-Safe Deployment | 2/2 | Complete    | 2026-09-11 |
 | 3. Polished Shell, Theme & Local Overrides | 2/2 | Complete    | 2026-09-17 |
 | 4. Editor Autonomy & Verified Health | 0/2 | Not started | - |
+
+### Phase 5: fix marlonrichert/zsh-autocomplete Real-time type-ahead completion for Zsh doesn't work and needs to press tab to show.
+
+**Goal:** Typing the first character auto-shows the completion list with no keypress, while ghost text, Ctrl+R fzf history, Tab menu-select, and stock vi behavior stay intact
+**Requirements**: SHEL-02 (carry-forward, no-regression)
+**Depends on:** Phase 4
+**Plans:** 1 plan
+
+Plans:
+
+- [ ] 05-01-PLAN.md — Corrective zshrc reorder (fzf ladder before engine, ownership block after) plus prefix-only/ghost-accept/dismiss tuning plus atomic docs, proven by ad-hoc checks and the live terminal verdict
