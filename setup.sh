@@ -1995,6 +1995,8 @@ main() {
                 fi
             fi
         } || true
+        # Preview path must surface the same marker the live path creates.
+        ensure_local_files
         echo ""
         echo "DRY RUN complete — no writes performed."
         return 0
