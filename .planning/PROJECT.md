@@ -19,6 +19,9 @@ A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop env
 - ✓ Keyd privileged install via `sudo stow --adopt -t / keyd` + `keyd reload`/`systemctl` — existing (with known risks)
 - ✓ Unified Bash installer `bash setup.sh` with strict-mode guards, Termux-first family detection, per-family dep tables, verify→install→re-verify lock — Validated in Phase 1 (INST-01, INST-02, INST-05, DEPS-01, DEPS-02, DEPS-03)
 - ✓ Interactive package checklist override before any write with 5-backend ladder, Termux disabled-row emulation, quarantine with manifest, folding-aware post-verify — Validated in Phase 1 (INST-04, STOW-01)
+- ✓ Zsh spine: split-ownership history plugins (Ctrl+R → fzf-history-search with 0.48 version ladder + install warning, Tab → autocomplete-last), top-of-file `typeset -U path` dedup, portable bun source — Validated in Phase 3 (SHEL-02 Ctrl+R half live-PASSED, SHEL-03; typing auto-show half FAILED live check → deferred to dedicated future phase)
+- ✓ Machine-local overrides: HOME-only `~/.zshrc.local` tail guard + `pcall(require,"local")` editor tail, gitignored locals with committed `*.example` templates, `ensure_local_files` installer bootstrap surfaced in `--dry-run` preview with zero writes — Validated in Phase 3 (SHEL-04, EDIT-04; T5 preview gap closed by 03-02)
+- ✓ Theme spread closed as intended drift with zero code (no token, no installer routine, no mismatch warning) — Validated in Phase 3 (THEM-01)
 
 ### Active
 
@@ -94,4 +97,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-14 after Phase 02.1 completion — Hyprland-six removal (hyprland/waybar/grim/slurp/wl-copy/wofi) with single-page 16-row checklist, SELECTION_ACTIVE tick-authoritative filter, Debian keyd manual-build pointer, family-aware uninstall allowlist, DRY_RUN zero-sudo preview; 02.1-01/02/03 verified 9/9; ROADMAP 02.1 3/3 complete → Phase 3 ready*
+*Last updated: 2026-09-17 after Phase 03 completion with 1 deferred debt — polished Zsh spine (Ctrl+R live-passed, PATH dedup), HOME-only machine-local overrides with installer bootstrap + dry-run preview (T5 closed), zero theme code; typing auto-show live-FAILED → deferred to dedicated future phase; ROADMAP 03 2/2 complete → Phase 4 ready*
