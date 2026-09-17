@@ -106,6 +106,15 @@ Plans:
 
 - [x] 03-01-PLAN.md — Polished shell spine (autocomplete-first history plus PATH dedup plus HOME-only local overrides) with installer bootstrap, gitignore plus templates, docs, and THEM-01 intended-drift closure
 
+**Cross-cutting constraints:**
+
+- User presses Ctrl+R and gets fzf history search, or a visible warning telling them to install fzf — never a silent dead key (SHEL-02 per D-03)
+- User types and the async completion list auto-shows below the prompt with no keypress; Tab only enters menu-select; ghost autosuggestion text still renders (SHEL-02 per D-04/D-05)
+- User reloads the shell repeatedly and PATH has zero duplicates while z, zi, zoxide, completions, and the p10k prompt still work (SHEL-03 per D-09)
+- User drops personal tweaks in HOME ~/.zshrc.local and the deployed nvim local.lua and they take effect without dirtying git; a fresh clone works with both files absent (SHEL-04, EDIT-04 per D-10/D-11)
+- User runs setup.sh --dry-run and sees the local-file preview with zero writes; a live run creates empty HOME files without truncating existing ones (SHEL-04, EDIT-04 per D-12)
+- No per-app appearance file is modified and no theme token, installer theme function, or mismatch warning is added anywhere (THEM-01 closed as intended-drift per D-13)
+
 ### Phase 4: Editor Autonomy & Verified Health
 
 **Mode:** mvp
