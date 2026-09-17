@@ -284,8 +284,9 @@ autoload -Uz _uv
 # ZSH ENHANCEMENT PLUGINS
 # -----------------------------------------------------------------------------
 
-# Enhanced completions - Additional completion definitions
-zi ice zsh-users/zsh-completions
+# Why (D-12): dead staged-modifiers ice removed — a bare `zi ice` with no
+# following load staged modifiers for a definitions repo that never loads
+# (absent from the Zinit plugins dir); deleted, never converted into a load.
 
 # Auto-suggestions - Suggests commands as you type based on history
 zi ice atload'_zsh_autosuggest_start' \
@@ -307,15 +308,12 @@ zi light-mode for \
 # (owns Tab/^I); autocomplete stays the LAST plugin load.
 zi light joshskidmore/zsh-fzf-history-search
 
-# Zsh autocomplete - Real-time type-ahead autocompletion
-zi ice atload'
-bindkey              "^I" menu-select
-bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete'
-zi light marlonrichert/zsh-autocomplete
-
 # -----------------------------------------------------------------------------
 # FZF DEGRADATION LADDER (best-effort, never breaks autocomplete)
 # -----------------------------------------------------------------------------
+# Why (D-11, D-12): ladder evaluates BEFORE the autocomplete engine load so no
+# fzf init can clobber engine widgets/keymaps (last-writer-wins). Relocated
+# here from after the engine; body unchanged.
 # Why: fzf is optional — autocomplete must survive total fzf absence. Probe the
 # system binary, then branch on version with `sort -V` (numeric dotted compare):
 # >=0.48 uses the native `fzf --zsh` integration, older releases use the legacy
@@ -343,20 +341,15 @@ if ! zle -l 2>/dev/null | grep -q fzf-history-widget; then
     print -P "%F{yellow}[WARN]%f fzf history widget missing — install fzf to enable Ctrl+R history search."
 fi
 
-# -----------------------------------------------------------------------------
-# FINALIZATION
-# -----------------------------------------------------------------------------
-# Initialize completions and replay cached completions
-# at the end of a Zinit configuration to ensure that after all plugins are loaded,
-# the completion system is properly initialized and
-# syntax highlighting/autosuggestion widgets are correctly bound
-# zi for atload'
-#       zicompinit; zicdreplay
-#       _zsh_highlight_bind_widgets
-#       _zsh_autosuggest_bind_widgets' \
-#     as'null' id-as'zinit/cleanup' lucid nocd wait \
-#   $ZI_REPO/null
-#
+# Zsh autocomplete - Real-time type-ahead autocompletion
+# Why (D-07, D-12): single main-map Tab binding entering menu-select; the
+# menuselect backtab line was redundant (engine binds menuselect Tab/backtab
+# itself) so it is deleted. Engine stays the LAST plugin load.
+zi ice atload'bindkey "^I" menu-select'
+zi light marlonrichert/zsh-autocomplete
+
+# Why (D-11): commented finalize block deleted — engine owns its deferred
+# compinit at first precmd; nothing turbo-loads so replay adds nothing.
 
 unset ZI_REPO
 # -----------------------------------------------------------------------------
