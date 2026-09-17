@@ -399,6 +399,19 @@ bindkey -M viins '^[OC' autosuggest-accept
 # Ctrl+C, never touch Esc (D-06 stock vi).
 bindkey -M menuselect '^G' send-break
 
+# LIVE-JUDGMENT FLAGS (D-13: user verdict closes the phase in a live terminal):
+# 1. Up-arrow history-menu scope (D-20-scope/A6): Up-arrow opening the history
+#    menu on an explicit keypress is kept stock — confirm live it does not
+#    violate the no-history-in-auto-show rule.
+# 2. Final cutoff number (D-16/A4): list-lines 200 picked; fallbacks 60 then 16
+#    if the live verdict reports lag.
+# 3. Stock result ordering (D-22): upstream group-order/tag-order kept, no
+#    overrides — user judges feel live.
+# 4. Native-rung trigger disable (D-10/A1): FZF_COMPLETION_TRIGGER empty is
+#    assumed to disable star-star Tab completion on the >=0.48 rung — confirm
+#    live on Arch host; fallback is leaving the default trigger (needs explicit
+#    star-star, no plain-Tab clash).
+
 unset ZI_REPO
 # -----------------------------------------------------------------------------
 # POWERLEVEL10K CUSTOMIZATION

@@ -135,6 +135,14 @@ mkdir -p ~/.config/zsh/completions
 uv generate-shell-completion zsh > ~/.config/zsh/completions/_uv
 ```
 
+#### Zsh completion behavior (Phase 5)
+
+- Type one character and the completion list auto-shows below the prompt with no keypress; an empty prompt stays quiet with no popup.
+- `Tab` belongs to autocomplete (enters and cycles the menu; `Shift-Tab` cycles back, arrows also navigate) while `Ctrl+R` belongs to fzf history search.
+- Matching is prefix-only — candidates must start with what was typed; typo-correction is intentionally off.
+- The full list shows by default; past the line cutoff the engine appends a visible `(MORE)` marker — never a silent cut.
+- `Ctrl+G` dismisses the menu keeping the buffer; `Ctrl+C` keeps stock whole-line abort (SIGINT) and `Esc` keeps stock vi insert-to-normal.
+
 ---
 
 ## Machine-local overrides

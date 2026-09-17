@@ -21,3 +21,9 @@
 
 # Example: machine-specific alias
 # alias proj="cd ~/projects/current"
+
+# Example: completion list cutoff override (Phase 5 ownership default is 200 lines)
+# The engine shows a visible (MORE) marker past the cutoff — never a silent cut.
+# Lower to 60 (or stock 16) if a thousands-scale directory feels laggy live.
+# (Real ~/.zshrc.local stays gitignored — only this example is committed.)
+# zstyle ':autocomplete:*' list-lines 60
