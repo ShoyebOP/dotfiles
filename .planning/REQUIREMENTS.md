@@ -30,20 +30,20 @@ Requirements for initial release. Each maps to roadmap phases.
 ### Shell — Zsh (Default)
 
 - [x] **SHEL-01**: User gets Zsh provisioned before stow — installer ensures `zsh` binary present, clones Zinit (commit-pinned) if missing, and offers `chsh -s $(which zsh)` only after explicit user confirmation (never auto)
-- [ ] **SHEL-02**: User can fuzzy-search command history with `Ctrl+R` via `fzf` without conflicts — `fzf` in core deps, version-branch `source <(fzf --zsh)` ≥0.48 else legacy, plugin order fixed (`zsh-autocomplete` vs `zsh-fzf-history-search` double-bind resolved), `bindkey '^R' fzf-history-widget` normalized
-- [ ] **SHEL-03**: User's `PATH` is deduped and stable — `typeset -U path` in `zsh/.zshrc`, no duplicates after reload (`echo $PATH | tr : '\n' | sort | uniq -d` empty)
-- [ ] **SHEL-04**: User can add machine-local Zsh overrides via gitignored `~/.zshrc.local` (and `zsh/.zshrc.local`) auto-sourced at tail of `zsh/.zshrc` after `zoxide init` and before `p10k` apply — git stays clean on second machine
+- [x] **SHEL-02**: User can fuzzy-search command history with `Ctrl+R` via `fzf` without conflicts — `fzf` in core deps, version-branch `source <(fzf --zsh)` ≥0.48 else legacy, plugin order fixed (`zsh-autocomplete` vs `zsh-fzf-history-search` double-bind resolved), `bindkey '^R' fzf-history-widget` normalized
+- [x] **SHEL-03**: User's `PATH` is deduped and stable — `typeset -U path` in `zsh/.zshrc`, no duplicates after reload (`echo $PATH | tr : '\n' | sort | uniq -d` empty)
+- [x] **SHEL-04**: User can add machine-local Zsh overrides via gitignored `~/.zshrc.local` (and `zsh/.zshrc.local`) auto-sourced at tail of `zsh/.zshrc` after `zoxide init` and before `p10k` apply — git stays clean on second machine
 
 ### Editor — Neovim
 
 - [ ] **EDIT-01**: User's Neovim LSPs/formatters work after setup without manual `:MasonInstallAll` — installer triggers `nvim --headless -c "MasonInstallAll"` post-stow and `mason-tool-installer` deferred `ensure_installed = require("lang").mason_packages` (`run_on_start`/`start_delay`) ensures `pyright`/`ruff`/`typescript-language-server` etc. present; uninstall removes Mason artefacts when nvim deselected
 - [ ] **EDIT-02**: User sees which-key popup on `<Space>` (leader) showing available combos with nested hints for subsequent keys (LazyVim-like) via `folke/which-key.nvim` v3 `preset=modern delay=200 spec`
 - [ ] **EDIT-03**: User's `telescope-fzf-native` uses fast fzf sorter — `make`+`gcc` required, `cond` no longer silently falls back; `vim.notify WARN` if `executable("make")==0`
-- [ ] **EDIT-04**: User can add machine-local Neovim overrides via gitignored `nvim/.config/nvim/lua/local.lua` (`pcall(require,"local")` at end of `init.lua`) without dirtying git
+- [x] **EDIT-04**: User can add machine-local Neovim overrides via gitignored `nvim/.config/nvim/lua/local.lua` (`pcall(require,"local")` at end of `init.lua`) without dirtying git
 
 ### Docs, Theme & Health
 
-- [ ] **THEM-01**: User's theme is consistent — single `THEME` token (e.g., `theme.toml`/`THEME` env) and `setup.sh apply_theme()` validates `alacritty catppuccin-mocha` vs `starship catppuccin_latte` vs `nvim` mismatch warns instead of silent 4-file drift
+- [x] **THEM-01**: User's theme is consistent — single `THEME` token (e.g., `theme.toml`/`THEME` env) and `setup.sh apply_theme()` validates `alacritty catppuccin-mocha` vs `starship catppuccin_latte` vs `nvim` mismatch warns instead of silent 4-file drift
 - [x] **DOCS-01**: User sees documentation flipped to Zsh default — `README.md` table shows `Default: Zsh | Backup: Nushell`, primary example is `bash setup.sh --mode local`, manual `stow --restow nvim zsh starship` vs `nvim nushell starship` sections, plus `nvim/README.md` and in-code comments updated; `AGENTS.md` guidance included
 - [ ] **HLTH-01**: User or agent can validate without a VM via `--self-test`/`--verify` health gates — TAP output checks Stow symlinks (`readlink -f`), `z`/`zi`/`zoxide`, `starship`/`zoxide` hooks, `nvim --headless -c "checkhealth"` zero errors, Mason packages, `bindkey '^R'`, `PATH` dedup, `stow --no --verbose` folding
 
@@ -99,14 +99,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STOW-02 | Phase 2 | Complete |
 | STOW-03 | Phase 2 | Complete |
 | SHEL-01 | Phase 2 | Complete |
-| SHEL-02 | Phase 3 | Pending |
-| SHEL-03 | Phase 3 | Pending |
-| SHEL-04 | Phase 3 | Pending |
+| SHEL-02 | Phase 3 | Complete |
+| SHEL-03 | Phase 3 | Complete |
+| SHEL-04 | Phase 3 | Complete |
 | EDIT-01 | Phase 4 | Pending |
 | EDIT-02 | Phase 4 | Pending |
 | EDIT-03 | Phase 4 | Pending |
-| EDIT-04 | Phase 3 | Pending |
-| THEM-01 | Phase 3 | Pending |
+| EDIT-04 | Phase 3 | Complete |
+| THEM-01 | Phase 3 | Complete |
 | DOCS-01 | Phase 2 | Complete |
 | HLTH-01 | Phase 4 | Pending |
 

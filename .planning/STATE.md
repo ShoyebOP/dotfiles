@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 3
-current_phase_name: Polished Shell, Theme & Local Overrides
-status: executing
-stopped_at: Phase 3 context gathered
-last_updated: "2026-09-17T07:07:13.542Z"
-last_activity: 2026-09-14
-last_activity_desc: Phase 02.1 execution started
+current_phase: 03
+current_phase_name: polished-shell-theme-local-overrides
+status: verifying
+stopped_at: Completed 03-polished-shell-theme-local-overrides-01-PLAN.md
+last_updated: "2026-09-17T07:18:39.391Z"
+last_activity: 2026-09-17
+last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 4
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 11
-  completed_plans: 10
+  completed_plans: 11
 ---
 
 # Project State
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-10)
 
 **Core value:** A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop environment on any supported distro/derivative with one interactive run, and cleanly reverse itself — no manual `stow` or `MasonInstallAll` required.
-**Current focus:** Phase 02.1 — remove-hyperland-and-hyperland-related-configs-and-make-sure
+**Current focus:** Phase 03 — polished-shell-theme-local-overrides
 
 ## Current Position
 
-Phase: 3 — Polished Shell, Theme & Local Overrides
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-14 — Phase 02.1 complete, transitioned to Phase 3
+Phase: 03 (polished-shell-theme-local-overrides) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-09-17 — Phase 03 execution started
 
 Progress: [██████████] 100%
 
@@ -71,6 +71,7 @@ Progress: [██████████] 100%
 | Phase 01 P05 | 3 min | 2 tasks | 1 files |
 | Phase 02-safe-reversible-server-safe-deployment P01 | 6 min | 3 tasks | 2 files |
 | Phase 02-safe-reversible-server-safe-deployment P02 | 5 min | 3 tasks | 6 files |
+| Phase 03-polished-shell-theme-local-overrides P01 | 9 min | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -100,6 +101,8 @@ Recent decisions affecting current work:
  - [Phase 02-02]: chsh -s $(which zsh) offered only at very end after quarantine_scan+run_stow+post_verify succeed, explicit Type 'yes', --yes does NOT bypass, dry-run previews, Termux/already-zsh skipped per D-13
  - [Phase 02-02]: Docs flipped to Default: Zsh | Backup: Nushell — README shell-path table, quick-start, manual stow one-liners, keyd preview+sudoers reload, Zinit note per D-14
  - [Phase 02-02]: Staged delete teardown.zsh/teardown.nu with atomic doc fix, no shims, recoverable via git history per D-15
+- [Phase 03-polished-shell-theme-local-overrides]: Tail PATH re-assertion via array self-assignment: scalar export bypasses typeset -U at assignment time on zsh 5.9 — Array form keeps the plan first-match awk verify green with identical retro-dedupe semantics
+- [Phase 03-polished-shell-theme-local-overrides]: Debian legacy fzf rung added: doc/examples key-bindings path is the only legacy location for distro fzf 0.44.1 — Without it Ctrl+R warns despite fzf installed; plan single legacy path absent on Debian-family
 
 ### Pending Todos
 
@@ -123,6 +126,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-17T06:50:38.978Z
-Stopped at: Phase 3 context gathered
-Resume file: /home/shoyeb/dotfiles/.planning/phases/03-polished-shell-theme-local-overrides/03-CONTEXT.md
+Last session: 2026-09-17T07:18:29.469Z
+Stopped at: Completed 03-polished-shell-theme-local-overrides-01-PLAN.md
+Resume file: None
