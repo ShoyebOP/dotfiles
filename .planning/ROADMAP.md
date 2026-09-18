@@ -154,9 +154,9 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 **Goal:** Typing the first character auto-shows the completion list with no keypress, while ghost text, Ctrl+R fzf history, Tab menu-select, and stock vi behavior stay intact
 **Requirements**: SHEL-02 (carry-forward, no-regression)
 **Depends on:** Phase 4
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans executed
 
 Plans:
 
 - [x] 05-01-PLAN.md — Corrective zshrc reorder (fzf ladder before engine, ownership block after) plus prefix-only/ghost-accept/dismiss tuning plus atomic docs, proven by ad-hoc checks and the live terminal verdict
-- [ ] 05-02-PLAN.md — Gap closure: Right-arrow fallback wrapper (WR-01/D-08) + reload hardening — guarded menuselect bind, interactive-gated WARN, widget-guarded Ctrl+R (WR-02/WR-03/WR-04/D-14) (tracer)
+- [x] 05-02-PLAN.md — Gap closure: Right-arrow fallback wrapper (WR-01/D-08) + reload hardening — guarded menuselect bind, interactive-gated WARN, widget-guarded Ctrl+R (WR-02/WR-03/WR-04/D-14) (tracer)

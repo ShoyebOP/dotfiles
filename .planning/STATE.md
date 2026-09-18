@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 05
 current_phase_name: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
 status: verifying
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-09-17T16:59:50.539Z"
+stopped_at: Completed 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp-02-PLAN.md
+last_updated: "2026-09-18T12:54:06.775Z"
 last_activity: 2026-09-17
 last_activity_desc: Phase 03 complete with 1 deferred debt (typing auto-show → future phase), transitioned to Phase 4
 progress:
   total_phases: 5
   completed_phases: 5
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 14
+  completed_plans: 14
 ---
 
 # Project State
@@ -75,6 +75,7 @@ Progress: [██████████] 100%
 | Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
 | Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
 | Phase 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp P01 | 4 min | 3 tasks | 3 files |
+| Phase 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp P02 | 4min | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -110,6 +111,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Keep marlonrichert/zsh-autocomplete as the engine — swap bar not met, bug is ordering/ownership not capability — Research shows stock defaults already cover D-01/D-02/D-03/D-05/D-20; nothing proven unfixable per D-19
 - [Phase ?]: Ladder-before-engine plus ownership-after-engine fixes last-writer-wins — fzf ladder evaluates before the engine and Tab/Ctrl+R re-asserted last so fzf can never clobber engine widgets (D-09/D-11/D-12)
 - [Phase ?]: Prefix-only overrides after engine with intentional typo-correction loss; Ctrl+C stock SIGINT with Ctrl+G dismiss; list-lines 200 with 60/16 fallbacks — D-21/D-06/D-16 discretion; user judges feel live per D-13
+- [Phase 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp]: [05-02] Positive-branch Ctrl+R guard (if widget-exists then bind else interactive-gated WARN) so the probe line precedes the bind line per the order proof — The REVIEW warn-only sketch would leave the unconditional dead-key bind in place; positive branch binds only when the widget exists, else stock search stays intact
+- [Phase 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp]: [05-02] Optional WR-05/WR-06/IN-01 hardening skipped per plan allowance — Advisory findings only; folding them adds verification burden with no must_have attached, and the plan explicitly permits the skip
 
 ### Pending Todos
 
@@ -134,6 +137,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-09-17T16:59:50.526Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-09-18T12:54:01.965Z
+Stopped at: Completed 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp-02-PLAN.md
 Resume file: None
