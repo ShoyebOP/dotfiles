@@ -368,9 +368,13 @@ zi light marlonrichert/zsh-autocomplete
 bindkey '^I' menu-select
 # Why (D-12): Ctrl+R re-asserted last plus moved missing-widget warn (from the
 # ladder) — warns instead of leaving a silent dead key when fzf is absent.
-bindkey '^R' fzf-history-widget
-if ! zle -l 2>/dev/null | grep -q fzf-history-widget; then
-    print -P "%F{yellow}[WARN]%f fzf history widget missing — install fzf to enable Ctrl+R history search."
+# Why (D-14, WR-02): bind Ctrl+R only when the widget exists, else leave stock
+# history-incremental-search-backward intact so fzf-less hosts never get a dead key.
+# Why (D-14, WR-04): WARN gated on interactive so headless/scripted sources stay silent.
+if zle -l 2>/dev/null | grep -q fzf-history-widget; then
+    bindkey '^R' fzf-history-widget
+else
+    [[ -o interactive ]] && print -P "%F{yellow}[WARN]%f fzf history widget missing — install fzf to enable Ctrl+R history search."
 fi
 
 # Why (D-21): prefix-only matching — overrides engine fuzzy defaults (same
@@ -387,17 +391,30 @@ zstyle ':autocomplete:*' min-input 1
 zstyle ':autocomplete:*' list-lines 200
 
 # Why (D-08): Right-arrow accepts ghost text in insert mode for both terminfo
-# application-cursor sequences; binds go here after all plugins so the captured
-# original is vi-forward-char, and the widget falls back to plain cursor
-# movement when no suggestion is shown.
-bindkey -M viins '^[[C' autosuggest-accept
-bindkey -M viins '^[OC' autosuggest-accept
+# application-cursor sequences; the bare accept widget no-ops with zero args
+# per installed zsh-autosuggestions src/bind.zsh (invoke-original helper
+# returns early unless called with at least one arg), so the wrapper below
+# provides the real fallback — accept when a suggestion is shown, plain cursor
+# movement otherwise. Binds go here after all plugins.
+autosuggest-accept-or-forward() {
+    if [[ -n "${POSTDISPLAY:-}" ]]; then
+        zle autosuggest-accept
+    else
+        zle vi-forward-char
+    fi
+}
+zle -N autosuggest-accept-or-forward
+bindkey -M viins '^[[C' autosuggest-accept-or-forward
+bindkey -M viins '^[OC' autosuggest-accept-or-forward
 
 # Why (D-06 closest-achievable): Ctrl+C keeps stock SIGINT semantics (aborts the
 # whole line, so it can never be a pure list-dismiss); buffer-preserving menu
 # dismiss is Ctrl+G (send-break) confined to the menuselect keymap. Never rebind
 # Ctrl+C, never touch Esc (D-06 stock vi).
-bindkey -M menuselect '^G' send-break
+# Why (D-14, WR-03): load guard so the menuselect bind cannot error at startup
+# when complist is not yet loaded; suppressed bind with always-true fallback.
+zmodload -i zsh/complist 2>/dev/null
+bindkey -M menuselect '^G' send-break 2>/dev/null || true
 
 # LIVE-JUDGMENT FLAGS (D-13: user verdict closes the phase in a live terminal):
 # 1. Up-arrow history-menu scope (D-20-scope/A6): Up-arrow opening the history
