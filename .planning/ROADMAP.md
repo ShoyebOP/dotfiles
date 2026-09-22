@@ -137,10 +137,34 @@ Plans:
 - [ ] 04-01: Mason auto-install/cleanup + which-key + telescope guard
 - [ ] 04-02: Self-test / health gates TAP harness (headless, VM-less)
 
+### Phase 5: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
+
+**Goal**: Fix the deferred Phase-3 debt so typing auto-shows the async completion list with no keypress, Tab ownership is deterministic, and stow never folds `~/.config` — closed by the user's live terminal verdict, zero new harness files
+**Depends on**: Phase 3 (deferred debt) — plan standalone, no Phase-4 harness dependency (per 05-CONTEXT.md D-13)
+**Requirements**: SHEL-02 (auto-show half), STOW-01 (fold defect)
+**Scope anchor**: `.planning/phases/05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/05-CONTEXT.md` (locked D-01..D-34) + `.planning/STATE.md` Deferred Items
+**Success Criteria** (what must be TRUE):
+
+  1. User types the first character and the completion list auto-shows below the prompt — quiet on empty prompt, ghost text and list coexist, every typing context covered (D-01..D-04)
+  2. User presses Tab and always gets menu-select navigation, never ghost-accept; `l`/Right-arrow/Ctrl ghost-accept keep working; Right-arrow navigates the menu when open (D-27..D-29, D-32)
+  3. User stows nvim and only `~/.config/nvim` links — `--no-folding` on all stows + `mkdir -p ~/.config` guard, strays evicted, live symlink hand-repaired by executor, installer prevention-only (D-24..D-26, D-33)
+
+**Plans**: 2/2 plans ready
+
+Plans:
+
+**Wave 1**
+
+- [x] 05-01-PLAN.md — Tracer: zshrc auto-show + Tab ownership + stow containment with loud verify
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 05-02-PLAN.md — Expansion: README ladder table + stray eviction + hand-repair runbook + live-verdict checkpoint
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -148,3 +172,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | 2. Safe, Reversible & Server-Safe Deployment | 2/2 | Complete    | 2026-09-11 |
 | 3. Polished Shell, Theme & Local Overrides | 2/2 | Complete    | 2026-09-17 |
 | 4. Editor Autonomy & Verified Health | 0/2 | Not started | - |
+| 5. fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp | 2/2 | Ready to execute | - |

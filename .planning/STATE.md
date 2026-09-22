@@ -1,14 +1,14 @@
 ---
 gsd_state_version: "1.0"
 milestone: v1.0
-current_phase: 4
-current_phase_name: Editor Autonomy & Verified Health
-status: planning
+current_phase: 05
+current_phase_name: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
+status: executing
 stopped_at: Phase 5 context gathered
-last_updated: "2026-09-22T11:05:07.790Z"
+last_updated: "2026-09-22T12:43:39.627Z"
 last_activity: 2026-09-17
 last_activity_desc: Phase 03 complete with 1 deferred debt (typing auto-show → future phase), transitioned to Phase 4
-state_head: 0f43cba5ca70af325509923b396f5388c45324cf
+state_head: b3213aa5ea57cb31ba0455fa539bdf25e0246439
 progress:
   total_phases: 5
   completed_phases: 4
@@ -28,9 +28,9 @@ See: .planning/PROJECT.md (updated 2026-09-10)
 
 ## Current Position
 
-Phase: 4 — Editor Autonomy & Verified Health
+Phase: 05 (fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp) — READY TO EXECUTE
 Plan: Not started
-Status: Ready to plan
+Status: Ready to execute
 Last activity: 2026-09-17 — Phase 03 complete with 1 deferred debt (typing auto-show → future phase), transitioned to Phase 4
 
 Progress: [██████████] 100%
@@ -120,6 +120,7 @@ None yet.
 
 - Phase 2.1 inserted after Phase 2: remove hyperland and hyperland related configs and make sure anything related to hyperland is not installed in local installation (URGENT)
 - Phase 5 added: fix marlonrichert/zsh-autocomplete Real-time type-ahead completion for Zsh doesn't work and needs to press tab to show.
+- Phase 5 planned 2026-09-22: 2 plans (tracer 05-01 + expansion 05-02), plan-checker passed with 0 blockers/0 warnings. Decision-coverage gate override: 30/33 decisions cited in must_haves; D-08 (SUPERSEDED by D-27/D-28), D-18 (EXPANDED by D-33), D-23 (research directive, executed via Context7-first) intentionally uncited — verify-phase may re-surface. RESEARCH.md INFO: three "seven" shorthands vs nine measured stow sites — plans target nine; optional word fix alongside execution.
 
 ## Deferred Items
 
