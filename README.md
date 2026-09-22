@@ -65,7 +65,7 @@ Safety:
 - Must be run from the clone root (`./setup.sh` must exist in CWD alongside `SCRIPT_DIR` resolution for `stow --dir`); outside-root aborts with a `run-from-clone` message before any prompt or write.
 - Single-page checklist uses a five-backend ladder `gum → whiptail → dialog → fzf → read` in locked order (probed, missing tools skipped silently; cancel never cascades to the next backend) with Termux `keyd`/`alacritty` rendered as visible-but-disabled and never selectable.
 - Existing non-symlink targets are quarantined (never deleted, never force-adopted) to `.stow-conflicts/<timestamp>/` preserving relative paths with a `MANIFEST` and restore hint.
-- Strict post-verify (`test -e` + `readlink -f` prefix check, folding-aware) aborts with a link→expected-target report if any link is wrong. Selecting `keyd` previews with `stow --dir=. --target=/ --no --verbose keyd` plus `diff -u` when `/etc/keyd/default.conf` exists as a regular file, requires `gum confirm` or `Type 'yes' to confirm privileged keyd install:` before `sudo stow --dir=. --target=/ keyd` (or `sudo stow --dir=. --target=/ --adopt keyd` only with explicit adopt confirmation), then `sudo keyd reload || sudo systemctl reload keyd || true`.
+- Strict post-verify (`test -e` + `readlink -f` prefix check, folding-aware) aborts with a link→expected-target report if any link is wrong. Selecting `keyd` previews with `stow --dir=. --target=/ --no-folding --no --verbose keyd` plus `diff -u` when `/etc/keyd/default.conf` exists as a regular file, requires `gum confirm` or `Type 'yes' to confirm privileged keyd install:` before `sudo stow --dir=. --target=/ --no-folding keyd` (or `sudo stow --dir=. --target=/ --no-folding --adopt keyd` only with explicit adopt confirmation), then `sudo keyd reload || sudo systemctl reload keyd || true`.
 
 ---
 
@@ -82,35 +82,35 @@ If you prefer to set things up manually without the unified installer:
 
 #### Deploy Configurations
 
-Use `GNU Stow` to symlink the configurations (explicit `--dir`/`--target` is what `bash setup.sh` does internally):
+Use `GNU Stow` to symlink the configurations (explicit `--dir`/`--target` is what `bash setup.sh` does internally). All commands use `--no-folding` so stow creates leaf links only and never swallows the parent `~/.config` dir:
 
 ```bash
 # Core (Zsh default)
-stow --dir=. --target="$HOME" --restow nvim zsh starship
+stow --dir=. --target="$HOME" --no-folding --restow nvim zsh starship
 
 # Nushell backup instead of Zsh
-stow --dir=. --target="$HOME" --restow nvim nushell starship
+stow --dir=. --target="$HOME" --no-folding --restow nvim nushell starship
 
 # GUI extras (local mode)
-stow --dir=. --target="$HOME" --restow alacritty
+stow --dir=. --target="$HOME" --no-folding --restow alacritty
 ```
 
 For a full local deploy with Zsh:
 
 ```bash
-stow --dir=. --target="$HOME" --restow nvim zsh starship alacritty
+stow --dir=. --target="$HOME" --no-folding --restow nvim zsh starship alacritty
 ```
 
 #### keyd Setup
 
-Privileged `keyd` install (`/etc/keyd`) previews before any `/etc` write and requires explicit confirmation. The installer previews with `stow --dir=. --target=/ --no --verbose keyd` plus `diff -u /etc/keyd/default.conf keyd/etc/keyd/default.conf` if `/etc/keyd/default.conf` exists as a regular file (not a symlink), then requires confirmation via `gum confirm` or `Type 'yes' to confirm privileged keyd install:` before any privileged write. On confirmation, it runs `sudo stow --dir=. --target=/ keyd` (plain) or `sudo stow --dir=. --target=/ --adopt keyd` only when a conflict file exists as a regular file and the user explicitly confirms the adopt path, then `sudo keyd reload || sudo systemctl reload keyd || true`. For `--dry-run`, it prints `[DRY RUN] Would run: sudo stow --dir=. --target=/ keyd` plus diff preview without touching filesystem. Manual preview:
+Privileged `keyd` install (`/etc/keyd`) previews before any `/etc` write and requires explicit confirmation. The installer previews with `stow --dir=. --target=/ --no-folding --no --verbose keyd` plus `diff -u /etc/keyd/default.conf keyd/etc/keyd/default.conf` if `/etc/keyd/default.conf` exists as a regular file (not a symlink), then requires confirmation via `gum confirm` or `Type 'yes' to confirm privileged keyd install:` before any privileged write. On confirmation, it runs `sudo stow --dir=. --target=/ --no-folding keyd` (plain) or `sudo stow --dir=. --target=/ --no-folding --adopt keyd` only when a conflict file exists as a regular file and the user explicitly confirms the adopt path, then `sudo keyd reload || sudo systemctl reload keyd || true`. For `--dry-run`, it prints `[DRY RUN] Would run: sudo stow --dir=. --target=/ --no-folding keyd` plus diff preview without touching filesystem. Manual preview:
 
 ```bash
 # Preview before privileged write (what installer shows):
-stow --dir=. --target=/ --no --verbose keyd
+stow --dir=. --target=/ --no-folding --no --verbose keyd
 diff -u /etc/keyd/default.conf keyd/etc/keyd/default.conf 2>/dev/null || echo "(no host file or symlink — no diff needed)"
-# After confirmation, installer runs: sudo stow --dir=. --target=/ keyd && sudo keyd reload || sudo systemctl reload keyd || true
-# With conflict and explicit adopt confirmation: sudo stow --dir=. --target=/ --adopt keyd
+# After confirmation, installer runs: sudo stow --dir=. --target=/ --no-folding keyd && sudo keyd reload || sudo systemctl reload keyd || true
+# With conflict and explicit adopt confirmation: sudo stow --dir=. --target=/ --no-folding --adopt keyd
 ```
 
 To allow reloading `keyd` without a password (least-privilege), run `sudo EDITOR=nvim visudo` and add:
@@ -126,6 +126,24 @@ shoyeb ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload keyd, /usr/bin/keyd reload
 # Manual fallback if needed:
 git clone https://github.com/zdharma-continuum/zinit ~/.local/share/zinit/zinit.git
 ```
+
+#### Zsh Key Ownership
+
+Key-ownership ladder, highest priority first (new clashes resolve downward):
+
+| Priority | Owner | Keys | Behavior |
+|----------|-------|------|----------|
+| 1 | autocomplete (Tab/menu) | `Tab` / `Shift-Tab`, arrows in menu | Tab always enters menu-select and cycles items; arrows move selection |
+| 2 | autosuggestions (ghost-accept) | `Right-arrow`, `l` in vi-normal, `Ctrl+Space`, `Ctrl+_` | Ghost-text accept keys; `l` and `Right-arrow` ghost-accept already work as-is — preserved, not rebuilt |
+| 3 | fzf (history + extras) | `Ctrl+R`, expendable `**` / `Ctrl+T` / `Alt+C` | `Ctrl+R` opens fzf history search; extras are droppable and must never break autocomplete |
+| 4 | stock vi/zle | everything undecided | Core motions (`hjkl`, `w`/`b`, `gg`/`G`) stay stock and untouchable |
+| — | autocomplete wins | `Tab` | Tab never accepts ghost text — with ghost visible, Tab opens or navigates the menu, never inserts ghost |
+| — | autocomplete wins | `Right-arrow` | Right-arrow navigates the open menu when the menu is open and accepts ghost only when the menu is closed |
+| — | autocomplete | `Enter` | Enter selects the highlighted item into the buffer on first press and runs it on second press; first Enter never executes |
+| — | autocomplete | `Ctrl+C` | Ctrl+C dismisses the completion list; `Esc` keeps stock vi behavior (insert→normal) |
+| — | fzf | `Ctrl+R` | Ctrl+R history ownership belongs to fzf-history-search, never to the auto-show list (the list shows everything except history) |
+
+> **Troubleshooting — first prompt needs network:** the async backend (`marlonrichert/zasync`) auto-clones at the first prompt, so the first prompt needs network plus git for the async backend clone or the list silently never starts while Tab keeps working.
 
 #### Tool Completions
 
