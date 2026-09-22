@@ -417,9 +417,9 @@ preview_selection() {
             fi
             echo ""
             echo "=== Privileged keyd preview (no writes) ==="
-            echo "[PREVIEW] stow --dir=\"$SCRIPT_DIR\" --target=/ --no --verbose keyd"
+            echo "[PREVIEW] stow --dir=\"$SCRIPT_DIR\" --target=/ --no-folding --no --verbose keyd"
             if command -v stow >/dev/null 2>&1; then
-                stow --dir="$SCRIPT_DIR" --target=/ --no --verbose keyd 2>&1 | sed 's/^/  /' || true
+                stow --dir="$SCRIPT_DIR" --target=/ --no-folding --no --verbose keyd 2>&1 | sed 's/^/  /' || true
             else
                 echo "  (stow not found — would install via package manager first)"
             fi
@@ -430,12 +430,12 @@ preview_selection() {
                 echo "Conflict: $host_conf exists as a regular file (not a symlink) — showing diff:"
                 diff -u "$host_conf" "$repo_conf" 2>&1 | sed 's/^/  /' || true
             fi
-            echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ keyd"
+            echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ --no-folding keyd"
             echo "[DRY RUN] Would run: sudo keyd reload || sudo systemctl reload keyd || true"
             continue
         fi
-        echo "[DRY RUN] Would run: stow --dir=\"$SCRIPT_DIR\" --target=\"\$HOME\" --restow $pkg"
-        if command -v stow >/dev/null 2>&1; then echo "[DRY RUN] stow --no --verbose preview for $pkg:"; stow --dir="$SCRIPT_DIR" --target="$HOME" --no --verbose "$pkg" 2>&1 | sed 's/^/  /' || true
+        echo "[DRY RUN] Would run: stow --dir=\"$SCRIPT_DIR\" --target=\"\$HOME\" --no-folding --restow $pkg"
+        if command -v stow >/dev/null 2>&1; then echo "[DRY RUN] stow --no --verbose preview for $pkg:"; stow --dir="$SCRIPT_DIR" --target="$HOME" --no-folding --no --verbose "$pkg" 2>&1 | sed 's/^/  /' || true
         else echo "  (stow not found — would install via package manager first)"; fi
     done
     echo "[DRY RUN] No changes made. Re-run without --dry-run to apply."
@@ -515,6 +515,26 @@ post_verify() {
             local rel="${src#$pkg_dir/}"
             total=$((total + 1))
             if ! assert_linked "$rel" "$pkg"; then failed=$((failed + 1)); fi
+            # D-24/D-33: fail loudly on folded intermediate dirs (e.g. ~/.config
+            # as a symlink). Detection only — NEVER repair here (D-26:
+            # hand-repair by executor). Prevention-only: the installer must
+            # never detect-and-repair a symlinked config dir and will not
+            # auto-fix; the stow conflict error itself is the detection.
+            local rel_dir prefix
+            local -a parts
+            local part
+            rel_dir="$(dirname "$rel")"
+            if [[ "$rel_dir" != "." ]]; then
+                prefix="$HOME"; IFS=/ read -ra parts <<< "$rel_dir"
+                for part in "${parts[@]}"; do
+                    prefix="$prefix/$part"
+                    if [[ -L "$prefix" ]]; then
+                        echo "FOLDED: $prefix is a symlink (stow folded a parent dir)" >&2
+                        echo "  Hand-repair required (see README); installer will not auto-fix." >&2
+                        failed=$((failed + 1)); break
+                    fi
+                done
+            fi
         done < <(find "$pkg_dir" -type f -print0 2>/dev/null || true)
     done
     if [[ "$total" -eq 0 ]]; then echo "Post-verify: no files to verify (empty selection or keyd-only)."; echo "Post-verify passed."; return 0; fi
@@ -561,9 +581,9 @@ install_keyd_privileged() {
     fi
     echo ""
     echo "=== Privileged keyd preview (no writes) ==="
-    echo "[PREVIEW] stow --dir=\"$SCRIPT_DIR\" --target=/ --no --verbose keyd"
+    echo "[PREVIEW] stow --dir=\"$SCRIPT_DIR\" --target=/ --no-folding --no --verbose keyd"
     if command -v stow >/dev/null 2>&1; then
-        stow --dir="$SCRIPT_DIR" --target=/ --no --verbose keyd 2>&1 | sed 's/^/  /' || true
+        stow --dir="$SCRIPT_DIR" --target=/ --no-folding --no --verbose keyd 2>&1 | sed 's/^/  /' || true
     else
         echo "  (stow not found — would install via package manager first)"
     fi
@@ -577,7 +597,7 @@ install_keyd_privileged() {
         diff -u "$host_conf" "$repo_conf" 2>&1 | sed 's/^/  /' || true
     fi
     if [[ "$DRY_RUN" == true ]]; then
-        echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ keyd"
+        echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ --no-folding keyd"
         if [[ "$has_regular_conflict" == true ]]; then
             echo "[DRY RUN] (conflict detected — would prompt for adopt vs plain stow)"
         fi
@@ -632,9 +652,9 @@ install_keyd_privileged() {
         fi
     fi
     if [[ "$use_adopt" == true ]]; then
-        sudo stow --dir="$SCRIPT_DIR" --target=/ --adopt keyd
+        sudo stow --dir="$SCRIPT_DIR" --target=/ --no-folding --adopt keyd
     else
-        sudo stow --dir="$SCRIPT_DIR" --target=/ keyd
+        sudo stow --dir="$SCRIPT_DIR" --target=/ --no-folding keyd
     fi
     sudo keyd reload 2>/dev/null || sudo systemctl reload keyd 2>/dev/null || true
 }
@@ -839,9 +859,9 @@ run_uninstall() {
             if [[ "$pkg" == "keyd" ]]; then
                 continue
             fi
-            echo "[DRY RUN] Would run: stow --dir=\"$SCRIPT_DIR\" --target=\"$HOME\" --delete $pkg"
+            echo "[DRY RUN] Would run: stow --dir=\"$SCRIPT_DIR\" --target=\"$HOME\" --no-folding --delete $pkg"
             if command -v stow >/dev/null 2>&1; then
-                stow --dir="$SCRIPT_DIR" --target="$HOME" --no --verbose --delete "$pkg" 2>&1 | sed 's/^/  /' || true
+                stow --dir="$SCRIPT_DIR" --target="$HOME" --no-folding --no --verbose --delete "$pkg" 2>&1 | sed 's/^/  /' || true
             else
                 echo "  (stow not found — would install via package manager first)"
             fi
@@ -852,7 +872,7 @@ run_uninstall() {
             elif [[ "${FAMILY:-}" == "debian" ]] && ! command -v keyd >/dev/null 2>&1; then
                 echo "[DRY RUN] Would skip privileged keyd stow — keyd binary not found (build from https://github.com/rvaiya/keyd first)"
             else
-                echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ --no --verbose --delete keyd"
+                echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ --no-folding --no --verbose --delete keyd"
             fi
         fi
         # Mason preview when nvim deselected (D-02)
@@ -901,14 +921,14 @@ run_uninstall() {
             echo "Warning: package dir not found: $SCRIPT_DIR/$pkg — skipping unstow for $pkg" >&2
             continue
         fi
-        if ! stow --dir="$SCRIPT_DIR" --target="$HOME" -D "$pkg" 2>&1; then
+        if ! stow --dir="$SCRIPT_DIR" --target="$HOME" --no-folding -D "$pkg" 2>&1; then
             echo "Warning: stow -D $pkg returned non-zero (already unstowed or not owned — continuing)" >&2
         else
             echo "Unstowed: $pkg"
         fi
     done
     if printf '%s\n' "${SELECTED_PACKAGES[@]}" | grep -qx keyd; then
-        if ! sudo stow --dir="$SCRIPT_DIR" --target=/ -D keyd 2>&1; then
+        if ! sudo stow --dir="$SCRIPT_DIR" --target=/ --no-folding -D keyd 2>&1; then
             echo "Warning: sudo stow -D -t / keyd failed (not stowed or not owned — continuing)" >&2
         else
             echo "Unstowed privileged: keyd"
@@ -938,6 +958,10 @@ run_uninstall() {
 
 run_stow() {
     local pkg
+    # D-24: parent-dir guard — plain mkdir (never inspects/repairs symlinks, D-26).
+    # Prevention-only: the installer must never detect-and-repair a symlinked
+    # config dir; the stow conflict error itself is the detection.
+    mkdir -p "$HOME/.config"
     for pkg in "${SELECTED_PACKAGES[@]}"; do
         if [[ "$pkg" == "keyd" ]]; then
             if ! install_keyd_privileged; then
@@ -946,8 +970,8 @@ run_stow() {
             fi
             continue
         fi
-        echo "Stowing $pkg -> \$HOME via stow --dir=\"$SCRIPT_DIR\" --target=\"\$HOME\" --restow $pkg"
-        if ! stow --dir="$SCRIPT_DIR" --target="$HOME" --restow "$pkg"; then echo "Error: stow failed for package '$pkg'" >&2; return 1; fi
+        echo "Stowing $pkg -> \$HOME via stow --dir=\"$SCRIPT_DIR\" --target=\"\$HOME\" --no-folding --restow $pkg"
+        if ! stow --dir="$SCRIPT_DIR" --target="$HOME" --no-folding --restow "$pkg"; then echo "Error: stow failed for package '$pkg'" >&2; return 1; fi
     done
 }
 
