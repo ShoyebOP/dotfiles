@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 milestone: v1.0
 current_phase: 05
 current_phase_name: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
-status: executing
-stopped_at: Phase 5 context gathered
-last_updated: "2026-09-22T12:43:39.627Z"
-last_activity: 2026-09-17
-last_activity_desc: Phase 03 complete with 1 deferred debt (typing auto-show → future phase), transitioned to Phase 4
-state_head: b3213aa5ea57cb31ba0455fa539bdf25e0246439
+status: halted
+stopped_at: Phase 05 live verdict FAIL — SHEL-02 auto-show + Tab carried forward
+last_updated: "2026-09-22T13:20:16.932Z"
+last_activity: 2026-09-22
+last_activity_desc: Phase 05 execution started
+state_head: 181de3a478850cc6ad3d573d13c7681d6292c9c7
 progress:
-  total_phases: 5
+  total_phases: 6
   completed_phases: 4
-  total_plans: 12
+  total_plans: 14
   completed_plans: 12
 milestone_name: milestone
 ---
@@ -24,14 +24,14 @@ milestone_name: milestone
 See: .planning/PROJECT.md (updated 2026-09-10)
 
 **Core value:** A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop environment on any supported distro/derivative with one interactive run, and cleanly reverse itself — no manual `stow` or `MasonInstallAll` required.
-**Current focus:** Phase 04 — Editor Autonomy & Verified Health
+**Current focus:** Phase 05 — fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp (HALTED on live verdict FAIL; STOW-01 shipped, SHEL-02 auto-show + Tab carried forward)
 
 ## Current Position
 
-Phase: 05 (fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp) — READY TO EXECUTE
-Plan: Not started
-Status: Ready to execute
-Last activity: 2026-09-17 — Phase 03 complete with 1 deferred debt (typing auto-show → future phase), transitioned to Phase 4
+Phase: 05 (fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp) — HALTED
+Plan: 2 of 2 summarized (05-01 complete, 05-02 halted on blocking-human FAIL)
+Status: Live verdict 4 PASS (items 1,4,5,6) / 2 FAIL (items 2 auto-show, 3 Tab-vs-ghost). STOW-01 met; SHEL-02 auto-show half + D-29 Tab ownership carried forward for researcher-led re-investigation. See 05-02-SUMMARY.md Live Verdict + 05-VERIFICATION.md (gaps_found).
+Last activity: 2026-09-22 — Phase 05 executed, halted on live verdict FAIL
 
 Progress: [██████████] 100%
 
@@ -114,7 +114,8 @@ None yet.
 
 ### Blockers/Concerns
 
-None yet.
+- [Phase 05 HALTED]: SHEL-02 auto-show half + D-29 Tab-vs-ghost ownership failed the blocking-human live verdict (items 2,3 FAIL; user quotes in 05-02-SUMMARY.md). Static gates all green — needs researcher-led root-cause re-investigation with D-34 freedom, explicitly not a keybind-only fix. STOW-01 containment shipped (item 6 PASS).
+- Follow-up (out of scope, routed): setup.sh post_verify will report `~/.config/nvim/.gitignore` MISSING on next live run (Stow default-ignores `.gitignore`, 65/66 leaf links) — owner: setup.sh follow-up or Phase 4 self-test scope.
 
 ### Roadmap Evolution
 
@@ -129,9 +130,10 @@ Items acknowledged and carried forward from previous milestone close:
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
 | Phase 03 gap | Typing auto-show feel (SHEL-02 half): typing 2–3 chars + pause shows no completion list despite correct zsh-autocomplete wiring; Tab menu-select + ghost text unverified. User deferred to a dedicated future phase — no code attempted in 03-02. VERIFICATION.md 5/6, phase completed with debt. | Deferred — needs dedicated diagnosis/fix phase | 2026-09-17 |
+| Phase 05 carry-forward | SHEL-02 auto-show half + D-29 Tab-vs-ghost ownership STILL OPEN after Phase 05 tracer attempt: live verdict 2/6 FAIL (typing shows no menu at all; Tab glitches ghost text — bolds-as-real then vanishes on typing). Static slice committed + green (min-input 1, delay 0, list-lines 300, ladder, preset, re-assert, zshenv guard). STOW-01 containment shipped. Needs researcher-led re-investigation (D-34 freedom), not a keybind-only fix. Verbatim verdict in 05-02-SUMMARY.md; gaps in 05-VERIFICATION.md. | Carried — blocked until re-investigated | 2026-09-22 |
 
 ## Session Continuity
 
-Last session: 2026-09-22T11:05:07.364Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/05-CONTEXT.md
+Last session: 2026-09-22T16:30:00Z
+Stopped at: Phase 05 halted on live verdict FAIL (SHEL-02 carried forward)
+Resume file: .planning/phases/05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/05-02-SUMMARY.md
