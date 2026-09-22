@@ -149,7 +149,7 @@ Plans:
   2. User presses Tab and always gets menu-select navigation, never ghost-accept; `l`/Right-arrow/Ctrl ghost-accept keep working; Right-arrow navigates the menu when open (D-27..D-29, D-32)
   3. User stows nvim and only `~/.config/nvim` links — `--no-folding` on all stows + `mkdir -p ~/.config` guard, strays evicted, live symlink hand-repaired by executor, installer prevention-only (D-24..D-26, D-33)
 
-**Plans**: 2/2 plans executed — HALTED on live verdict FAIL (2026-09-22). 05-01 tracer complete, static gates green; 05-02 shipped README + eviction + hand-repair, verdict 4 PASS / 2 FAIL (auto-show + Tab carried forward). STOW-01 met; SHEL-02 auto-show half open. See 05-02-SUMMARY.md + 05-VERIFICATION.md (gaps_found).
+**Plans**: 2/2 plans executed — HALTED on live verdict FAIL (2026-09-22). 05-01 tracer complete, static gates green; 05-02 shipped README + eviction + hand-repair, verdict 4 PASS / 2 FAIL (auto-show + Tab carried forward). STOW-01 met; SHEL-02 auto-show half open. See 05-02-SUMMARY.md + 05-VERIFICATION.md (gaps_found). Gap closure 05-03 planned (R-3 hook + R-7 line + live re-verdict).
 
 Plans:
 
@@ -160,6 +160,10 @@ Plans:
 **Wave 2** *(blocked on Wave 1 completion)*
 
 - [x] 05-02-PLAN.md — Expansion: README ladder table + stray eviction + hand-repair runbook + live-verdict checkpoint (halted — verdict FAIL items 2,3; SHEL-02 carried)
+
+**Gap closure Wave 3** *(depends_on: [05-02] — fixes 05-VERIFICATION.md 2 FAILED gaps, STOW-01 untouched)*
+
+- [ ] 05-03-PLAN.md — Gap closure: R-3 one-shot precmd zasync fixup hook (Gap 1 tracer) + R-7 menuselect Tab line with upstream re-check + full D-14 live re-verdict
 
 ## Progress
 
