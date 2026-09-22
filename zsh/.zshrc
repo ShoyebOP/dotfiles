@@ -280,6 +280,21 @@ compctl -K _pip_completion pip3
 [[ -d "$HOME/.config/zsh/completions" ]] && fpath=("$HOME/.config/zsh/completions" $fpath)
 autoload -Uz _uv
 
+# Find-as-you-type auto-show (D-01..D-04): first char triggers, no added delay.
+# min-input 1 == upstream default; stated explicitly so intent is locked.
+# Source: CONFIGURATION.md (Response timing) via ctx7 docs fetch.
+zstyle ':autocomplete:*' min-input 1
+zstyle ':autocomplete:*' delay 0
+# Thousands-scale cutoff (D-16, researcher pick): screen-fit binds anyway;
+# (MORE) marker is automatic on partial lists.
+zstyle -e ':autocomplete:*:*' list-lines 'reply=( 300 )'
+# Key-ownership ladder (highest first — new clashes resolve downward):
+#   1. autocomplete: Tab/menu (Tab ALWAYS menu-select, never ghost-accept)
+#   2. autosuggestions: ghost-accept (Right-arrow, vicmd-l, Ctrl+Space, Ctrl+_)
+#   3. fzf: Ctrl+R (+ expendable **/Ctrl+T/Alt+C extras — droppable per D-10)
+#   4. stock vi/zle: everything undecided (core motions hjkl/wb/ggG untouchable)
+# Load-order rule: plugin binds, then atload overrides, then fzf ladder, then
+# owned keys are RE-ASSERTED (^I like ^R) because fzf --zsh rebinds ^I last.
 # -----------------------------------------------------------------------------
 # ZSH ENHANCEMENT PLUGINS
 # -----------------------------------------------------------------------------
@@ -308,9 +323,12 @@ zi light-mode for \
 zi light joshskidmore/zsh-fzf-history-search
 
 # Zsh autocomplete - Real-time type-ahead autocompletion
-zi ice atload'
-bindkey              "^I" menu-select
-bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete'
+# Why double-quoted ice: the ^I bind below must read bindkey '^I' menu-select
+# literally (single quotes) so Tab ownership stays greppable; the \$ and \"
+# escapes keep the ice value byte-identical to the old single-quoted form.
+zi ice atload"
+bindkey '^I' menu-select
+bindkey -M menuselect \"$terminfo[kcbt]\" reverse-menu-complete"
 zi light marlonrichert/zsh-autocomplete
 
 # -----------------------------------------------------------------------------
@@ -324,6 +342,10 @@ zi light marlonrichert/zsh-autocomplete
 if command -v fzf >/dev/null 2>&1; then
     _fzf_ver="$(fzf --version 2>/dev/null | awk '{print $1}')"
     if [[ -n "${_fzf_ver:-}" ]] && [[ "$(printf '%s\n%s\n' "$_fzf_ver" "0.48" | sort -V | head -n1)" == "0.48" ]]; then
+        # Why: fzf captures the prior ^I binding into $fzf_default_completion
+        # and falls back to it; presetting keeps the **-fallback on menu-select
+        # even if load order shifts (D-29).
+        fzf_default_completion=menu-select
         source <(fzf --zsh) 2>/dev/null || true
     elif [[ -f /usr/share/fzf/key-bindings.zsh ]]; then
         source /usr/share/fzf/key-bindings.zsh 2>/dev/null || true
@@ -342,21 +364,16 @@ bindkey '^R' fzf-history-widget
 if ! zle -l 2>/dev/null | grep -q fzf-history-widget; then
     print -P "%F{yellow}[WARN]%f fzf history widget missing — install fzf to enable Ctrl+R history search."
 fi
+# Autocomplete-first (D-30): re-assert AFTER the fzf ladder — fzf --zsh binds
+# ^I last, so Tab is pinned back here (D-29: Tab enters menu, never ghost-accepts).
+bindkey '^I' menu-select
 
 # -----------------------------------------------------------------------------
-# FINALIZATION
+# FINALIZATION (intentionally empty)
 # -----------------------------------------------------------------------------
-# Initialize completions and replay cached completions
-# at the end of a Zinit configuration to ensure that after all plugins are loaded,
-# the completion system is properly initialized and
-# syntax highlighting/autosuggestion widgets are correctly bound
-# zi for atload'
-#       zicompinit; zicdreplay
-#       _zsh_highlight_bind_widgets
-#       _zsh_autosuggest_bind_widgets' \
-#     as'null' id-as'zinit/cleanup' lucid nocd wait \
-#   $ZI_REPO/null
-#
+# Why no eager completion init may live here: marlonrichert/zsh-autocomplete
+# owns compinit itself at first precmd, so any eager init call would
+# double-initialize against the plugin's dump handling. Keep this block empty.
 
 unset ZI_REPO
 # -----------------------------------------------------------------------------
