@@ -144,6 +144,8 @@ Key-ownership ladder, highest priority first (new clashes resolve downward):
 | — | fzf | `Ctrl+R` | Ctrl+R history ownership belongs to fzf-history-search, never to the auto-show list (the list shows everything except history) |
 
 > **Troubleshooting — first prompt needs network:** the async backend (`marlonrichert/zasync`) auto-clones at the first prompt, so the first prompt needs network plus git for the async backend clone or the list silently never starts while Tab keeps working.
+>
+> **Troubleshooting — stale backend registration (typing shows nothing while manual Tab works):** if typing never auto-shows the list but Tab still completes, and `~/.local/state/zsh-autocomplete/log/` stays empty, the `zasync` backend is likely registered from its directory instead of its file (upstream #907/#905). Check with `whence -v zasync` in a real interactive terminal — it must print the cache file path (`.../.cache/zsh/zasync/zasync`); a bare directory means the stale stub is present. The fix is the one-shot precmd hook inside `zsh/.zshrc` just after the `marlonrichert/zsh-autocomplete` load (it clears the stub at first precmd and registers the cached file, then removes itself). Retire after a manager update past the upstream fix removes the hook.
 
 #### Tool Completions
 

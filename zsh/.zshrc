@@ -378,6 +378,9 @@ fi
 # Autocomplete-first (D-30): re-assert AFTER the fzf ladder — fzf --zsh binds
 # ^I last, so Tab is pinned back here (D-29: Tab enters menu, never ghost-accepts).
 bindkey '^I' menu-select
+# Upstream README recipe: Tab enters AND moves inside the menu (menuselect wins per D-32).
+# With ghost + menu both visible, menuselect keymap wins so Right-arrow/Tab navigate, never ghost-accept.
+bindkey -M menuselect '^I' menu-complete
 
 # -----------------------------------------------------------------------------
 # FINALIZATION (intentionally empty)
