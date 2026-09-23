@@ -331,6 +331,17 @@ bindkey '^I' menu-select
 bindkey -M menuselect \"$terminfo[kcbt]\" reverse-menu-complete"
 zi light marlonrichert/zsh-autocomplete
 
+# Workaround for upstream #907/#905 — failed `autoload +X` probe leaves a stale
+# directory-registered `zasync` autoload stub that silently kills real-time auto-show (Tab keeps working).
+# Retire after `zinit update` past the upstream fix.
+autoload -Uz add-zsh-hook
+_fix_zasync_once() {
+  unfunction zasync 2>/dev/null
+  autoload -Uz ${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zasync/zasync
+  add-zsh-hook -d precmd _fix_zasync_once
+}
+add-zsh-hook precmd _fix_zasync_once
+
 # -----------------------------------------------------------------------------
 # FZF DEGRADATION LADDER (best-effort, never breaks autocomplete)
 # -----------------------------------------------------------------------------
