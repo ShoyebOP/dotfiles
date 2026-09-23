@@ -19,7 +19,7 @@ A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop env
 - ✓ Keyd privileged install via `sudo stow --adopt -t / keyd` + `keyd reload`/`systemctl` — existing (with known risks)
 - ✓ Unified Bash installer `bash setup.sh` with strict-mode guards, Termux-first family detection, per-family dep tables, verify→install→re-verify lock — Validated in Phase 1 (INST-01, INST-02, INST-05, DEPS-01, DEPS-02, DEPS-03)
 - ✓ Interactive package checklist override before any write with 5-backend ladder, Termux disabled-row emulation, quarantine with manifest, folding-aware post-verify — Validated in Phase 1 (INST-04, STOW-01)
-- ✓ Zsh spine: split-ownership history plugins (Ctrl+R → fzf-history-search with 0.48 version ladder + install warning, Tab → autocomplete-last), top-of-file `typeset -U path` dedup, portable bun source — Validated in Phase 3 (SHEL-02 Ctrl+R half live-PASSED, SHEL-03; typing auto-show half FAILED live check → deferred to dedicated future phase)
+- ✓ Zsh spine: split-ownership history plugins (Ctrl+R → fzf-history-search with 0.48 version ladder + install warning, Tab → autocomplete-last), top-of-file `typeset -U path` dedup, portable bun source — Validated in Phase 3 (SHEL-02 Ctrl+R half live-PASSED, SHEL-03) and closed in Phase 05 (SHEL-02 typing auto-show half live-PASSED via one-shot precmd zasync stale-stub fixup hook + menuselect `^I → menu-complete` line; upstream PRs #903/#905 + issue #907 still open → keep-hook, release-tag pin fallback-only)
 - ✓ Machine-local overrides: HOME-only `~/.zshrc.local` tail guard + `pcall(require,"local")` editor tail, gitignored locals with committed `*.example` templates, `ensure_local_files` installer bootstrap surfaced in `--dry-run` preview with zero writes — Validated in Phase 3 (SHEL-04, EDIT-04; T5 preview gap closed by 03-02)
 - ✓ Theme spread closed as intended drift with zero code (no token, no installer routine, no mismatch warning) — Validated in Phase 3 (THEM-01)
 
@@ -76,7 +76,9 @@ A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop env
 | Distro detection via `ID_LIKE` + `pacman`/`apt` probing, with post-install verify | Fixes crashes and derivative rejections reported in CONCERNS | Phase 1: 4-tier `detect_family` (Termux env/pkg → manager → `ID_LIKE` tokens → `ID` → manager fallback), `OS_RELEASE_FILE` seam, `grep` parsing (no sourcing), fixtures `manjaro→arch`/`pop→debian`/`termux` verified; `verify→install→re-verify` with `Still missing` abort and idempotent `--needed`/`-y` |
 | Nushell fixes excluded | Nushell is backup only per user | Honored — no `uv`/`zoxide` Nushell fixes |
 | Zsh default in all docs | Correct historical Nushell-favored docs | Phase 1: `README.md` flipped to `bash setup.sh --mode/--shell` Zsh default/Nushell backup, `stow --dir="$SCRIPT_DIR"` one-liners, `nvim/README.md` audited (no dangling pointer) |
-| Machine-local gitignored configs (`*.local` pattern) | Isolates per-host differences | Phase 3 (not yet) |
+| Machine-local gitignored configs (`*.local` pattern) | Isolates per-host differences | Phase 3: HOME-only `~/.zshrc.local` + `pcall(require,"local")`, gitignored with `*.example` templates, installer bootstrap + dry-run preview |
+| One-shot precmd zasync stale-stub fixup (Phase 05 gap closure) | Stale directory-registered backend stub is born at first precmd, so only a self-removing precmd hook converges; load-time unfunction is a silent no-op | Phase 05: `_fix_zasync_once` hook clears stub + registers XDG-cache backend file, upstream PRs #903/#905 open → keep-hook, live PASS |
+| Menuselect Tab layering (Phase 05 gap closure) | Tab must resolve to menu-select in main keymap and menu-complete in menuselect keymap, with fzf ladder clobbering Tab last | Phase 05: atload bind + post-ladder re-assert + menuselect `^I → menu-complete` per upstream recipe, live PASS |
 | Mason auto-install on setup + cleanup on uninstall | User: "everything should work after setup script is ran; removal should remove nvim packages too" | Phase 4 (not yet) |
 
 ## Evolution
@@ -97,4 +99,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-17 after Phase 03 completion with 1 deferred debt — polished Zsh spine (Ctrl+R live-passed, PATH dedup), HOME-only machine-local overrides with installer bootstrap + dry-run preview (T5 closed), zero theme code; typing auto-show live-FAILED → deferred to dedicated future phase; ROADMAP 03 2/2 complete → Phase 4 ready*
+*Last updated: 2026-09-23 after Phase 05 gap closure — SHEL-02 auto-show + Tab ownership live-PASSED (precmd zasync fixup + menuselect Tab line, upstream keep-hook), STOW-01 containment intact with zero installer delta, zero harness files; ROADMAP 05 3/3 complete → Phase 4 ready*
