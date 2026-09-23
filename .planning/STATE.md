@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 milestone: v1.0
 current_phase: 05
 current_phase_name: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
-status: halted
-stopped_at: Phase 05 live verdict FAIL — SHEL-02 auto-show + Tab carried forward
-last_updated: "2026-09-22T17:25:49.664Z"
-last_activity: 2026-09-22
-last_activity_desc: Phase 05 execution started
-state_head: 72e37164bdf50fc1e8474b56c5563f28fb0a48db
+status: executing
+stopped_at: Completed 05-03-PLAN.md (gap-closure slice, live verdict PASS)
+last_updated: "2026-09-23T13:52:02Z"
+last_activity: 2026-09-23
+last_activity_desc: Phase 05 plan 03 executed — gap closure verified live PASS
+state_head: caec5850e70eb1a2ff25c1d6e92fba056ec334fe
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 15
-  completed_plans: 12
+  completed_plans: 14
 milestone_name: milestone
 ---
 
@@ -24,14 +24,14 @@ milestone_name: milestone
 See: .planning/PROJECT.md (updated 2026-09-10)
 
 **Core value:** A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop environment on any supported distro/derivative with one interactive run, and cleanly reverse itself — no manual `stow` or `MasonInstallAll` required.
-**Current focus:** Phase 05 — fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp (HALTED on live verdict FAIL; STOW-01 shipped, SHEL-02 auto-show + Tab carried forward)
+**Current focus:** Phase 05 — fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
 
 ## Current Position
 
-Phase: 05 (fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp) — READY TO EXECUTE
-Plan: 2 of 2 summarized (05-01 complete, 05-02 halted on blocking-human FAIL)
-Status: Live verdict 4 PASS (items 1,4,5,6) / 2 FAIL (items 2 auto-show, 3 Tab-vs-ghost). STOW-01 met; SHEL-02 auto-show half + D-29 Tab ownership carried forward for researcher-led re-investigation. See 05-02-SUMMARY.md Live Verdict + 05-VERIFICATION.md (gaps_found).
-Last activity: 2026-09-22 — Phase 05 executed, halted on live verdict FAIL
+Phase: 05 (fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp) — EXECUTING
+Plan: 3 of 3
+Status: Plan 05-03 complete (gap-closure slice, live verdict overall PASS)
+Last activity: 2026-09-23 — Phase 05 plan 03 executed, SHEL-02 auto-show + Tab verified live PASS
 
 Progress: [██████████] 100%
 
@@ -75,6 +75,7 @@ Progress: [██████████] 100%
 | Phase 03-polished-shell-theme-local-overrides P01 | 9 min | 3 tasks | 7 files |
 | Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
 | Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
+| Phase 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp P03 | 12 min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,7 @@ Recent decisions affecting current work:
 - [Phase 03-polished-shell-theme-local-overrides]: Tail PATH re-assertion via array self-assignment: scalar export bypasses typeset -U at assignment time on zsh 5.9 — Array form keeps the plan first-match awk verify green with identical retro-dedupe semantics
 - [Phase 03-polished-shell-theme-local-overrides]: Debian legacy fzf rung added: doc/examples key-bindings path is the only legacy location for distro fzf 0.44.1 — Without it Ctrl+R warns despite fzf installed; plan single legacy path absent on Debian-family
 - [Phase 03-polished-shell-theme-local-overrides]: Check-1 typing auto-show failure deferred to a separate future phase per user directive; phase 03 completes with the partial human verdict recorded verbatim (1 failed/deferred, 1 passed, 1 untested) — Human verdict was partial-fail; fixing the typing auto-show failure here would violate MVP_MODE no-scope-expansion, so it is deferred to a user-owned future phase
+- [Phase 05-03]: Keep the one-shot precmd zasync hook as the shipped path while upstream PRs #903/#905 and issue #907 stay open; release-tag pin is fallback-only on observed live hook failure, never pre-pinned — a future upstream merge retires the hook via the manager update path per the README `Retire after` condition
 
 ### Pending Todos
 
@@ -114,7 +116,7 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 05 HALTED]: SHEL-02 auto-show half + D-29 Tab-vs-ghost ownership failed the blocking-human live verdict (items 2,3 FAIL; user quotes in 05-02-SUMMARY.md). Static gates all green — needs researcher-led root-cause re-investigation with D-34 freedom, explicitly not a keybind-only fix. STOW-01 containment shipped (item 6 PASS).
+- [Phase 05 RESOLVED 2026-09-23]: SHEL-02 auto-show half + D-29 Tab-vs-ghost ownership closed by 05-03 gap-closure slice (R-3 one-shot precmd hook + R-7 menuselect Tab line) with an overall-PASS blocking-human live verdict ("perfect fully fixed and everything is working as intended"). Upstream re-check: PR #903 open, PR #905 open, issue #907 open — hook kept as shipped path, release-tag pin fallback-only. Static gates all green. See 05-03-SUMMARY.md.
 - Follow-up (out of scope, routed): setup.sh post_verify will report `~/.config/nvim/.gitignore` MISSING on next live run (Stow default-ignores `.gitignore`, 65/66 leaf links) — owner: setup.sh follow-up or Phase 4 self-test scope.
 
 ### Roadmap Evolution
@@ -130,10 +132,10 @@ Items acknowledged and carried forward from previous milestone close:
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
 | Phase 03 gap | Typing auto-show feel (SHEL-02 half): typing 2–3 chars + pause shows no completion list despite correct zsh-autocomplete wiring; Tab menu-select + ghost text unverified. User deferred to a dedicated future phase — no code attempted in 03-02. VERIFICATION.md 5/6, phase completed with debt. | Deferred — needs dedicated diagnosis/fix phase | 2026-09-17 |
-| Phase 05 carry-forward | SHEL-02 auto-show half + D-29 Tab-vs-ghost ownership STILL OPEN after Phase 05 tracer attempt: live verdict 2/6 FAIL (typing shows no menu at all; Tab glitches ghost text — bolds-as-real then vanishes on typing). Static slice committed + green (min-input 1, delay 0, list-lines 300, ladder, preset, re-assert, zshenv guard). STOW-01 containment shipped. Needs researcher-led re-investigation (D-34 freedom), not a keybind-only fix. Verbatim verdict in 05-02-SUMMARY.md; gaps in 05-VERIFICATION.md. | Carried — blocked until re-investigated | 2026-09-22 |
+| Phase 05 carry-forward | SHEL-02 auto-show half + D-29 Tab-vs-ghost ownership STILL OPEN after Phase 05 tracer attempt: live verdict 2/6 FAIL (typing shows no menu at all; Tab glitches ghost text — bolds-as-real then vanishes on typing). Static slice committed + green (min-input 1, delay 0, list-lines 300, ladder, preset, re-assert, zshenv guard). STOW-01 containment shipped. Needs researcher-led re-investigation (D-34 freedom), not a keybind-only fix. Verbatim verdict in 05-02-SUMMARY.md; gaps in 05-VERIFICATION.md. | Closed 2026-09-23 by 05-03 gap-closure slice — overall-PASS live verdict, see 05-03-SUMMARY.md | 2026-09-22 |
 
 ## Session Continuity
 
-Last session: 2026-09-22T16:30:00Z
-Stopped at: Phase 05 halted on live verdict FAIL (SHEL-02 carried forward)
-Resume file: .planning/phases/05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/05-02-SUMMARY.md
+Last session: 2026-09-23T13:52:02Z
+Stopped at: Completed 05-03-PLAN.md (gap-closure slice, live verdict PASS)
+Resume file: .planning/phases/05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/05-03-SUMMARY.md
