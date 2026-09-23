@@ -18,3 +18,5 @@ nvim/.config/nvim/cache/
 *.local
 nvim/.config/nvim/lua/local.lua
 zsh/.zsh_history
+nvim/.config/nvim/Session.vim
+nvim/.config/nvim/lazy-lock.json
