@@ -1,8 +1,9 @@
 #!/usr/bin/env zsh
 
 # =============================================================================
-# ZSH Configuration File (.zshrc)
+# ZSH Configuration File (.zshrc) — default shell, Nushell is backup
 # A modern, clean setup with Zinit plugin manager and Powerlevel10k theme
+# Zinit clones itself on first zsh launch via this block — no installer clone, no commit pin per D-12
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -31,6 +32,10 @@ export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
 
+# Why: dedupe every PATH mutation below (keep-first). `path`/`PATH` are a tied
+# array/scalar pair, so `typeset -U` on the array covers later PATH exports too.
+# Must precede the first PATH export — the unique attribute is forward-looking.
+typeset -U path
 # Local bins
 export PATH="$HOME/.local/bin:$PATH"
 export BUN_INSTALL="$HOME/.bun"
@@ -134,6 +139,7 @@ autoload -Uz zmv
 # -----------------------------------------------------------------------------
 # ZINIT PLUGIN MANAGER INSTALLATION
 # -----------------------------------------------------------------------------
+# Zinit clones itself on first zsh launch via this block — no installer clone, no commit pin per D-12
 # Auto-install Zinit if not present
 if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
     # Only show output if not using instant prompt
@@ -274,6 +280,21 @@ compctl -K _pip_completion pip3
 [[ -d "$HOME/.config/zsh/completions" ]] && fpath=("$HOME/.config/zsh/completions" $fpath)
 autoload -Uz _uv
 
+# Find-as-you-type auto-show (D-01..D-04): first char triggers, no added delay.
+# min-input 1 == upstream default; stated explicitly so intent is locked.
+# Source: CONFIGURATION.md (Response timing) via ctx7 docs fetch.
+zstyle ':autocomplete:*' min-input 1
+zstyle ':autocomplete:*' delay 0
+# Thousands-scale cutoff (D-16, researcher pick): screen-fit binds anyway;
+# (MORE) marker is automatic on partial lists.
+zstyle -e ':autocomplete:*:*' list-lines 'reply=( 300 )'
+# Key-ownership ladder (highest first — new clashes resolve downward):
+#   1. autocomplete: Tab/menu (Tab ALWAYS menu-select, never ghost-accept)
+#   2. autosuggestions: ghost-accept (Right-arrow, vicmd-l, Ctrl+Space, Ctrl+_)
+#   3. fzf: Ctrl+R (+ expendable **/Ctrl+T/Alt+C extras — droppable per D-10)
+#   4. stock vi/zle: everything undecided (core motions hjkl/wb/ggG untouchable)
+# Load-order rule: plugin binds, then atload overrides, then fzf ladder, then
+# owned keys are RE-ASSERTED (^I like ^R) because fzf --zsh rebinds ^I last.
 # -----------------------------------------------------------------------------
 # ZSH ENHANCEMENT PLUGINS
 # -----------------------------------------------------------------------------
@@ -294,34 +315,90 @@ zi light-mode for \
     $ZI_REPO/fast-syntax-highlighting
 
 # FZF history search - Fuzzy search through command history
-zi ice joshskidmore/zsh-fzf-history-search
+# Why: each plugin needs its own `zi light` — a bare `zi ice <repo>` with no
+# following load command stages modifiers for the NEXT load and installs nothing
+# (this plugin was silently never loading). Load order is load-bearing:
+# fzf-history-search (owns Ctrl+R) BEFORE marlonrichert/zsh-autocomplete
+# (owns Tab/^I); autocomplete stays the LAST plugin load.
+zi light joshskidmore/zsh-fzf-history-search
 
 # Zsh autocomplete - Real-time type-ahead autocompletion
-zi ice atload'
-bindkey              "^I" menu-select
-bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete'
+# Why double-quoted ice: the ^I bind below must read bindkey '^I' menu-select
+# literally (single quotes) so Tab ownership stays greppable; the \$ and \"
+# escapes keep the ice value byte-identical to the old single-quoted form.
+zi ice atload"
+bindkey '^I' menu-select
+bindkey -M menuselect \"$terminfo[kcbt]\" reverse-menu-complete"
 zi light marlonrichert/zsh-autocomplete
 
+# Workaround for upstream #907/#905 — failed `autoload +X` probe leaves a stale
+# directory-registered `zasync` autoload stub that silently kills real-time auto-show (Tab keeps working).
+# Retire after `zinit update` past the upstream fix.
+autoload -Uz add-zsh-hook
+_fix_zasync_once() {
+  unfunction zasync 2>/dev/null
+  autoload -Uz ${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zasync/zasync
+  add-zsh-hook -d precmd _fix_zasync_once
+}
+add-zsh-hook precmd _fix_zasync_once
+
 # -----------------------------------------------------------------------------
-# FINALIZATION
+# FZF DEGRADATION LADDER (best-effort, never breaks autocomplete)
 # -----------------------------------------------------------------------------
-# Initialize completions and replay cached completions
-# at the end of a Zinit configuration to ensure that after all plugins are loaded,
-# the completion system is properly initialized and
-# syntax highlighting/autosuggestion widgets are correctly bound
-# zi for atload'
-#       zicompinit; zicdreplay
-#       _zsh_highlight_bind_widgets
-#       _zsh_autosuggest_bind_widgets' \
-#     as'null' id-as'zinit/cleanup' lucid nocd wait \
-#   $ZI_REPO/null
-#
+# Why: fzf is optional — autocomplete must survive total fzf absence. Probe the
+# system binary, then branch on version with `sort -V` (numeric dotted compare):
+# >=0.48 uses the native `fzf --zsh` integration, older releases use the legacy
+# key-bindings file. Every probe failure falls through silently to warn-and-
+# continue; no probe failure may return nonzero at top level.
+if command -v fzf >/dev/null 2>&1; then
+    _fzf_ver="$(fzf --version 2>/dev/null | awk '{print $1}')"
+    if [[ -n "${_fzf_ver:-}" ]] && [[ "$(printf '%s\n%s\n' "$_fzf_ver" "0.48" | sort -V | head -n1)" == "0.48" ]]; then
+        # Why: fzf captures the prior ^I binding into $fzf_default_completion
+        # and falls back to it; presetting keeps the **-fallback on menu-select
+        # even if load order shifts (D-29).
+        fzf_default_completion=menu-select
+        source <(fzf --zsh) 2>/dev/null || true
+    elif [[ -f /usr/share/fzf/key-bindings.zsh ]]; then
+        source /usr/share/fzf/key-bindings.zsh 2>/dev/null || true
+    elif [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]]; then
+        # Why: Debian-family fzf ships the legacy scripts under doc/examples,
+        # not /usr/share/fzf — without this rung Ctrl+R would warn even though
+        # fzf is installed (verified: fzf 0.44.1 on Debian has only this path).
+        source /usr/share/doc/fzf/examples/key-bindings.zsh 2>/dev/null || true
+    fi
+    unset _fzf_ver
+fi
+# Unconditional Ctrl+R bind per split ownership (fzf-history-search owns ^R,
+# autocomplete owns ^I — never rebind ^I here). Warns instead of leaving a
+# silent dead key when the widget is absent (e.g. fzf not installed).
+bindkey '^R' fzf-history-widget
+if ! zle -l 2>/dev/null | grep -q fzf-history-widget; then
+    print -P "%F{yellow}[WARN]%f fzf history widget missing — install fzf to enable Ctrl+R history search."
+fi
+# Autocomplete-first (D-30): re-assert AFTER the fzf ladder — fzf --zsh binds
+# ^I last, so Tab is pinned back here (D-29: Tab enters menu, never ghost-accepts).
+bindkey '^I' menu-select
+# Upstream README recipe: Tab enters AND moves inside the menu (menuselect wins per D-32).
+# With ghost + menu both visible, menuselect keymap wins so Right-arrow/Tab navigate, never ghost-accept.
+bindkey -M menuselect '^I' menu-complete
+
+# -----------------------------------------------------------------------------
+# FINALIZATION (intentionally empty)
+# -----------------------------------------------------------------------------
+# Why no eager completion init may live here: marlonrichert/zsh-autocomplete
+# owns compinit itself at first precmd, so any eager init call would
+# double-initialize against the plugin's dump handling. Keep this block empty.
 
 unset ZI_REPO
 # -----------------------------------------------------------------------------
 # POWERLEVEL10K CUSTOMIZATION
 # -----------------------------------------------------------------------------
 # Load Powerlevel10k configuration (run `p10k configure` to customize)
+# Why: machine-local overrides (HOME-only, gitignored) load after every tool
+# init (zoxide, fzf, completions) so user tweaks win, but before prompt apply
+# so prompt/alias overrides render. Only HOME is sourced — nothing under the
+# repo — so machine secrets never dirty git. Template: zsh/.zshrc.local.example.
+[[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # Apply Catppuccin rainbow latte theme
@@ -388,4 +465,12 @@ typeset -g POWERLEVEL9K_VI_INSERT_MODE_STRING=INSERT
 typeset -g POWERLEVEL9K_VI_MODE_INSERT_FOREGROUND=66
 
 # bun completions
-[ -s "/home/shoyeb/.bun/_bun" ] && source "/home/shoyeb/.bun/_bun"
+# Why: HOME-variable form keeps second-machine clones working (no hard-coded user).
+[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
+
+# Why: converge PATH duplicate-free on every source pass (D-09). Scalar
+# `export PATH=...` assignments do not dedupe at assignment time even with the
+# top-of-file `typeset -U` guard set (verified on zsh 5.9); an array
+# self-assignment under the still-set unique attribute retro-dedupes instead.
+# Must stay the last PATH-relevant line — nothing below may mutate PATH.
+path=( $path )

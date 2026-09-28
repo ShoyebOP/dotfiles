@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# toggle-internal-input — simple toggle for the laptop's internal inputs.
+# Run once: internal keyboard + touchpad are disabled.
+# Run again: they are re-enabled.
+#
+# The keyboard is disabled at the kernel level (unbound from atkbd, with
+# bind_mode=manual so nothing re-binds it), which keyd cannot bypass.
+# External (USB/BT) devices and their keyd rules are never touched.
+
+set -u
+
+INTERNAL_KB_NAME="AT Translated Set 2 keyboard"
+INTERNAL_TP_NAME="Synaptics s3203"
+DRV_DIR="/sys/bus/serio/drivers/atkbd"
+DEV_DIR="/sys/bus/serio/devices"
+
+# ---- find the serio port of the internal keyboard ----
+kb_serio=$(awk -v RS='' '
+    /Bus=0011/ && /Name="AT Translated Set 2 keyboard"/ {
+        if (match($0, /Sysfs=.*\/i8042\/(serio[0-9]+)/, m)) print m[1]
+    }
+' /proc/bus/input/devices | head -n1)
+[ -n "$kb_serio" ] || kb_serio="serio0"
+
+# ---- current state: is the internal keyboard bound? ----
+kb_bound=0
+[ -L "${DEV_DIR}/${kb_serio}/driver" ] && kb_bound=1
+
+# ---- touchpad xinput id ----
+tp_id=$(xinput list --id-only "$INTERNAL_TP_NAME" 2>/dev/null | head -n1)
+
+if [ "$kb_bound" -eq 1 ]; then
+    # ---------- DISABLE ----------
+    sudo sh -c "printf '%s' 'manual' > '${DRV_DIR}/bind_mode' && printf '%s' '${kb_serio}' > '${DRV_DIR}/unbind'"
+    if [ -L "${DEV_DIR}/${kb_serio}/driver" ]; then
+        printf 'FAILED: internal keyboard still active (sudo?)\n'
+        exit 1
+    fi
+    [ -n "$tp_id" ] && xinput set-prop "$tp_id" "Device Enabled" 0
+    printf 'internal keyboard + touchpad: OFF\n'
+    notify-send -u low -i input-keyboard-symbolic "Internal inputs OFF" "Internal keyboard & touchpad disabled." 2>/dev/null
+else
+    # ---------- ENABLE ----------
+    sudo sh -c "printf '%s' 'auto' > '${DRV_DIR}/bind_mode' && printf '%s' '${kb_serio}' > '${DRV_DIR}/bind'"
+    if [ ! -L "${DEV_DIR}/${kb_serio}/driver" ]; then
+        printf 'FAILED: internal keyboard still disabled (sudo?)\n'
+        exit 1
+    fi
+    [ -n "$tp_id" ] && xinput set-prop "$tp_id" "Device Enabled" 1
+    printf 'internal keyboard + touchpad: ON\n'
+    notify-send -u low -i input-keyboard-symbolic "Internal inputs ON" "Internal keyboard & touchpad enabled." 2>/dev/null
+fi

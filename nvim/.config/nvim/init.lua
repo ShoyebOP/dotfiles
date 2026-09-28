@@ -85,3 +85,10 @@ vim.schedule(function()
     local settings = require("settings")
     vim.cmd.colorscheme(settings.colorscheme)
 end)
+
+-- Machine-local overrides (deployed local.lua, gitignored): loaded last so machine tweaks win.
+-- Absent file is a silent no-op; a present-but-erroring file warns instead of breaking startup.
+local local_ok, local_err = pcall(require, "local")
+if not local_ok and not tostring(local_err):match("module 'local' not found") then
+    vim.notify("local.lua error: " .. tostring(local_err), vim.log.levels.WARN)
+end

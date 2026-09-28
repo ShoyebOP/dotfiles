@@ -9,3 +9,14 @@ nvim/.config/nvim/shada/
 nvim/.config/nvim/state/
 nvim/.config/nvim/cache/
 *.swp
+
+# Installer quarantine (D-13/D-14) — timestamped collision backup, gitignored
+.stow-conflicts/
+.cache
+
+# Machine-local overrides (Phase 3) — HOME-only, never committed; see *.example templates
+*.local
+nvim/.config/nvim/lua/local.lua
+zsh/.zsh_history
+nvim/.config/nvim/Session.vim
+nvim/.config/nvim/lazy-lock.json

@@ -1,8 +1,0 @@
-{
-  "track_id": "venv-commands_20260224",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-02-24T00:00:00Z",
-  "updated_at": "2026-02-24T00:00:00Z",
-  "description": "Add two new commands in nushell config to activate and deactivate python venv as python does not provide the activate script for nushell, make sure it searches for the venv folder dynamically so it works even if the venv for folder don't have a period"
-}
