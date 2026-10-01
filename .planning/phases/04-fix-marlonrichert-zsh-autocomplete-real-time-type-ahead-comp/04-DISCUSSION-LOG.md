@@ -1,4 +1,4 @@
-# Phase 5: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp - Discussion Log
+# Phase 4: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp - Discussion Log
 
 > **Audit trail only.** Do not use as input to planning, research, or execution agents.
 > Decisions are captured in CONTEXT.md — this log preserves the alternatives considered.
@@ -6,7 +6,7 @@
 **Date:** 2026-09-22
 **Phase:** 5-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
 **Areas discussed:** Stow .config containment, Ghost-accept vs Tab keys, Keybinding priority ladder, Expand change boundary
-**Mode:** Update of existing 05-CONTEXT.md (user requested additions missed in 2026-09-17 discussion)
+**Mode:** Update of existing 04-CONTEXT.md (user requested additions missed in 2026-09-17 discussion)
 
 ---
 

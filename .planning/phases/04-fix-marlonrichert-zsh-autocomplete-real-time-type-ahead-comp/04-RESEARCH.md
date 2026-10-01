@@ -1,4 +1,4 @@
-# Phase 5: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp - Research
+# Phase 4: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp - Research
 
 **Researched:** 2026-09-22 (refresh: upstream-led root-cause pass per D-23/D-34)
 **Domain:** Zsh interactive completion (marlonrichert/zsh-autocomplete + zsh-autosuggestions + fzf) + GNU Stow deployment containment
@@ -12,7 +12,7 @@ The refresh **closes the Gap 1 root-cause question**: three converging upstream 
 
 For Gap 2 (Tab glitches ghost), a live probe run this session shows `bindkey '^I'` already resolves to `menu-select` — so Gap 2 is **not** a wrong-bind problem. The planner should fix Gap 1 first and re-test D-29 before building a separate Tab theory, plus add the one upstream README recipe line this repo lacks (`menuselect ^I → menu-complete`).
 
-**Primary recommendation:** Ship the upstream workaround for the `zasync` stale-stub bug via a one-shot `precmd` fixup hook in `zsh/.zshrc` (a plain `unfunction` at load time is a no-op — timing trap documented below); live-verify with `whence -v zasync` + typing auto-show; then re-run the D-29 Tab check (Gap 2 may resolve as a downstream symptom); add the missing `menuselect ^I` bind regardless. Keep all shipped 05-01 static work (zstyle baseline, fzf preset + Tab re-assert, `zsh/.zshenv` guard, ladder comment) and all STOW-01 work untouched.
+**Primary recommendation:** Ship the upstream workaround for the `zasync` stale-stub bug via a one-shot `precmd` fixup hook in `zsh/.zshrc` (a plain `unfunction` at load time is a no-op — timing trap documented below); live-verify with `whence -v zasync` + typing auto-show; then re-run the D-29 Tab check (Gap 2 may resolve as a downstream symptom); add the missing `menuselect ^I` bind regardless. Keep all shipped 04-01 static work (zstyle baseline, fzf preset + Tab re-assert, `zsh/.zshenv` guard, ladder comment) and all STOW-01 work untouched.
 
 ## User Constraints (from CONTEXT.md)
 
@@ -71,14 +71,14 @@ None — stow containment was pulled INTO this phase; ghost/ladder work is keybi
 | ID | Description | Research Support |
 |----|-------------|------------------|
 | SHEL-02 (auto-show half OPEN) | Typing auto-shows list; Tab menu-select | Gap 1 root cause closed upstream (§Upstream Root-Cause Findings) + fixup-hook prescription with timing trap + live diagnostics checklist; Gap 2 sequencing (§Gap 2 Analysis); `^R` ownership intact — Tab re-assert live-verified `menu-select` |
-| STOW-01 (MET — do not replan) | Leaf-only stow, loud verify | Unchanged from prior pass: sandbox-verified `--no-folding` semantics; 05-VERIFICATION.md marks SATISFIED via live item 6 PASS. No further research. |
+| STOW-01 (MET — do not replan) | Leaf-only stow, loud verify | Unchanged from prior pass: sandbox-verified `--no-folding` semantics; 04-VERIFICATION.md marks SATISFIED via live item 6 PASS. No further research. |
 
 ## Project Constraints (from AGENTS.md)
 
 - **Shell default:** Zsh everywhere; Nushell backup only — no Nushell-side changes in this phase.
 - **Installer language:** Unified installer is Bash — all `setup.sh` edits follow `set -Eeuo pipefail`, `${1-}` guards, `--help`-wins pre-scan.
 - **Scope filter:** No Nushell-only fixes.
-- **OS support:** `ID_LIKE` + manager probing (this machine: `ID=archarm`, `ID_LIKE=arch` [local-confirm: /etc/os-release]) — plus upstream `skip_global_compinit=1` needed for Ubuntu-family (shipped as `zsh/.zshenv` in 05-01).
+- **OS support:** `ID_LIKE` + manager probing (this machine: `ID=archarm`, `ID_LIKE=arch` [local-confirm: /etc/os-release]) — plus upstream `skip_global_compinit=1` needed for Ubuntu-family (shipped as `zsh/.zshenv` in 04-01).
 - **Machine-local:** Gitignored overrides; repair moves preserve data, never delete.
 - **Reversibility:** Every surface independently revertable (bindkey lines, stow flags, sibling moves of untracked dirs, fixup hook is 3 deletable lines).
 - **Safety:** No destructive writes without preview/confirmation — binds the D-26 hand-repair and all `setup.sh` edits (DRY_RUN echo strings must show `--no-folding`).
@@ -145,7 +145,7 @@ Trade-off: forfeits post-26.08.04 fixes (recent-dirs mkdir #893, async-timeout s
 ### Gap 2: Tab glitches ghost — reframed, NOT a wrong-bind problem
 
 **Finding R-6 [local-confirm]: live `bindkey '^I'` already reports `menu-select`.**
-Probed via `timeout 25 zsh -i -c 'bindkey "^I"'` → `"^I" menu-select`, RC=0. So the 05-01 Tab re-assert (zshrc:369) is live-effective: Tab reaches `menu-select`, not `fzf-completion` and not `autosuggest-accept`. The D-29 static wiring is correct; the glitch happens *downstream* of a correct bind. Do not plan another rebind pass as the fix.
+Probed via `timeout 25 zsh -i -c 'bindkey "^I"'` → `"^I" menu-select`, RC=0. So the 04-01 Tab re-assert (zshrc:369) is live-effective: Tab reaches `menu-select`, not `fzf-completion` and not `autosuggest-accept`. The D-29 static wiring is correct; the glitch happens *downstream* of a correct bind. Do not plan another rebind pass as the fix.
 
 **Finding R-7 [ctx7]: upstream README Tab recipe has TWO lines; this repo ships only one-and-a-half.**
 Upstream recipe (README, via ctx7 docs fetch): `bindkey '^I' menu-select` for entering the menu AND `bindkey -M menuselect '^I' menu-complete` (+ `kcbt → reverse-menu-complete`) for moving inside it. Our `zsh/.zshrc` binds main `^I → menu-select` (×2) and `menuselect kcbt → reverse-menu-complete`, but **no `menuselect ^I` bind** — in-menu Tab falls through to the stock menuselect default. Correction to prior research (which called the kcbt line "redundant-but-harmless"): the missing line is the gap, not the present one. Planner: add `bindkey -M menuselect '^I' menu-complete` (one line, reversible, upstream-canonical). Whether stock default already equals it is [ASSUMED] — verify live with `bindkey -M menuselect '^I'`.
@@ -234,7 +234,7 @@ Stow shapes (target $HOME, package nvim) — CLOSED, unchanged:
 
 ### Recommended Project Structure
 
-No new files. All changes are in-place edits (prior 05-01 shipped `zsh/.zshenv`; nothing new needed):
+No new files. All changes are in-place edits (prior 04-01 shipped `zsh/.zshenv`; nothing new needed):
 
 ```text
 zsh/.zshrc            # R-3 fixup hook + R-7 menuselect-^I line (+ existing baseline kept)
@@ -243,7 +243,7 @@ setup.sh              # untouched this round (STOW-01 closed)
 nvim/.config/         # untouched this round (eviction done)
 ```
 
-### Pattern 1: fzf-ladder re-assert (shipped 05-01, live-verified this session)
+### Pattern 1: fzf-ladder re-assert (shipped 04-01, live-verified this session)
 
 **What:** Owned keys are re-bound after `source <(fzf --zsh)` because fzf 0.74.4 unconditionally binds `^I`. `^R` follows the pre-existing line-341 precedent; `^I` joins it at line 369.
 **Status:** `bindkey '^I' == menu-select` confirmed live [local-confirm]. Keep; never "fix" by deleting the fzf ladder (Ctrl+R ownership depends on it).
@@ -292,13 +292,13 @@ nvim/.config/         # untouched this round (eviction done)
 
 | Decision | Verdict | Real knob / default |
 |----------|---------|---------------------|
-| D-01 auto-show on first char, no delay | ACHIEVABLE (blocked only by R-1 bug) | `min-input 1` + `delay 0` baseline (shipped 05-01); unblocks when zasync loads [ctx7: delay/timeout/min-input] |
+| D-01 auto-show on first char, no delay | ACHIEVABLE (blocked only by R-1 bug) | `min-input 1` + `delay 0` baseline (shipped 04-01); unblocks when zasync loads [ctx7: delay/timeout/min-input] |
 | D-02 quiet on empty prompt | DEFAULT, no config needed | Empty word (length 0 < min-input 1) suppresses the list (prior source read, still valid) |
 | D-03 ghost + list coexist | DEFAULT, no config needed | Upstream "automatically handles compatibility with zsh-autosuggestions and fast-syntax-highlighting" [ctx7]; independent render paths |
 | D-04 every context | EXPECTED from defaults, VERIFY LIVE | Fallback `setopt completeinword` if any context fails live (unchanged) |
 | D-20 no history in list | DEFAULT | History only under toggle contexts; do NOT set `default-context` (unchanged) |
 | D-21 prefix-only | LIKELY default, MUST VERIFY LIVE (open question, unchanged) | Default completer chain includes `_complete:-fuzzy`; live probe decides; narrowing knob documented in prior pass |
-| D-16 thousands-scale cutoff | ACHIEVABLE via `list-lines` | Researcher pick stands: `zstyle -e ':autocomplete:*:*' list-lines 'reply=( 300 )'` (shipped 05-01) [ctx7: list-lines] |
+| D-16 thousands-scale cutoff | ACHIEVABLE via `list-lines` | Researcher pick stands: `zstyle -e ':autocomplete:*:*' list-lines 'reply=( 300 )'` (shipped 04-01) [ctx7: list-lines] |
 | D-17 truncation hint | DEFAULT | `(MORE)` automatic (unchanged) |
 | D-22 result ordering | KEEP UPSTREAM DEFAULT | `group-order` override only if user dislikes feel live (unchanged) |
 
@@ -346,7 +346,7 @@ Run in a **real interactive terminal** (headless `-c` probes cannot fire precmd 
 3. **Uninstall parity:** `stow --no-folding -D nvim` on a legacy FOLDED tree removes the folded link cleanly (lab2) — `-R --no-folding` migrates folded→unfolded in one step.
 4. **Prevention-only proven:** `--no-folding -S` with symlinked `~/.config` aborts loudly (`existing target is not owned by stow: .config`, rc=1, zero writes) — exactly D-26 behavior.
 5. **Post-repair shape:** real `~/.config` with sibling dirs + `--no-folding -S nvim` links only leaves (lab4).
-6. All `setup.sh` stow call sites + `post_verify` fold-detector design + D-25 eviction facts + D-26 runbook: unchanged from prior pass (05-VERIFICATION.md marks STOW-01 SATISFIED; live item 6 PASS). **Planner: no stow tasks.**
+6. All `setup.sh` stow call sites + `post_verify` fold-detector design + D-25 eviction facts + D-26 runbook: unchanged from prior pass (04-VERIFICATION.md marks STOW-01 SATISFIED; live item 6 PASS). **Planner: no stow tasks.**
 
 ## Common Pitfalls
 
@@ -403,7 +403,7 @@ bindkey -M menuselect '^I' menu-complete
 bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete  # existing, keep
 ```
 
-### D-01 baseline zstyle block (shipped 05-01 — keep as-is)
+### D-01 baseline zstyle block (shipped 04-01 — keep as-is)
 
 ```zsh
 zstyle ':autocomplete:*' min-input 1
@@ -411,7 +411,7 @@ zstyle ':autocomplete:*' delay 0
 zstyle -e ':autocomplete:*:*' list-lines 'reply=( 300 )'
 ```
 
-### Ladder comment block (shipped 05-01 — keep as-is; see zshrc:291-297)
+### Ladder comment block (shipped 04-01 — keep as-is; see zshrc:291-297)
 
 Unchanged. Atomic-docs: any R-3/R-7 behavior change ships with its README troubleshooting note in the same commit (D-31/Phase-1 rule).
 
@@ -420,8 +420,8 @@ Unchanged. Atomic-docs: any R-3/R-7 behavior change ships with its README troubl
 | Old Approach | Current Approach | When Changed | Impact |
 |--------------|------------------|--------------|--------|
 | Diagnose auto-show via H-1..H-7 checklist | Apply R-3 hook (root cause closed upstream) | This refresh (upstream #903/#905/#907, Sept 2026) | Phase becomes apply+verify-live; D-34 freedom spent on fix *choice* (hook vs pin), not cause-hunting |
-| Tab ownership assumed from atload order | Re-assert owned keys after fzf ladder (live-verified) | 05-01, confirmed this refresh | Tab deterministically `menu-select` |
-| Commented zicompinit kept "just in case" | Removed + why-it-stays-out comment | 05-01 | Removes highest-risk well-meaning regression |
+| Tab ownership assumed from atload order | Re-assert owned keys after fzf ladder (live-verified) | 04-01, confirmed this refresh | Tab deterministically `menu-select` |
+| Commented zicompinit kept "just in case" | Removed + why-it-stays-out comment | 04-01 | Removes highest-risk well-meaning regression |
 | Vendored z-async via fpath (26.08.04) | Clone-at-init (broken tip 77706d4) | Upstream #894, 2026-08-26 | Regression window; pin R-4 reverts to vendored behavior as fallback |
 | In-menu Tab left to stock default | Explicit `menuselect ^I → menu-complete` | This refresh (R-7) | Matches upstream README recipe exactly |
 

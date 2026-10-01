@@ -1,5 +1,5 @@
 ---
-phase: 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
+phase: 04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
 plan: 01
 subsystem: shell
 tags: [zsh, zsh-autocomplete, zsh-autosuggestions, fzf, stow, tab-ownership]
@@ -12,7 +12,7 @@ provides:
   - Tracer slice: zshrc auto-show baseline (min-input 1, delay 0, list-lines 300) with deterministic Tab ownership
   - Ubuntu-safe zshenv compinit guard (skip_global_compinit)
   - Fold-proof stow installer (leaf-link flag on all nine sites, mkdir guard, loud FOLDED detector)
-affects: [05-02-expansion, 04-editor-autonomy-verified-health]
+affects: [04-02-expansion, 04-editor-autonomy-verified-health]
 
 # Actuals (#2632) — pairs with the plan's `estimate` to calibrate future estimates.
 actuals:
@@ -59,7 +59,7 @@ coverage:
         ref: "eager-init/strategy leak probe (guards-clean)"
         status: pass
     human_judgment: true
-    rationale: "Static gates prove config structure only; real-time auto-show feel and Tab-vs-ghost behavior need the live terminal verdict owned by 05-02 (per D-13/D-14)"
+    rationale: "Static gates prove config structure only; real-time auto-show feel and Tab-vs-ghost behavior need the live terminal verdict owned by 04-02 (per D-13/D-14)"
   - id: D2
     description: "Ubuntu-safe zshenv with skip_global_compinit guard, tracked and parsing clean"
     requirement: "SHEL-02"
@@ -88,7 +88,7 @@ coverage:
         ref: "detector marker probe (detector-ok)"
         status: pass
     human_judgment: true
-    rationale: "Flags and detector presence proven statically; leaf-link behavior on live stow plus loud-fail on a folded tree is exercised during the 05-02 hand-repair flow, not here"
+    rationale: "Flags and detector presence proven statically; leaf-link behavior on live stow plus loud-fail on a folded tree is exercised during the 04-02 hand-repair flow, not here"
 
 # Metrics
 duration: 12 min
@@ -96,7 +96,7 @@ completed: 2026-09-22
 status: complete
 ---
 
-# Phase 05 Plan 01: Tracer Autocomplete plus Stow Containment Summary
+# Phase 04 Plan 01: Tracer Autocomplete plus Stow Containment Summary
 
 **Tracer slice proving both halves end to end: zshrc auto-show baseline with deterministic Tab ownership, Ubuntu-safe zshenv guard, and fold-proof stow with loud verify — all gates green, zero new harness files**
 
@@ -134,7 +134,7 @@ Each task was committed atomically:
 
 - Committed on `main` per repo `branching_strategy:none` (all prior history on main, orchestrator-directed). The #3819 protected-branch assertion reported `true` for main; proceeding was the repo convention, recorded here rather than treated as a deviation.
 - No fallback knobs applied (global completeinword, narrower completer/matcher, raised timeout): the plan permits them only on observed live failure of the matching context, and no live failure was observed — static config matches research defaults.
-- Live interactive feel (typing auto-show, ghost coexistence, Tab navigation, Enter semantics) is judgment-dependent and stays owned by the 05-02 live-verdict checkpoint per D-13/D-14; this plan's tracer verify is automated-only and passed.
+- Live interactive feel (typing auto-show, ghost coexistence, Tab navigation, Enter semantics) is judgment-dependent and stays owned by the 04-02 live-verdict checkpoint per D-13/D-14; this plan's tracer verify is automated-only and passed.
 
 ## Deviations from Plan
 
@@ -150,7 +150,7 @@ Each task was committed atomically:
 
 **2. [Rule 3 - Blocking] Reworded zshenv comment so the guard assignment appears exactly once**
 - **Found during:** Task 2 (zshenv creation, source acceptance)
-- **Issue:** The 05-PATTERNS.md suggested comment shape repeats the literal `skip_global_compinit=1`, which would violate the plan's acceptance criterion (assignment appears exactly once) under a strict grep count.
+- **Issue:** The 04-PATTERNS.md suggested comment shape repeats the literal `skip_global_compinit=1`, which would violate the plan's acceptance criterion (assignment appears exactly once) under a strict grep count.
 - **Fix:** Reworded the comment to name the Ubuntu-family double-init rationale with a dashed `skip-global-compinit` reference instead of repeating the assignment literal.
 - **Files modified:** zsh/.zshenv
 - **Verification:** `grep -c 'skip_global_compinit=1'` returns 1; Ubuntu-family + double-init wording present; zshenv-ok and tracked-ok pass
@@ -163,8 +163,8 @@ Each task was committed atomically:
 
 ## Issues Encountered
 
-- Pre-existing working-tree state left untouched: `.planning/STATE.md` was already modified at session start (orchestrator-owned — never staged), and `nvim/.config/{context7,gh,lazygit,opencode}/` strays plus `.planning` untracked files remain for 05-02 (D-25 eviction) and the orchestrator respectively.
-- No behavioral live probes were possible in this headless executor context (no TTY for interactive typing checks); all tracer <verify> gates are automated-only and green. Interactive feel is explicitly deferred to the 05-02 live verdict per D-13.
+- Pre-existing working-tree state left untouched: `.planning/STATE.md` was already modified at session start (orchestrator-owned — never staged), and `nvim/.config/{context7,gh,lazygit,opencode}/` strays plus `.planning` untracked files remain for 04-02 (D-25 eviction) and the orchestrator respectively.
+- No behavioral live probes were possible in this headless executor context (no TTY for interactive typing checks); all tracer <verify> gates are automated-only and green. Interactive feel is explicitly deferred to the 04-02 live verdict per D-13.
 
 ## Known Stubs
 
@@ -172,7 +172,7 @@ None - no stubs, placeholders, TODOs, or empty values introduced. All three file
 
 ## Threat Flags
 
-None - every change falls inside the plan's threat register: Tab rebind under T-05-01 (preset plus re-assert, tab-owned gate), stow folding under T-05-02 (flag plus guard plus detector, flags-ok and detector-ok gates), keyd adopt path under T-05-03 (flag-only, confirm plus diff gates untouched), eager compinit under T-05-04 (finalize removed, zshenv guard, guards-clean gate). No new network endpoints, auth paths, or privilege changes.
+None - every change falls inside the plan's threat register: Tab rebind under T-04-01 (preset plus re-assert, tab-owned gate), stow folding under T-04-02 (flag plus guard plus detector, flags-ok and detector-ok gates), keyd adopt path under T-04-03 (flag-only, confirm plus diff gates untouched), eager compinit under T-05-04 (finalize removed, zshenv guard, guards-clean gate). No new network endpoints, auth paths, or privilege changes.
 
 ## User Setup Required
 
@@ -180,12 +180,12 @@ None - no external service configuration required.
 
 ## Next Phase Readiness
 
-- Ready for 05-02 (expansion: README ladder table, stray eviction, hand-repair runbook, live-verdict checkpoint). The tracer slice is committed and statically proven.
-- Watch items for 05-02: live typing auto-show feel across contexts (D-01..D-04), Tab-with-ghost-must-open-menu (D-29), `l`/Right-arrow ghost-accept preservation (D-28), Right-arrow-in-menu navigation (D-32), Enter-selects-then-runs (D-05), and the D-21 prefix-only live probe (fuzzy completer check).
+- Ready for 04-02 (expansion: README ladder table, stray eviction, hand-repair runbook, live-verdict checkpoint). The tracer slice is committed and statically proven.
+- Watch items for 04-02: live typing auto-show feel across contexts (D-01..D-04), Tab-with-ghost-must-open-menu (D-29), `l`/Right-arrow ghost-accept preservation (D-28), Right-arrow-in-menu navigation (D-32), Enter-selects-then-runs (D-05), and the D-21 prefix-only live probe (fuzzy completer check).
 - No blockers. No new harness files created (per D-13).
 
 ---
-*Phase: 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp*
+*Phase: 04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp*
 *Completed: 2026-09-22*
 
 ## Self-Check: PASSED

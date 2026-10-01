@@ -1,20 +1,20 @@
 ---
 gsd_state_version: "1.0"
 milestone: v1.0
-current_phase: 4
-current_phase_name: Editor Autonomy & Verified Health
+current_phase: 5
+current_phase_name: Editor Autonomy & fzf-lua Migration
 status: planning
-stopped_at: Phase 05 complete, ready to plan Phase 4
-last_updated: "2026-09-23T14:12:03.726Z"
-last_activity: 2026-09-23
-last_activity_desc: Phase 05 complete, transitioned to Phase 4
+stopped_at: Phase 04 complete (renumbered from 05), ready to plan Phase 5
+last_updated: "2026-10-01T00:00:00.000Z"
+last_activity: 2026-10-01
+last_activity_desc: Roadmap reswap 4<->5 + new Phase 6, ready to plan Phase 5
 state_head: 87093793d60c149cf88546c98a1c0090136710bd
 progress:
-  total_phases: 6
-  completed_phases: 4
-  total_plans: 15
+  total_phases: 7
+  completed_phases: 5
+  total_plans: 18
   completed_plans: 15
-  percent: 80
+  percent: 83
 milestone_name: milestone
 ---
 
@@ -25,16 +25,16 @@ milestone_name: milestone
 See: .planning/PROJECT.md (updated 2026-09-23)
 
 **Core value:** A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop environment on any supported distro/derivative with one interactive run, and cleanly reverse itself — no manual `stow` or `MasonInstallAll` required.
-**Current focus:** Phase 04 — Editor Autonomy & Verified Health (SHEL-02/STOW-01 closed by Phase 05 gap closure, live PASS)
+**Current focus:** Phase 05 — Editor Autonomy & fzf-lua Migration (SHEL-02/STOW-01 closed by Phase 04 gap closure, live PASS)
 
 ## Current Position
 
-Phase: 4 — Editor Autonomy & Verified Health
+Phase: 5 — Editor Autonomy & fzf-lua Migration
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-09-23 — Phase 05 complete, transitioned to Phase 4
+Last activity: 2026-10-01 — Roadmap reswap 4<->5 + new Phase 6, ready to plan Phase 5
 
-Progress: [████████░░] 80%
+Progress: [████████░░] 83%
 
 ## Performance Metrics
 
@@ -51,11 +51,12 @@ Progress: [████████░░] 80%
 | 1. Universal Installer + Platform Foundations | 0/2 | - | - |
 | 2. Safe, Reversible & Server-Safe Deployment | 0/2 | - | - |
 | 3. Polished Shell, Theme & Local Overrides | 2/2 | - | - |
-| 4. Editor Autonomy & Verified Health | 0/2 | - | - |
+| 5. Editor Autonomy & fzf-lua Migration | 0/2 | - | - |
+| 6. Verified Health & Self-Test Gates | 0/1 | - | - |
 | 01 | 5 | - | - |
 | 02 | 2 | - | - |
 | 02.1 | 3 | - | - |
-| 05 | 3 | - | - |
+| 04 (old 05) | 3 | - | - |
 
 **Recent Trend:**
 
@@ -118,14 +119,15 @@ None yet.
 
 ### Blockers/Concerns
 
-- [Phase 05 RESOLVED 2026-09-23]: SHEL-02 auto-show half + D-29 Tab-vs-ghost ownership closed by 05-03 gap-closure slice (R-3 one-shot precmd hook + R-7 menuselect Tab line) with an overall-PASS blocking-human live verdict ("perfect fully fixed and everything is working as intended"). Upstream re-check: PR #903 open, PR #905 open, issue #907 open — hook kept as shipped path, release-tag pin fallback-only. Static gates all green. See 05-03-SUMMARY.md.
-- Follow-up (out of scope, routed): setup.sh post_verify will report `~/.config/nvim/.gitignore` MISSING on next live run (Stow default-ignores `.gitignore`, 65/66 leaf links) — owner: setup.sh follow-up or Phase 4 self-test scope.
+- [Phase 05 RESOLVED 2026-09-23]: SHEL-02 auto-show half + D-29 Tab-vs-ghost ownership closed by 04-03 gap-closure (renumbered from 05) slice (R-3 one-shot precmd hook + R-7 menuselect Tab line) with an overall-PASS blocking-human live verdict ("perfect fully fixed and everything is working as intended"). Upstream re-check: PR #903 open, PR #905 open, issue #907 open — hook kept as shipped path, release-tag pin fallback-only. Static gates all green. See 04-03-SUMMARY.md (renumbered from 05).
+- Follow-up (out of scope, routed): setup.sh post_verify will report `~/.config/nvim/.gitignore` MISSING on next live run (Stow default-ignores `.gitignore`, 65/66 leaf links) — owner: setup.sh follow-up or Phase 6 self-test scope.
 
 ### Roadmap Evolution
 
 - Phase 2.1 inserted after Phase 2: remove hyperland and hyperland related configs and make sure anything related to hyperland is not installed in local installation (URGENT)
 - Phase 5 added: fix marlonrichert/zsh-autocomplete Real-time type-ahead completion for Zsh doesn't work and needs to press tab to show.
-- Phase 5 planned 2026-09-22: 2 plans (tracer 05-01 + expansion 05-02), plan-checker passed with 0 blockers/0 warnings. Decision-coverage gate override: 30/33 decisions cited in must_haves; D-08 (SUPERSEDED by D-27/D-28), D-18 (EXPANDED by D-33), D-23 (research directive, executed via Context7-first) intentionally uncited — verify-phase may re-surface. RESEARCH.md INFO: three "seven" shorthands vs nine measured stow sites — plans target nine; optional word fix alongside execution.
+- Phase 5 planned 2026-09-22: 2 plans (tracer 04-01 + expansion 04-02 (renumbered from 05)), plan-checker passed with 0 blockers/0 warnings. Decision-coverage gate override: 30/33 decisions cited in must_haves; D-08 (SUPERSEDED by D-27/D-28), D-18 (EXPANDED by D-33), D-23 (research directive, executed via Context7-first) intentionally uncited — verify-phase may re-surface. RESEARCH.md INFO: three "seven" shorthands vs nine measured stow sites — plans target nine; optional word fix alongside execution.
+- Phase reswap 2026-10-01: old Phase 5 (autocomplete, complete) → new Phase 4 (dir + 12 files 05-* → 04-*); old Phase 4 (Editor+Health, pending) split into new Phase 5 Editor Autonomy & fzf-lua Migration (EDIT-01/02 unchanged, EDIT-03 = telescope* removal + fzf-lua + make/gcc dep removal, Depends on Phase 4) and new Phase 6 Verified Health & Self-Test Gates (HLTH-01 moved, Depends on Phase 5).
 
 ## Deferred Items
 
@@ -134,10 +136,10 @@ Items acknowledged and carried forward from previous milestone close:
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
 | Phase 03 gap | Typing auto-show feel (SHEL-02 half): typing 2–3 chars + pause shows no completion list despite correct zsh-autocomplete wiring; Tab menu-select + ghost text unverified. User deferred to a dedicated future phase — no code attempted in 03-02. VERIFICATION.md 5/6, phase completed with debt. | Deferred — needs dedicated diagnosis/fix phase | 2026-09-17 |
-| Phase 05 carry-forward | SHEL-02 auto-show half + D-29 Tab-vs-ghost ownership STILL OPEN after Phase 05 tracer attempt: live verdict 2/6 FAIL (typing shows no menu at all; Tab glitches ghost text — bolds-as-real then vanishes on typing). Static slice committed + green (min-input 1, delay 0, list-lines 300, ladder, preset, re-assert, zshenv guard). STOW-01 containment shipped. Needs researcher-led re-investigation (D-34 freedom), not a keybind-only fix. Verbatim verdict in 05-02-SUMMARY.md; gaps in 05-VERIFICATION.md. | Closed 2026-09-23 by 05-03 gap-closure slice — overall-PASS live verdict, see 05-03-SUMMARY.md | 2026-09-22 |
+| Phase 05 carry-forward | SHEL-02 auto-show half + D-29 Tab-vs-ghost ownership STILL OPEN after Phase 05 tracer attempt: live verdict 2/6 FAIL (typing shows no menu at all; Tab glitches ghost text — bolds-as-real then vanishes on typing). Static slice committed + green (min-input 1, delay 0, list-lines 300, ladder, preset, re-assert, zshenv guard). STOW-01 containment shipped. Needs researcher-led re-investigation (D-34 freedom), not a keybind-only fix. Verbatim verdict in 04-02-SUMMARY.md (renumbered from 05); gaps in 04-VERIFICATION.md (renumbered from 05). | Closed 2026-09-23 by 04-03 gap-closure slice (renumbered from 05) — overall-PASS live verdict, see 04-03-SUMMARY.md (renumbered from 05) | 2026-09-22 |
 
 ## Session Continuity
 
-Last session: 2026-09-23T14:12:03Z
-Stopped at: Phase 05 complete, ready to plan Phase 4
+Last session: 2026-10-01T00:00:00Z
+Stopped at: Roadmap reswap 4<->5 + new Phase 6, ready to plan Phase 5
 Resume file: None

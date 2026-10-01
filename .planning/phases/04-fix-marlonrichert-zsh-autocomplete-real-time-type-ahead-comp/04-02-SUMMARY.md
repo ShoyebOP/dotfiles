@@ -1,12 +1,12 @@
 ---
-phase: 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
+phase: 04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
 plan: 02
 subsystem: shell
 tags: [zsh, zsh-autocomplete, stow, docs, live-verdict]
 
 # Dependency graph
 requires:
-  - phase: 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp plan 01
+  - phase: 04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp plan 01
     provides: [tracer auto-show baseline + Tab ownership in zshrc, zshenv guard, fold-proof setup.sh]
 provides:
   - README key-ownership ladder table + fold-proof stow one-liners (docs parity)
@@ -26,7 +26,7 @@ tech-stack:
   patterns: [verbatim-verdict recording on failed gate, intent-equivalent invariant when gate contradicts action]
 
 key-files:
-  created: [.planning/phases/05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/05-02-SUMMARY.md]
+  created: [.planning/phases/04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/04-02-SUMMARY.md]
   modified: [README.md]
 
 key-decisions:
@@ -80,7 +80,7 @@ completed: 2026-09-22
 status: halted
 ---
 
-# Phase 05 Plan 02: Expansion + Live Verdict Summary
+# Phase 04 Plan 02: Expansion + Live Verdict Summary
 
 **README ladder docs and stray eviction shipped; live terminal verdict FAILED on auto-show + Tab ownership — SHEL-02 carried forward for researcher-led re-investigation**
 
@@ -100,9 +100,9 @@ status: halted
 
 ## Live Verdict
 
-Recorded verbatim from the user's live-terminal run of the extended D-14 checklist (blocking-human checkpoint for 05-02):
+Recorded verbatim from the user's live-terminal run of the extended D-14 checklist (blocking-human checkpoint for 04-02):
 
-User live-terminal verdict on the extended D-14 checklist (blocking-human checkpoint for 05-02):
+User live-terminal verdict on the extended D-14 checklist (blocking-human checkpoint for 04-02):
 - Item 1 (reload twice, no errors, no PATH duplicates): PASS
 - Item 2 (type-pause-observe auto-show in all contexts; empty quiet; ghost+list coexist): FAIL — "typing doesn't show the auto completion menu at all"
 - Item 3 (Tab with ghost visible opens/navigates menu, never inserts ghost per D-29): FAIL — "pressing tab to force show the menu glitches the ghost text, pressing tab should have removed ghost text but now the ghost text gets bold like actual text, but when trying to write it vanishes"
@@ -126,7 +126,7 @@ Each task was committed atomically:
 ## Files Created/Modified
 
 - `README.md` - Key-ownership ladder table, `--no-folding` on all manual/keyd stow one-liners + prose, offline first-prompt note (in `94ac128`)
-- `.planning/phases/05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/05-02-SUMMARY.md` - NEW: this close-out record (this commit)
+- `.planning/phases/04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/04-02-SUMMARY.md` - NEW: this close-out record (this commit)
 
 No mutations to `zsh/.zshrc`, `zsh/.zshenv`, `setup.sh`, or the nvim package tree by this continuation (forbidden by scope; none made).
 
@@ -144,7 +144,7 @@ None from this continuation — verdict recording only, no plan deviation. No fi
 ### Handoff observations (prior Wave-2 executor, carried — not this continuation's deviations)
 
 **O1. Plan's as-written `links-ok` gate contradicts the mandated `--no-folding` action.**
-The Task 2 gate (`test -L ~/.config/nvim`) expects a folded dir-symlink, but the plan's own action mandates the leaf-link restow form — with Stow 2.4.1 `--no-folding` creates a real `~/.config/nvim` dir with per-file leaf links, so the path is correctly NOT a symlink. Implementing the gate literally would leave the machine in a state the 05-01-committed post_verify FOLDED detector rejects. The prior executor verified the intent-equivalent invariant instead: `~/.config` is not a link, `nvim/` is a real dir, `init.lua` leaf-resolves into the repo package, the 4 siblings are real dirs, and the shell rc link is untouched. Item 6 of the live verdict (human PASS) independently confirms the end state.
+The Task 2 gate (`test -L ~/.config/nvim`) expects a folded dir-symlink, but the plan's own action mandates the leaf-link restow form — with Stow 2.4.1 `--no-folding` creates a real `~/.config/nvim` dir with per-file leaf links, so the path is correctly NOT a symlink. Implementing the gate literally would leave the machine in a state the 04-01-committed post_verify FOLDED detector rejects. The prior executor verified the intent-equivalent invariant instead: `~/.config` is not a link, `nvim/` is a real dir, `init.lua` leaf-resolves into the repo package, the 4 siblings are real dirs, and the shell rc link is untouched. Item 6 of the live verdict (human PASS) independently confirms the end state.
 
 **O2. Stow default-ignores `.gitignore` — one leaf link will read as MISSING on the next live verify.**
 `~/.config/nvim/.gitignore` has no leaf link (65/66 files linked) because GNU Stow ignores `.gitignore` by default. The next live `bash setup.sh` post_verify (find-all-files, no ignore-awareness) will report it MISSING. Fixing needs a `setup.sh` change this task forbids — routed to a setup.sh follow-up or Phase 4 self-test scope.
@@ -156,9 +156,9 @@ The Task 2 gate (`test -L ~/.config/nvim`) expects a folded dir-symlink, but the
 
 ## Issues Encountered
 
-- **Item 2 FAIL — auto-show half not achieved:** typing shows no auto-completion menu at all despite the 05-01 tracer baseline (min-input 1, delay 0, list-lines 300). User quote: "typing doesn't show the auto completion menu at all". SHEL-02 auto-show remains open.
+- **Item 2 FAIL — auto-show half not achieved:** typing shows no auto-completion menu at all despite the 04-01 tracer baseline (min-input 1, delay 0, list-lines 300). User quote: "typing doesn't show the auto completion menu at all". SHEL-02 auto-show remains open.
 - **Item 3 FAIL — Tab ownership regressed vs D-29 expectation:** pressing Tab with ghost visible does not open/navigate the menu cleanly; the ghost text bolds as if real, then vanishes on typing instead of being removed by Tab. User quote: "pressing tab to force show the menu glitches the ghost text, pressing tab should have removed ghost text but now the ghost text gets bold like actual text, but when trying to write it vanishes". D-29 Tab-vs-ghost remains open.
-- Both failures are judgment-dependent live behaviors no static gate could catch (05-01's automated-only gates were all green) — consistent with the D-13 design that the live verdict owns this call.
+- Both failures are judgment-dependent live behaviors no static gate could catch (04-01's automated-only gates were all green) — consistent with the D-13 design that the live verdict owns this call.
 
 ## Known Stubs
 
@@ -174,18 +174,18 @@ None - no external service configuration required.
 
 ## Next Phase Readiness
 
-- **Carried explicitly (not ready):** SHEL-02 auto-show half + D-29 Tab-vs-ghost ownership. Needs researcher-led root-cause re-investigation with D-34 freedom (zstyle/config vs widget chain vs async timing vs version quirk) — explicitly NOT a keybind-only fix. The 05-01 static slice is committed and green, so the researcher starts from a known-good static baseline with two precise live failure quotes.
+- **Carried explicitly (not ready):** SHEL-02 auto-show half + D-29 Tab-vs-ghost ownership. Needs researcher-led root-cause re-investigation with D-34 freedom (zstyle/config vs widget chain vs async timing vs version quirk) — explicitly NOT a keybind-only fix. The 04-01 static slice is committed and green, so the researcher starts from a known-good static baseline with two precise live failure quotes.
 - **Ready:** STOW-01 containment end state (leaf-only nvim package, real live config dir, docs parity) — verified by docs-ok, locals-ignored, tree-clean, preview-ok, and live verdict item 6 (human PASS).
 - **Routed follow-up (out of this plan's scope):** O2 — setup.sh post_verify `.gitignore` noise on the next live run; owner: setup.sh follow-up or Phase 4 self-test scope.
 - **Blocker:** none for documentation/containment consumers; SHEL-02 auto-show consumers remain blocked on the re-investigation above.
 
 ---
-*Phase: 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp*
+*Phase: 04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp*
 *Completed: 2026-09-22*
 
 ## Self-Check: PASSED
 
-- SUMMARY file exists on disk at `.planning/phases/05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/05-02-SUMMARY.md`
+- SUMMARY file exists on disk at `.planning/phases/04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/04-02-SUMMARY.md`
 - Commit `94ac128` present in history (Task 1 docs commit)
 - README gates re-run green: docs-ok, locals-ignored
 - Tree + installer gates re-run green: tree-clean, preview-ok

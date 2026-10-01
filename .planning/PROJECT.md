@@ -79,7 +79,7 @@ A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop env
 | Machine-local gitignored configs (`*.local` pattern) | Isolates per-host differences | Phase 3: HOME-only `~/.zshrc.local` + `pcall(require,"local")`, gitignored with `*.example` templates, installer bootstrap + dry-run preview |
 | One-shot precmd zasync stale-stub fixup (Phase 05 gap closure) | Stale directory-registered backend stub is born at first precmd, so only a self-removing precmd hook converges; load-time unfunction is a silent no-op | Phase 05: `_fix_zasync_once` hook clears stub + registers XDG-cache backend file, upstream PRs #903/#905 open → keep-hook, live PASS |
 | Menuselect Tab layering (Phase 05 gap closure) | Tab must resolve to menu-select in main keymap and menu-complete in menuselect keymap, with fzf ladder clobbering Tab last | Phase 05: atload bind + post-ladder re-assert + menuselect `^I → menu-complete` per upstream recipe, live PASS |
-| Mason auto-install on setup + cleanup on uninstall | User: "everything should work after setup script is ran; removal should remove nvim packages too" | Phase 4 (not yet) |
+| Mason auto-install on setup + cleanup on uninstall | User: "everything should work after setup script is ran; removal should remove nvim packages too" | Phase 5 (not yet) |
 
 ## Evolution
 
@@ -99,4 +99,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-23 after Phase 05 gap closure — SHEL-02 auto-show + Tab ownership live-PASSED (precmd zasync fixup + menuselect Tab line, upstream keep-hook), STOW-01 containment intact with zero installer delta, zero harness files; ROADMAP 05 3/3 complete → Phase 4 ready*
+*Last updated: 2026-10-01 after roadmap reswap 4<->5 + new Phase 6 — old Phase 05 (autocomplete) → Phase 04 complete; Editor split to Phase 05 (fzf-lua replaces telescope, make/gcc removed) + Phase 06 health gates (HLTH-01); ready to plan Phase 05*

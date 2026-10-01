@@ -1,4 +1,4 @@
-# Phase 5: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp - Context
+# Phase 4: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp - Context
 
 **Gathered:** 2026-09-17
 **Updated:** 2026-09-22 (scope expansion + keybinding amendments)
@@ -40,7 +40,7 @@ Fix the deferred Phase-3 debt: typing 2–3 chars + pause shows no completion li
 
 ### Proof and regression
 
-- **D-13:** The user's live terminal verdict closes the phase, backed by ad-hoc commands run during verification. Zero new harness/probe files — Phase 4 owns `--self-test` and hasn't started, so no dependency is taken on it.
+- **D-13:** The user's live terminal verdict closes the phase, backed by ad-hoc commands run during verification. Zero new harness/probe files — Phases 5/6 own Editor/Health `--self-test` and haven't started, so no dependency is taken on them.
 - **D-14:** The live regression covers the shell spine: auto-show works + Ctrl+R history + ghost text + Tab menu-select + clean reload with no errors. **Extended 2026-09-22:** also verifies Tab never ghost-accepts (D-29), `l`/Right-arrow ghost-accept still work (D-28), Right-arrow navigates menu when open (D-32), and `~/.config` is a real dir with only `nvim/` stow-linked (D-24..D-26).
 
 ### Vi-mode interplay
@@ -107,7 +107,7 @@ Fix the deferred Phase-3 debt: typing 2–3 chars + pause shows no completion li
 
 ### Roadmap + requirements (locked scope)
 
-- `.planning/ROADMAP.md` — Phase 5 is recorded via STATE.md Roadmap Evolution ("Phase 5 added: fix marlonrichert/zsh-autocomplete…") and Phase-3 cross-cutting constraint line 114 (auto-show target feel, Tab-only menu-select, ghost still renders); ROADMAP's Phase Details table currently lists Phases 1–4 only — treat this CONTEXT.md + STATE.md Deferred Items as the Phase 5 scope anchor until ROADMAP is updated. Note Phase 3 declares debt deferred here; plan Phase 5 standalone (D-13 — no Phase-4 harness dependency).
+- `.planning/ROADMAP.md` — Phase 4 (renumbered 2026-10-01, old Phase 5) is recorded via STATE.md Roadmap Evolution ("Phase 5 added: fix marlonrichert/zsh-autocomplete…") and Phase-3 cross-cutting constraint line 114 (auto-show target feel, Tab-only menu-select, ghost still renders). Note Phase 3 declares debt deferred here; plan Phase 4 standalone (D-13 — no Phase-5/6 Editor/Health harness dependency).
 - `.planning/REQUIREMENTS.md` SHEL-02 — fuzzy history without conflicts, plugin-order fix, `bindkey '^R'` normalization (Ctrl+R half live-passed in Phase 3; do not regress). STOW-01 — stow correctness contract that D-24..D-26/D-33 repair (the fold bug is a latent STOW-01 defect).
 - `.planning/PROJECT.md` — Core Value, Constraints (Zsh default; no destructive writes without preview — binds the D-26 hand-repair steps; machine-local gitignored; reversibility), Context (Zsh pain: `^I` conflict, autocomplete vs fzf-history-search).
 

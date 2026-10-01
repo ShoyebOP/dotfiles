@@ -9,7 +9,9 @@ From a broken set of mirrored Nushell/Zsh bootstrappers that crash on derivative
 - [x] **Phase 1: Universal Installer + Platform Foundations** - Bash entry + Termux-aware deps + correct stow; dry-run and checklist before any write (completed 2026-09-11)
 - [x] **Phase 2: Safe, Reversible & Server-Safe Deployment** - Uninstall/clean, privileged keyd gate, Hyprland guard, Zsh provisioned, docs flipped to Zsh default (completed 2026-09-11)
 - [x] **Phase 3: Polished Shell, Theme & Local Overrides** - Ctrl+R fzf conflict-free, PATH dedup, machine-local gitignored, theme token consistent (completed 2026-09-17; 1 item deferred — typing auto-show → dedicated future phase, see STATE.md Deferred Items)
-- [ ] **Phase 4: Editor Autonomy & Verified Health** - Mason auto-install/cleanup, which-key popup, telescope fzf fast, headless health gates
+- [x] **Phase 4: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp** - Real-time type-ahead completion auto-show, deterministic Tab ownership, stow containment (completed 2026-09-23; renumbered 2026-10-01 from old Phase 5)
+- [ ] **Phase 5: Editor Autonomy & fzf-lua Migration** - Mason auto-install/cleanup, which-key popup, fzf-lua replaces telescope, make/gcc removed from picker path
+- [ ] **Phase 6: Verified Health & Self-Test Gates** - Headless `--self-test` TAP harness (moved out of old Phase 4 HLTH-01)
 
 ## Phase Details
 
@@ -117,63 +119,79 @@ Plans:
 - User runs setup.sh --dry-run and sees the local-file preview with zero writes; a live run creates empty HOME files without truncating existing ones (SHEL-04, EDIT-04 per D-12)
 - No per-app appearance file is modified and no theme token, installer theme function, or mismatch warning is added anywhere (THEM-01 closed as intended-drift per D-13)
 
-### Phase 4: Editor Autonomy & Verified Health
+### Phase 4: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
 
-**Mode:** mvp
-**Goal**: Neovim works out-of-box with auto-installed LSPs, discoverable keys, fast telescope, and the whole system can be proven without a VM
-**Depends on**: Phase 3
-**Requirements**: EDIT-01, EDIT-02, EDIT-03, HLTH-01
-**Success Criteria** (what must be TRUE):
-
-  1. User opens Neovim after fresh install and `pyright`/`ruff`/`typescript-language-server` etc. work without manual `:MasonInstallAll` — installer triggered `nvim --headless -c "MasonInstallAll"` post-stow and `mason-tool-installer` deferred `ensure_installed = require("lang").mason_packages` (`run_on_start`/`start_delay`) ensures packages; uninstall removes Mason artefacts when nvim deselected
-  2. User presses `<Space>` (leader) and sees which-key popup `folke/which-key.nvim` v3 `preset=modern delay=200 triggers={"<auto>"}` showing available combos with nested hints for subsequent keys (LazyVim-like)
-  3. User's `telescope-fzf-native` uses fast fzf sorter — `make`+`gcc` already in `common` so `cond` never silently falls back; `vim.notify WARN` appears if `executable("make")==0`
-  4. User or agent runs `bash setup.sh --self-test` / `--verify` headless and gets TAP `ok/not ok` for: `test -L` + `readlink -f` stow symlinks (`~/.config/nvim` + `starship.toml` folding), `z`/`zi`/`zoxide`/`starship`/`fzf`/`stow ≥2.4.1` versions, `nvim --headless -c "checkhealth"` zero errors, Mason packages list, `bindkey '^R'` and `zle -l | grep fzf`, `PATH` dedup, and `stow --no --verbose` preview including privileged `keyd`
-
-**Plans**: TBD
-
-Plans:
-
-- [ ] 04-01: Mason auto-install/cleanup + which-key + telescope guard
-- [ ] 04-02: Self-test / health gates TAP harness (headless, VM-less)
-
-### Phase 5: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
-
-**Goal**: Fix the deferred Phase-3 debt so typing auto-shows the async completion list with no keypress, Tab ownership is deterministic, and stow never folds `~/.config` — closed by the user's live terminal verdict, zero new harness files
-**Depends on**: Phase 3 (deferred debt) — plan standalone, no Phase-4 harness dependency (per 05-CONTEXT.md D-13)
+**Goal**: Fix the deferred Phase-3 debt so typing auto-shows the async completion list with no keypress, Tab ownership is deterministic, and stow never folds `~/.config` — closed by the user's live terminal verdict, zero new harness files (renumbered 2026-10-01 from old Phase 5; no content change)
+**Depends on**: Phase 3 (deferred debt) — plan standalone, no Phase-5/6 Editor/Health harness dependency (per 04-CONTEXT.md D-13)
 **Requirements**: SHEL-02 (auto-show half), STOW-01 (fold defect)
-**Scope anchor**: `.planning/phases/05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/05-CONTEXT.md` (locked D-01..D-34) + `.planning/STATE.md` Deferred Items
+**Scope anchor**: `.planning/phases/04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/04-CONTEXT.md` (locked D-01..D-34) + `.planning/STATE.md` Deferred Items
 **Success Criteria** (what must be TRUE):
 
   1. User types the first character and the completion list auto-shows below the prompt — quiet on empty prompt, ghost text and list coexist, every typing context covered (D-01..D-04)
   2. User presses Tab and always gets menu-select navigation, never ghost-accept; `l`/Right-arrow/Ctrl ghost-accept keep working; Right-arrow navigates the menu when open (D-27..D-29, D-32)
   3. User stows nvim and only `~/.config/nvim` links — `--no-folding` on all stows + `mkdir -p ~/.config` guard, strays evicted, live symlink hand-repaired by executor, installer prevention-only (D-24..D-26, D-33)
 
-**Plans**: 3/3 plans executed — gap closure 05-03 complete (2026-09-23). 05-01 tracer complete, static gates green; 05-02 shipped README + eviction + hand-repair, verdict 4 PASS / 2 FAIL (auto-show + Tab carried forward); 05-03 shipped R-3 one-shot precmd hook + R-7 menuselect line, upstream re-check (PRs #903/#905 open, issue #907 open — keep hook, pin fallback-only), closing live verdict overall PASS. STOW-01 met; SHEL-02 auto-show half closed live. See 05-03-SUMMARY.md.
+**Plans**: 3/3 plans executed — gap closure 04-03 complete (2026-09-23). 04-01 tracer complete, static gates green; 04-02 shipped README + eviction + hand-repair, verdict 4 PASS / 2 FAIL (auto-show + Tab carried forward); 04-03 shipped R-3 one-shot precmd hook + R-7 menuselect line, upstream re-check (PRs #903/#905 open, issue #907 open — keep hook, pin fallback-only), closing live verdict overall PASS. STOW-01 met; SHEL-02 auto-show half closed live. See 04-03-SUMMARY.md.
 
 Plans:
 
 **Wave 1**
 
-- [x] 05-01-PLAN.md — Tracer: zshrc auto-show + Tab ownership + stow containment with loud verify (complete, static gates green)
+- [x] 04-01-PLAN.md — Tracer: zshrc auto-show + Tab ownership + stow containment with loud verify (complete, static gates green)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [x] 05-02-PLAN.md — Expansion: README ladder table + stray eviction + hand-repair runbook + live-verdict checkpoint (halted — verdict FAIL items 2,3; SHEL-02 carried)
+- [x] 04-02-PLAN.md — Expansion: README ladder table + stray eviction + hand-repair runbook + live-verdict checkpoint (halted — verdict FAIL items 2,3; SHEL-02 carried)
 
-**Gap closure Wave 3** *(depends_on: [05-02] — fixes 05-VERIFICATION.md 2 FAILED gaps, STOW-01 untouched)*
+**Gap closure Wave 3** *(depends_on: [04-02] — fixes 04-VERIFICATION.md 2 FAILED gaps, STOW-01 untouched)*
 
-- [x] 05-03-PLAN.md — Gap closure: R-3 one-shot precmd zasync fixup hook (Gap 1 tracer) + R-7 menuselect Tab line with upstream re-check + full D-14 live re-verdict (complete, verdict overall PASS)
+- [x] 04-03-PLAN.md — Gap closure: R-3 one-shot precmd zasync fixup hook (Gap 1 tracer) + R-7 menuselect Tab line with upstream re-check + full D-14 live re-verdict (complete, verdict overall PASS)
+
+### Phase 5: Editor Autonomy & fzf-lua Migration
+
+**Mode:** mvp
+**Goal**: Neovim works out-of-box with auto-installed LSPs, discoverable keys, and an fzf-lua picker with no compiled telescope dependency
+**Depends on**: Phase 4
+**Requirements**: EDIT-01, EDIT-02, EDIT-03
+**Success Criteria** (what must be TRUE):
+
+  1. User opens Neovim after fresh install and `pyright`/`ruff`/`typescript-language-server` etc. work without manual `:MasonInstallAll` — installer triggered `nvim --headless -c "MasonInstallAll"` post-stow and `mason-tool-installer` deferred `ensure_installed = require("lang").mason_packages` (`run_on_start`/`start_delay`) ensures packages; uninstall removes Mason artefacts when nvim deselected
+  2. User presses `<Space>` (leader) and sees which-key popup `folke/which-key.nvim` v3 `preset=modern delay=200 triggers={"<auto>"}` showing available combos with nested hints for subsequent keys (LazyVim-like)
+  3. User's picker is `ibhagwan/fzf-lua` — `telescope` + `telescope-fzf-native` and all related config removed; `fzf-lua` provides files/grep/buffers/help with the fzf sorter built in; no `make`/`gcc` build step for the picker, `make`+`gcc` removed from installer `common` deps (or demoted to optional for remaining consumers); no silent fallback path; `nvim --headless -c "checkhealth"` reports picker healthy
+
+**Plans**: TBD
+
+Plans:
+
+- [ ] 05-01: Mason auto-install/cleanup + which-key popup
+- [ ] 05-02: Telescope removal + fzf-lua migration + make/gcc dep removal
+
+### Phase 6: Verified Health & Self-Test Gates
+
+**Mode:** mvp
+**Goal**: The whole system can be proven without a VM via a headless self-test
+**Depends on**: Phase 5
+**Requirements**: HLTH-01
+**Success Criteria** (what must be TRUE):
+
+  1. User or agent runs `bash setup.sh --self-test` / `--verify` headless and gets TAP `ok/not ok` for: `test -L` + `readlink -f` stow symlinks (`~/.config/nvim` + `starship.toml` folding), `z`/`zi`/`zoxide`/`starship`/`fzf`/`stow ≥2.4.1` versions, `nvim --headless -c "checkhealth"` zero errors (incl. fzf-lua), Mason packages list, `bindkey '^R'` and `zle -l | grep fzf`, `PATH` dedup, and `stow --no --verbose` preview including privileged `keyd`
+
+**Plans**: TBD
+
+Plans:
+
+- [ ] 06-01: Self-test / health gates TAP harness (headless, VM-less)
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Universal Installer + Platform Foundations | 5/5 | Complete    | 2026-09-11 |
 | 2. Safe, Reversible & Server-Safe Deployment | 2/2 | Complete    | 2026-09-11 |
 | 3. Polished Shell, Theme & Local Overrides | 2/2 | Complete    | 2026-09-17 |
-| 4. Editor Autonomy & Verified Health | 0/2 | Not started | - |
-| 5. fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp | 3/3 | Complete    | 2026-09-23 |
+| 4. fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp | 3/3 | Complete    | 2026-09-23 |
+| 5. Editor Autonomy & fzf-lua Migration | 0/2 | Not started | - |
+| 6. Verified Health & Self-Test Gates | 0/1 | Not started | - |

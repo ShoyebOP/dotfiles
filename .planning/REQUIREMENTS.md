@@ -38,7 +38,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **EDIT-01**: User's Neovim LSPs/formatters work after setup without manual `:MasonInstallAll` — installer triggers `nvim --headless -c "MasonInstallAll"` post-stow and `mason-tool-installer` deferred `ensure_installed = require("lang").mason_packages` (`run_on_start`/`start_delay`) ensures `pyright`/`ruff`/`typescript-language-server` etc. present; uninstall removes Mason artefacts when nvim deselected
 - [ ] **EDIT-02**: User sees which-key popup on `<Space>` (leader) showing available combos with nested hints for subsequent keys (LazyVim-like) via `folke/which-key.nvim` v3 `preset=modern delay=200 spec`
-- [ ] **EDIT-03**: User's `telescope-fzf-native` uses fast fzf sorter — `make`+`gcc` required, `cond` no longer silently falls back; `vim.notify WARN` if `executable("make")==0`
+- [ ] **EDIT-03**: User's picker is `ibhagwan/fzf-lua` — `telescope` + `telescope-fzf-native` and all related config removed; `fzf-lua` provides files/grep/buffers/help with the fzf sorter built in (no `make`/`gcc` build step); installer removes `make`+`gcc` from the picker path (dropped from `common` deps or demoted to optional for remaining consumers); no silent fallback path
 - [x] **EDIT-04**: User can add machine-local Neovim overrides via gitignored `nvim/.config/nvim/lua/local.lua` (`pcall(require,"local")` at end of `init.lua`) without dirtying git
 
 ### Docs, Theme & Health
@@ -102,13 +102,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SHEL-02 | Phase 3 | Complete |
 | SHEL-03 | Phase 3 | Complete |
 | SHEL-04 | Phase 3 | Complete |
-| EDIT-01 | Phase 4 | Pending |
-| EDIT-02 | Phase 4 | Pending |
-| EDIT-03 | Phase 4 | Pending |
+| EDIT-01 | Phase 5 | Pending |
+| EDIT-02 | Phase 5 | Pending |
+| EDIT-03 | Phase 5 | Pending |
 | EDIT-04 | Phase 3 | Complete |
 | THEM-01 | Phase 3 | Complete |
 | DOCS-01 | Phase 2 | Complete |
-| HLTH-01 | Phase 4 | Pending |
+| HLTH-01 | Phase 6 | Pending |
 
 **Coverage:**
 

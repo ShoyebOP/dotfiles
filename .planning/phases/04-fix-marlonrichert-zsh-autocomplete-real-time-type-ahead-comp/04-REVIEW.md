@@ -1,5 +1,5 @@
 ---
-phase: 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
+phase: 04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
 reviewed: 2026-09-23T14:30:00Z
 depth: standard
 files_reviewed: 2
@@ -14,7 +14,7 @@ findings:
 status: issues_found
 ---
 
-# Phase 05: Code Review Report
+# Phase 04: Code Review Report
 
 **Reviewed:** 2026-09-23T14:30:00Z
 **Depth:** standard
@@ -23,7 +23,7 @@ status: issues_found
 
 ## Summary
 
-Reviewed the 05-03 gap-closure delta at standard depth: the one-shot precmd
+Reviewed the 04-03 gap-closure delta at standard depth: the one-shot precmd
 `_fix_zasync_once` hook (`zsh/.zshrc:334-343`, commit `b4d4dd5`), the
 menuselect Tab binding (`zsh/.zshrc:381-383`, commit `eec13ac`), and the README
 stale-registration troubleshooting paragraph (`README.md:147-148`). Full file
@@ -40,7 +40,7 @@ disarms unconditionally, so the offline/missing-file edge silently poisons
 `zasync` with no retry (WR-01), and it unconditionally clobbers a healthy or
 upstream-fixed registration on every fresh shell (WR-02). The new menuselect
 bind assumes `zsh/complist` is already loaded with no guard (WR-03). A
-same-phase (05-01) quoting defect in the atload ice it sits next to is benign
+same-phase (04-01) quoting defect in the atload ice it sits next to is benign
 today only by accident of zsh auto-resolving `$terminfo` (WR-04).
 
 ## Warnings
@@ -95,7 +95,7 @@ shells converge with zero mutation.
 
 ### WR-03: `bindkey -M menuselect` assumes `zsh/complist` is loaded, with no guard
 
-**File:** `zsh/.zshrc:383` (new 05-03 line; same latent pattern in the atload ice at `zsh/.zshrc:331`)
+**File:** `zsh/.zshrc:383` (new 04-03 line; same latent pattern in the atload ice at `zsh/.zshrc:331`)
 **Issue:** The menuselect keymap only exists after `zsh/complist` loads.
 Verified with `zsh -f`: `bindkey -M menuselect "^I" menu-complete` without the
 module fails with `no such keymap 'menuselect'`, exit 1. In the current file
@@ -115,7 +115,7 @@ even earlier in a deferred context.
 ### WR-04: Atload ice double quotes expand `$terminfo[kcbt]` at definition time; comment claims a `\$` escape that is absent
 
 **File:** `zsh/.zshrc:326-331`
-**Issue:** Commit `11d85aa` (same phase, 05-01) converted the ice from
+**Issue:** Commit `11d85aa` (same phase, 04-01) converted the ice from
 single-quoted to double-quoted for greppability, with a comment stating "the
 `\$` and `\"` escapes keep the ice value byte-identical to the old
 single-quoted form." The code contains `\"` but no `\$` — `$terminfo[kcbt]`
@@ -157,7 +157,7 @@ doc to their system, and future path changes must be edited in both places.
 
 ### IN-03: SUMMARY claims a "HOME-cache fallback" the code does not implement
 
-**File:** `zsh/.zshrc:340` vs `05-03-SUMMARY.md` ("registers the cached backend file under the XDG cache path with HOME-cache fallback")
+**File:** `zsh/.zshrc:340` vs `04-03-SUMMARY.md` ("registers the cached backend file under the XDG cache path with HOME-cache fallback")
 **Issue:** `${XDG_CACHE_HOME:-$HOME/.cache}` is a single-path default
 expansion, not a two-location fallback: if `XDG_CACHE_HOME` is set but the
 plugin wrote under `~/.cache` (or vice versa), the hook registers the wrong

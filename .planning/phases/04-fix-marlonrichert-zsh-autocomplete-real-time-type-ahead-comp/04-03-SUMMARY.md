@@ -1,12 +1,12 @@
 ---
-phase: 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
+phase: 04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp
 plan: 03
 subsystem: shell
 tags: [zsh, zsh-autocomplete, zasync, menuselect, stow, troubleshooting]
 
 # Dependency graph
 requires:
-  - phase: 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp (05-02)
+  - phase: 04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp (04-02)
     provides: [shipped README ladder table, stray eviction, hand-repair runbook, live verdict FAIL carrying SHEL-02 auto-show + Tab forward]
 provides:
   - One-shot precmd zasync stale-stub fixup hook in zsh/.zshrc (Gap 1 root-cause fix)
@@ -30,7 +30,7 @@ tech-stack:
 
 key-files:
   created:
-    - .planning/phases/05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/05-03-SUMMARY.md
+    - .planning/phases/04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/04-03-SUMMARY.md
   modified:
     - zsh/.zshrc
     - README.md
@@ -80,7 +80,7 @@ completed: 2026-09-23
 status: complete
 ---
 
-# Phase 05 Plan 03: Gap-Closure Slice Summary
+# Phase 04 Plan 03: Gap-Closure Slice Summary
 
 **Upstream-grounded zasync stale-stub fixup hook plus missing menuselect Tab line, closed by an overall-PASS live terminal verdict**
 
@@ -139,7 +139,7 @@ Static gates re-confirmed green at SUMMARY time: syntax-ok, hook-ok, menuselect-
 
 - `zsh/.zshrc` - One-shot precmd `_fix_zasync_once` fixup block (upstream-issue retire comment, hook-helper load, stub clear + cached-file registration, self-unregister, precmd registration) inserted after the marlonrichert/zsh-autocomplete load and before the FZF ladder header; menuselect Tab to menu-complete line appended after the post-ladder Tab re-assert
 - `README.md` - Stale-registration troubleshooting paragraph in the first-prompt blockquote (symptom, `whence -v zasync` query, hook location, `Retire after` condition)
-- `.planning/phases/05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/05-03-SUMMARY.md` - This file (upstream states + verbatim verdict)
+- `.planning/phases/04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/04-03-SUMMARY.md` - This file (upstream states + verbatim verdict)
 
 ## Decisions Made
 
@@ -161,13 +161,13 @@ None - no external service configuration required.
 
 ## Next Phase Readiness
 
-- Phase 05 gap-closure slice complete: SHEL-02 auto-show half + D-29 Tab ownership verified live PASS; STOW-01 containment intact
+- Phase 04 gap-closure slice complete: SHEL-02 auto-show half + D-29 Tab ownership verified live PASS; STOW-01 containment intact
 - Watch item: a future upstream merge of PR #903/#905 retires the precmd hook via the manager update path (README `Retire after` condition states this)
-- Ready for Phase 04 (Editor Autonomy & Verified Health) and any remaining Phase 05 wrap-up per ROADMAP
+- Ready for Phase 05 (Editor Autonomy & fzf-lua Migration) and Phase 06 (Verified Health) per ROADMAP (renumbered 2026-10-01: old Phase 05 → Phase 04)
 
 ## Self-Check
 
-- [x] SUMMARY file exists at `.planning/phases/05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/05-03-SUMMARY.md`
+- [x] SUMMARY file exists at `.planning/phases/04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp/04-03-SUMMARY.md`
 - [x] Task commits exist: `b4d4dd5` FOUND, `eec13ac` FOUND
 - [x] Scope check: working tree holds no setup.sh delta and no nvim tree delta from this plan
 - [x] Static gates re-run green at SUMMARY time
@@ -175,5 +175,5 @@ None - no external service configuration required.
 **Self-Check: PASSED**
 
 ---
-*Phase: 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp*
+*Phase: 04-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp*
 *Completed: 2026-09-23*
