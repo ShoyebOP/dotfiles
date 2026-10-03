@@ -4,7 +4,14 @@ return {
         "L3MON4D3/LuaSnip",
         event = "InsertEnter",
         dependencies = { "rafamadriz/friendly-snippets", event = "InsertEnter" },
-        run = "make install_jsregexp",
+        -- Guarded build: jsregexp is optional (LuaSnip degrades to plain
+        -- ecma-regex handling without it). Build only when a compiler exists;
+        -- skip silently otherwise so compiler-free hosts never error.
+        build = function()
+            if vim.fn.executable("make") == 1 then
+                return "make install_jsregexp"
+            end
+        end,
         opts = {
             history = true,
             updateevents = "TextChanged,TextChangedI",

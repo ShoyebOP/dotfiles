@@ -22,6 +22,10 @@ GUI_STOW_PACKAGES=(alacritty keyd)
 TERMUX_DISABLED_PACKAGES=(alacritty keyd)
 declare -a SELECTED_PACKAGES=()
 ALL_TOOLCHAIN=(stow neovim starship git zoxide uv ripgrep nodejs npm make gcc fzf zsh)
+# D-10 (Phase 05-02): make/gcc are optional warn-if-missing, never required.
+# They stay in ALL_TOOLCHAIN/UNIFIED_ROWS (still offered in the checklist)
+# but no required dep list includes them and their absence never aborts.
+OPTIONAL_TOOLCHAIN=(make gcc)
 declare -a SELECTED_DEPS=()
 SELECTION_ACTIVE=false
 
@@ -191,15 +195,15 @@ get_deps() {
     # Zinit self-clones on first zsh launch via zsh/.zshrc — no installer clone, no commit pin per D-12
     case "$family" in
         arch)
-            common=(stow neovim starship git zoxide uv ripgrep nodejs npm make gcc fzf zsh)
+            common=(stow neovim starship git zoxide uv ripgrep nodejs npm fzf zsh)
             gui=(alacritty keyd)
             ;;
         debian)
-            common=(stow neovim starship git zoxide uv ripgrep nodejs npm make gcc fzf zsh)
+            common=(stow neovim starship git zoxide uv ripgrep nodejs npm fzf zsh)
             gui=(alacritty)
             ;;
         termux)
-            common=(stow neovim starship git zoxide uv ripgrep nodejs npm make gcc fzf zsh)
+            common=(stow neovim starship git zoxide uv ripgrep nodejs npm fzf zsh)
             gui=()
             ;;
         *)
@@ -265,6 +269,33 @@ filter_deps_by_selection() {
 
 verify_command() { command -v "${1-}" >/dev/null 2>&1; }
 
+# D-10 (Phase 05-02): make/gcc are optional — warn-if-missing, never abort.
+# The accepted compiler set is cc/gcc/clang; without one, treesitter parser
+# builds (:TSInstall) and the LuaSnip jsregexp build degrade while the editor
+# and the fzf-lua picker work normally. Covers both names via one case.
+_is_optional_dep() {
+    case "${1-}" in make|gcc) return 0 ;; *) return 1 ;; esac
+}
+
+warn_optional_dep() {
+    echo "Warning: optional 'make'/'gcc' build tool '$1' missing (need '$2'; accepted compilers: cc/gcc/clang)." >&2
+    echo "  Degraded without a compiler: treesitter parser builds (:TSInstall) and LuaSnip jsregexp build." >&2
+    echo "  The editor and fzf-lua picker work without them." >&2
+    return 0
+}
+
+warn_optional_toolchain() {
+    local t
+    for t in "${OPTIONAL_TOOLCHAIN[@]}"; do
+        if ! command -v "$t" >/dev/null 2>&1; then
+            warn_optional_dep "$t" "$t"
+        else
+            echo "  + $t (installed, optional)"
+        fi
+    done
+    return 0
+}
+
 verify_deps() {
     local deps=("$@")
     local -a missing=()
@@ -273,7 +304,13 @@ verify_deps() {
     local dep; local cmd
     for dep in "${deps[@]}"; do
         case "$dep" in neovim) cmd="nvim" ;; ripgrep) cmd="rg" ;; nodejs) cmd="node" ;; *) cmd="$dep" ;; esac
-        if ! verify_command "$cmd"; then missing+=("$dep"); echo "  - $dep (missing, need '$cmd')"; else echo "  + $dep (installed)"; fi
+        if ! verify_command "$cmd"; then
+            if _is_optional_dep "$dep"; then
+                warn_optional_dep "$dep" "$cmd"
+            else
+                missing+=("$dep"); echo "  - $dep (missing, need '$cmd')"
+            fi
+        else echo "  + $dep (installed)"; fi
     done
     if [[ ${#missing[@]} -gt 0 ]]; then echo ""; echo "Missing dependencies: ${missing[*]}"; else echo ""; echo "All dependencies are satisfied."; fi
     VERIFY_MISSING=("${missing[@]}")
@@ -1945,6 +1982,9 @@ main() {
         filtered_deps=("${deps[@]}")
     fi
     verify_deps "${filtered_deps[@]}"
+    # D-10 (Phase 05-02): optional compiler probe — warns, never aborts.
+    # Runs on live and dry-run paths alike; Termux clang-only hosts pass.
+    warn_optional_toolchain
     local -a missing=("${VERIFY_MISSING[@]}")
     local -a gui_list=()
     case "$FAMILY" in arch) gui_list=(alacritty keyd) ;; debian) gui_list=(alacritty) ;; termux) gui_list=() ;; esac

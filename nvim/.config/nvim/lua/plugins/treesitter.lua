@@ -1,7 +1,7 @@
 return {
     "nvim-treesitter/nvim-treesitter",
     branch = "main",
-    build = ":TSUpdate | TSInstallAll",
+    build = ":TSUpdate",
     event = { "BufReadPost", "BufNewFile" },
     opts = function()
         local lang_config = require("lang")
@@ -16,11 +16,11 @@ return {
             "luadoc",
             "luap",
         }
+        -- Retained as the documented on-demand install set: run
+        -- :TSInstall <lang> for any entry below (needs tree-sitter CLI
+        -- plus a C compiler). No auto-install: parsers provision on demand.
         local parsers = vim.list_extend(base_parsers, lang_config.treesitter_parsers or {})
         return {
-            auto_install = true,
-            ensure_installed = parsers,
-            ignore_install = { "awk" },
             incremental_selection = {
                 enable = true,
                 keymaps = {

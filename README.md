@@ -64,6 +64,10 @@ bash setup.sh --mode local --shell zsh --dry-run
 
 After a successful install with `nvim` selected, `setup.sh` runs `nvim --headless -c "MasonInstallAll" -c "qall"` post-stow, so LSPs/formatters work with no manual `:MasonInstallAll`. A headless failure never fails the install — it prints a warning with the exact retry (`nvim --headless -c "MasonInstallAll"`, or `:MasonInstallAll` inside nvim) and continues. Manual repair path is unchanged: `:MasonInstallAll` inside nvim refreshes the registry and installs missing packages.
 
+### Neovim optional toolchain (no compiler required)
+
+`make`/`gcc` are optional: their absence prints a warning naming the accepted compilers (`cc`/`gcc`/`clang`) and never aborts the install. Without a compiler two features degrade gracefully while everything else works: treesitter parsers provision on demand via `:TSInstall <lang>` (needs the tree-sitter CLI plus a compiler — install one later if you want parser builds), and LuaSnip's `jsregexp` build is skipped (snippet transforms fall back to copy). The fzf-lua picker itself needs no build step.
+
 Safety:
 
 - Must be run from the clone root (`./setup.sh` must exist in CWD alongside `SCRIPT_DIR` resolution for `stow --dir`); outside-root aborts with a `run-from-clone` message before any prompt or write.
@@ -79,10 +83,10 @@ If you prefer to set things up manually without the unified installer:
 
 #### Install Dependencies
 
-- **Core:** `stow`, `neovim`, `starship`, `git`, `zoxide`, `uv`, `ripgrep`, `nodejs`, `npm`, `make`, `gcc`, `fzf`, `zsh`
+- **Core:** `stow`, `neovim`, `starship`, `git`, `zoxide`, `uv`, `ripgrep`, `nodejs`, `npm`, `fzf`, `zsh` plus optional `make`, `gcc` (warn-if-missing only — the editor and fzf-lua picker work without a compiler)
 - **GUI (Arch):** `alacritty`, `keyd`
 - **GUI (Debian):** `alacritty`
-- **Termux:** `stow`, `neovim`, `starship`, `git`, `zoxide`, `uv`, `ripgrep`, `nodejs`, `npm`, `make`, `gcc`, `fzf`, `zsh` via `pkg install` (no `sudo`, no GUI packages)
+- **Termux:** `stow`, `neovim`, `starship`, `git`, `zoxide`, `uv`, `ripgrep`, `nodejs`, `npm`, `fzf`, `zsh` via `pkg install` (no `sudo`, no GUI packages; `make`/`gcc` optional as above — `clang` is the Termux compiler)
 
 #### Deploy Configurations
 
