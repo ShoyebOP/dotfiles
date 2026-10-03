@@ -875,14 +875,14 @@ run_uninstall() {
                 echo "[DRY RUN] Would run: sudo stow --dir=\"$SCRIPT_DIR\" --target=/ --no-folding --no --verbose --delete keyd"
             fi
         fi
-        # Mason preview when nvim deselected (D-02)
+        # Neovim data-dir preview when nvim deselected (D-04 widened, D-02 gate)
         if ! printf '%s\n' "${SELECTED_PACKAGES[@]}" | grep -qx nvim; then
-            if [[ -d "$HOME/.local/share/nvim/mason" ]]; then
-                echo "Removing Mason artefacts: ~/.local/share/nvim/mason (nvim deselected)" >&2
-                echo "[DRY RUN] Would run: rm -rf ~/.local/share/nvim/mason"
+            if [[ -d "$HOME/.local/share/nvim" ]]; then
+                echo "Removing Neovim data dir: ~/.local/share/nvim (nvim deselected)" >&2
+                echo '[DRY RUN] Would run: rm -rf "~/.local/share/nvim"'
             else
                 # Even if dir missing, preview the would-run for verification visibility
-                echo "[DRY RUN] Would run: rm -rf ~/.local/share/nvim/mason (nvim deselected, dir not present)"
+                echo '[DRY RUN] Would run: rm -rf "~/.local/share/nvim" (nvim deselected, dir not present)'
             fi
         fi
         # Legacy mode file preview (no filesystem touch)
@@ -935,13 +935,12 @@ run_uninstall() {
         fi
         sudo keyd reload 2>/dev/null || sudo systemctl reload keyd 2>/dev/null || true
     fi
-    # Mason artefact cleanup only when nvim not selected (D-02)
+    # Neovim data-dir cleanup only when nvim not selected (D-04 widened, D-02 gate)
     if ! printf '%s\n' "${SELECTED_PACKAGES[@]}" | grep -qx nvim; then
-        if [[ -d "$HOME/.local/share/nvim/mason" ]]; then
-            echo "Removing Mason artefacts: ~/.local/share/nvim/mason (nvim deselected)" >&2
+        if [[ -d "$HOME/.local/share/nvim" ]]; then
+            echo "Removing Neovim data dir: ~/.local/share/nvim (nvim deselected)" >&2
             # DRY_RUN already returned above, so this is live path — remove directly
-            rm -rf "$HOME/.local/share/nvim/mason"
-            rmdir "$HOME/.local/share/nvim" 2>/dev/null || true
+            rm -rf "$HOME/.local/share/nvim"
         fi
     fi
     # Legacy mode-file cleanup with no error if absent per D-04 and D-11

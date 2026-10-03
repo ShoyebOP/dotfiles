@@ -40,7 +40,7 @@ Interactive flow (before any write): **mode** (`local` desktop extras vs `server
 - `--dry-run` — preview every write (`[DRY RUN] Would run:` + `stow --no --verbose` for the exact post-checklist selection) with zero writes
 - `--help, -h` — show usage (wins anywhere, exits 0 before any write)
 - `--yes` — Use mode/shell/family presets with zero prompts (identical to the non-interactive no-TTY path, NOT all-ON: server keeps GUI rows OFF, Termux keeps disabled rows OFF); also CI bypass for `--uninstall` and privileged flows
-- `--uninstall, --remove` — cleanly unstows selected configs via `stow -D` plus privileged `sudo stow -D -t / keyd` when keyd selected plus Mason artefacts when `nvim` deselected plus offers system package removal; typed `yes` required (bypass with `--yes`)
+- `--uninstall, --remove` — cleanly unstows selected configs via `stow -D` plus privileged `sudo stow -D -t / keyd` when keyd selected plus the whole `~/.local/share/nvim` data dir when `nvim` deselected (regenerable lazy checkouts, Mason binaries, site data — reinstall restores everything) plus offers system package removal; typed `yes` required (bypass with `--yes`), previewed under `--dry-run`
 
 Examples:
 
@@ -59,6 +59,10 @@ bash setup.sh --mode server --shell zsh
 # Local desktop extras with Zsh
 bash setup.sh --mode local --shell zsh --dry-run
 ```
+
+### Neovim Mason auto-install
+
+After a successful install with `nvim` selected, `setup.sh` runs `nvim --headless -c "MasonInstallAll" -c "qall"` post-stow, so LSPs/formatters work with no manual `:MasonInstallAll`. A headless failure never fails the install — it prints a warning with the exact retry (`nvim --headless -c "MasonInstallAll"`, or `:MasonInstallAll` inside nvim) and continues. Manual repair path is unchanged: `:MasonInstallAll` inside nvim refreshes the registry and installs missing packages.
 
 Safety:
 
