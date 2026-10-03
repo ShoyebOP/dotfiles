@@ -39,30 +39,23 @@ end, { desc = "Search and Replace (grug-far)" })
 -- ============  File Explorer =============
 map({ "n", "v", "i" }, "<C-n>", "<cmd>NvimTreeToggle<CR>", { remap = true, desc = "Toggle NvimTree" })
 
--- ============  Telescope Mappings =============
-map("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "Find files" })
-map(
-    "n",
-    "<leader>fa",
-    "<cmd>Telescope find_files follow=true no_ignore=true hidden=true<CR>",
-    { desc = "Find all files" }
-)
-map("n", "<leader>fg", "<cmd>Telescope live_grep<CR>", { desc = "Grep through files" })
-map("n", "<leader>fb", "<cmd>Telescope buffers<CR>", { desc = "List open buffers" })
-map("n", "<leader>fh", "<cmd>Telescope help_tags<CR>", { desc = "Help tags" })
-map("n", "<leader>fo", "<cmd>Telescope oldfiles<CR>", { desc = "Recent files" })
-map("n", "<leader>ma", "<cmd>Telescope marks<CR>", { desc = "Jump to marks" })
-map("n", "<leader>cm", "<cmd>Telescope git_commits<CR>", { desc = "Git commits" })
-map("n", "<leader>gt", "<cmd>Telescope git_status<CR>", { desc = "Git status" })
-map("n", "<leader>pt", "<cmd>Telescope terms<CR>", { desc = "Hidden terminals" })
-map(
-    "n",
-    "<leader>f",
-    "<cmd>Telescope current_buffer_fuzzy_find<CR>",
-    { desc = "Fuzzy search current buffer", noremap = true }
-)
+-- ============  FzfLua Mappings =============
+map("n", "<leader>ff", "<cmd>FzfLua files<cr>", { desc = "Find files" })
+map("n", "<leader>fa", function()
+    require("fzf-lua").files({ hidden = true })
+end, { desc = "Find all files" })
+map("n", "<leader>fg", "<cmd>FzfLua live_grep<CR>", { desc = "Grep through files" })
+map("n", "<leader>fb", "<cmd>FzfLua buffers<CR>", { desc = "List open buffers" })
+map("n", "<leader>fh", "<cmd>FzfLua helptags<CR>", { desc = "Help tags" })
+map("n", "<leader>fo", "<cmd>FzfLua oldfiles<CR>", { desc = "Recent files" })
+map("n", "<leader>ma", "<cmd>FzfLua marks<CR>", { desc = "Jump to marks" })
+map("n", "<leader>cm", "<cmd>FzfLua git_commits<CR>", { desc = "Git commits" })
+map("n", "<leader>gt", "<cmd>FzfLua git_status<CR>", { desc = "Git status" })
+map("n", "<leader>f", function()
+    require("fzf-lua").blines()
+end, { desc = "Fuzzy search current buffer", noremap = true })
 map("n", "<leader>th", function()
-    require("telescope.builtin").colorscheme({ enable_preview = true })
+    require("fzf-lua").colorschemes()
 end, { desc = "Choose colorscheme with preview" })
 
 -- ============ 󰁨 Formatting =============
@@ -89,7 +82,7 @@ map("n", "<leader>ql", function()
     require("persistence").load({ last = true })
 end, { desc = "Restore last session" })
 map("n", "<leader>n", "<cmd>NoiceDismiss<CR>", { noremap = true, desc = "Dismiss notifications" })
-map("n", "<leader>N", "<cmd>Noice telescope<CR>", { noremap = true, desc = "Noice history" })
+map("n", "<leader>N", "<cmd>Noice pick<CR>", { noremap = true, desc = "Noice history" })
 
 -- ============  Code Runner =============
 map("n", "<leader>e", "<cmd>RunFile<CR>", { desc = "Run current file" })
@@ -168,8 +161,8 @@ map(
     "<cmd>Trouble todo toggle filter = {tag = {TODO,FIX,FIXME}}<cr>",
     { desc = "Todo/Fix/Fixme (Trouble)" }
 )
-map("n", "<leader>st", "<cmd>TodoTelescope<cr>", { desc = "Todo" })
-map("n", "<leader>sT", "<cmd>TodoTelescope keywords=TODO,FIX,FIXME<cr>", { desc = "Todo/Fix/Fixme" })
+map("n", "<leader>st", "<cmd>TodoFzfLua<cr>", { desc = "Todo" })
+map("n", "<leader>sT", "<cmd>TodoFzfLua keywords=TODO,FIX,FIXME<cr>", { desc = "Todo/Fix/Fixme" })
 
 -- ============  Commenting =============
 map({ "n", "v" }, "<leader>/", "gcc", { desc = "Toggle comment", remap = true })

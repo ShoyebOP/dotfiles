@@ -60,46 +60,21 @@ return {
     config = function(_, opts)
         require("nvim-tree").setup(opts)
 
-        -- Telescope integration
         local api = require("nvim-tree.api")
-        local actions = require("telescope.actions")
-        local action_state = require("telescope.actions.state")
 
-        local view_selection = function(prompt_bufnr)
-            actions.select_default:replace(function()
-                actions.close(prompt_bufnr)
-                local selection = action_state.get_selected_entry()
-                local filename = selection.filename
-                if filename == nil then
-                    filename = selection[1]
-                end
-                api.tree.find_file(filename, { open = true, focus = true })
-                api.node.open.preview()
-            end)
-            return true
-        end
-
-        local function launch_telescope(func_name, opts)
-            local telescope_status_ok, _ = pcall(require, "telescope")
-            if not telescope_status_ok then
-                return
-            end
+        local function basedir_from_node()
             local node = api.tree.get_node_under_cursor()
-            local basedir = node.type == "directory" and node.absolute_path or vim.fn.fnamemodify(node.absolute_path, ":h")
-            opts = opts or {}
-            opts.cwd = basedir
-            opts.search_dirs = { basedir }
-            opts.attach_mappings = view_selection
-            return require("telescope.builtin")[func_name](opts)
+            return node.type == "directory" and node.absolute_path
+                or vim.fn.fnamemodify(node.absolute_path, ":h")
         end
 
         -- keymaps
         vim.keymap.set("n", "<c-f>", function()
-            launch_telescope("find_files")
+            require("fzf-lua").files({ cwd = basedir_from_node() })
         end, { desc = "Find files from tree node" })
 
         vim.keymap.set("n", "<c-fg>", function()
-            launch_telescope("live_grep")
+            require("fzf-lua").live_grep({ cwd = basedir_from_node() })
         end, { desc = "Live grep from tree node" })
     end,
 }

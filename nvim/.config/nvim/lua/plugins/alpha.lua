@@ -18,18 +18,18 @@ return {
     ]]
 
         vim.api.nvim_create_user_command("ColorschemeWithPreview", function()
-            require("telescope.builtin").colorscheme({ enable_preview = true })
+            require("fzf-lua").colorschemes()
         end, {})
 
         dashboard.section.header.val = vim.split(logo, "\n")
 
         dashboard.section.buttons.val = {
-            dashboard.button("ff", "  Find file", "<cmd>Telescope find_files<cr>"),
-            dashboard.button("r", "  Recent files", "<cmd>Telescope oldfiles<cr>"),
+            dashboard.button("ff", "  Find file", "<cmd>FzfLua files<cr>"),
+            dashboard.button("r", "  Recent files", "<cmd>FzfLua oldfiles<cr>"),
             dashboard.button("n", "  New file", "<cmd> ene <BAR> startinsert <cr>"),
             dashboard.button("th", "󱥚  Themes", "<cmd>ColorschemeWithPreview<cr>"),
             dashboard.button("l", "󰒲  Lazy", "<cmd> Lazy <cr>"),
-            dashboard.button("k", "  List Keymaps", "<cmd>Telescope keymaps<cr>"),
+            dashboard.button("k", "  List Keymaps", "<cmd>FzfLua keymaps<cr>"),
             dashboard.button("q", "  Quit", "<cmd> qa <cr>"),
         }
 
