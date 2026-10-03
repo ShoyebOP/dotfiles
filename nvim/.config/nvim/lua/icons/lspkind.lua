@@ -41,7 +41,6 @@ return {
     TabNine = "",
     Supermaven = "",
     Ripgrep = "󰱼",
-    Telescope = "",
     Grep = "󰱼",
     BladeNav = "",
     JSON = "󰘦",
