@@ -2021,6 +2021,10 @@ main() {
         } || true
         # Preview path must surface the same marker the live path creates.
         ensure_local_files
+        # Mason headless-install preview mirrors the live post-stow trigger (EDIT-01/D-01).
+        if printf '%s\n' "${SELECTED_PACKAGES[@]}" | grep -qx nvim; then
+            echo '[DRY RUN] Would run: nvim --headless -c "MasonInstallAll" -c "qall"'
+        fi
         echo ""
         echo "DRY RUN complete — no writes performed."
         return 0
@@ -2042,6 +2046,16 @@ main() {
     quarantine_scan
     if ! run_stow; then echo "Error: stow deployment failed." >&2; exit 1; fi
     if ! post_verify; then echo "Error: post-verify failed — deployment incomplete." >&2; exit 1; fi
+    # Headless Mason install when nvim selected (EDIT-01/D-01): one-shot trigger
+    # so fresh clones get LSPs/formatters without manual :MasonInstallAll.
+    # Never fails the install (D-02): warn with the exact retry and continue.
+    if printf '%s\n' "${SELECTED_PACKAGES[@]}" | grep -qx nvim && command -v nvim >/dev/null 2>&1; then
+        if [[ "$DRY_RUN" == true ]]; then
+            echo '[DRY RUN] Would run: nvim --headless -c "MasonInstallAll" -c "qall"'
+        elif ! nvim --headless -c "MasonInstallAll" -c "qall"; then
+            echo 'Warning: headless Mason install failed — retry with: nvim --headless -c "MasonInstallAll" (or :MasonInstallAll inside nvim)' >&2
+        fi
+    fi
     ensure_local_files
     offer_chsh || true
     echo ""
