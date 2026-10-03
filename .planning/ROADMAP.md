@@ -159,12 +159,16 @@ Plans:
   2. User presses `<Space>` (leader) and sees which-key popup `folke/which-key.nvim` v3 `preset=modern delay=200 triggers={"<auto>"}` showing available combos with nested hints for subsequent keys (LazyVim-like)
   3. User's picker is `ibhagwan/fzf-lua` — `telescope` + `telescope-fzf-native` and all related config removed; `fzf-lua` provides files/grep/buffers/help with the fzf sorter built in; no `make`/`gcc` build step for the picker, `make`+`gcc` removed from installer `common` deps (or demoted to optional for remaining consumers); no silent fallback path; `nvim --headless -c "checkhealth"` reports picker healthy
 
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
+**Wave 1**
 
-- [ ] 05-01: Mason auto-install/cleanup + which-key popup
-- [ ] 05-02: Telescope removal + fzf-lua migration + make/gcc dep removal
+- [ ] 05-01-PLAN.md — Mason headless trigger (sync refresh) + widened wipe + which-key popup (EDIT-01, EDIT-02)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 05-02-PLAN.md — fzf-lua migration (18-item map, zero legacy refs) + make/gcc demotion + compiler-free treesitter/blink (EDIT-03)
 
 ### Phase 6: Verified Health & Self-Test Gates
 

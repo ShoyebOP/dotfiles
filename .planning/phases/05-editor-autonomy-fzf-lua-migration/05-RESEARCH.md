@@ -399,19 +399,19 @@ nvim --headless -c 'lua local want = require("lang").mason_packages; local reg =
 | A5 | No other config references `telescope-ui-select` behavior (e.g. code-action dressing) beyond `vim.ui.select` | Picker Map | Low: `ui_select = {}` covers all `vim.ui.select` callers generically |
 | A6 | `~/.local/share/nvim` contains nothing user-irreplaceable on any supported family (D-04 wipe) | Security | Medium: mitigated by typed-`yes` gate + dry-run preview; executor lists dir contents pre-wipe in verification |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **tree-sitter-cli version floor on target families**
+1. **tree-sitter-cli version floor on target families** — RESOLVED: record-only, no installer dep change in this phase; 05-02 verifies via headless `:checkhealth nvim-treesitter` and documents on-demand `:TSInstall` with the CLI+compiler prerequisite.
    - What we know: main-branch health requires CLI ≥ 0.26.1 [CITED: nvim-treesitter README]; this machine has 0.20.8 (too old — `:TSInstall` will fail here until CLI is upgraded).
    - What's unclear: which CLI version Arch/Debian repos currently ship (whether on-demand `:TSInstall` works out-of-box for users).
    - Recommendation: 05-02 verification runs `:checkhealth nvim-treesitter` headless and records the result; do NOT add CLI to installer deps in this phase (scope guard) — document `:TSInstall` as on-demand with the CLI+compiler prerequisite.
 
-2. **clang-as-alternative installer wording**
+2. **clang-as-alternative installer wording** — RESOLVED: warn names the accepted set (`cc/gcc/clang`) and the two degraded features (parser builds, jsregexp build), never aborts; 05-02 implements the warn-if-missing policy plus README wording.
    - What we know: Termux proves the editor works with clang-only; `tree-sitter build` uses `cc` under the hood (respects `CC` env, auto-detects cc/gcc/clang).
    - What's unclear: exact warn-if-missing wording across three families (planner's call per discretion).
    - Recommendation: warn names the accepted set (`cc/gcc/clang`) and the two degraded features (parser builds, jsregexp build), never aborts.
 
-3. **snacks.nvim picker staying disabled**
+3. **snacks.nvim picker staying disabled** — RESOLVED: no action in this phase; django dep keeps snacks disabled (`opts = {}`) so `:Noice pick` routes to fzf-lua; noted so a future snacks change doesn't surprise.
    - What we know: `:Noice pick` prefers an enabled Snacks picker over fzf-lua; django dep declares snacks with `opts = {}` (disabled).
    - What's unclear: whether any future spec enables the Snacks picker and silently reroutes `:Noice pick`.
    - Recommendation: no action; noted so a future snacks change doesn't surprise. (Not a Phase-5 task.)
