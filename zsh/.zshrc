@@ -60,6 +60,7 @@ eval "$(zoxide init zsh)"
 # Aliases
 alias c=clear
 alias v=nvim
+alias yz=yazi
 
 # vim keybindings
 bindkey -v
@@ -180,6 +181,15 @@ function error() {
 
 function info() {
     print -P "%F{blue}[INFO]%f: %F{cyan}$1%f"
+}
+
+# function to clone github repo interactively
+function ghclone() {
+    local repo
+    repo=$(gh repo list --limit 1000 --json nameWithOwner \
+        --jq '.[].nameWithOwner' | fzf) || return
+
+    [[ -n "$repo" ]] && gh repo clone "$repo"
 }
 
 # -----------------------------------------------------------------------------
@@ -336,9 +346,9 @@ zi light marlonrichert/zsh-autocomplete
 # Retire after `zinit update` past the upstream fix.
 autoload -Uz add-zsh-hook
 _fix_zasync_once() {
-  unfunction zasync 2>/dev/null
-  autoload -Uz ${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zasync/zasync
-  add-zsh-hook -d precmd _fix_zasync_once
+    unfunction zasync 2>/dev/null
+    autoload -Uz ${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zasync/zasync
+    add-zsh-hook -d precmd _fix_zasync_once
 }
 add-zsh-hook precmd _fix_zasync_once
 
@@ -473,4 +483,4 @@ typeset -g POWERLEVEL9K_VI_MODE_INSERT_FOREGROUND=66
 # top-of-file `typeset -U` guard set (verified on zsh 5.9); an array
 # self-assignment under the still-set unique attribute retro-dedupes instead.
 # Must stay the last PATH-relevant line — nothing below may mutate PATH.
-path=( $path )
+path=($path)
