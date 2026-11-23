@@ -1,8 +1,8 @@
 ---
 phase: 07-neovim-editor-qol-fixes
 verified: 2026-11-23T16:06:20Z
-status: human_needed
-score: 10/11 must-haves verified
+status: passed
+score: 11/11 must-haves accepted (10 verified + 1 owner-waived visual check)
 covered_files:
   - ".planning/phases/07-neovim-editor-qol-fixes/07-01-PLAN.md"
   - ".planning/phases/07-neovim-editor-qol-fixes/07-01-SUMMARY.md"
@@ -19,25 +19,23 @@ covered_files:
   - "nvim/.config/nvim/lua/plugins/surround.lua"
   - "nvim/.config/nvim/lua/plugins/which-key.lua"
 covered_digest: "v4:sha256:5a6a6e087829d028b743c792b861e48ed284c3268408f74bfc482768b031a502"
-behavior_unverified: 1
+behavior_unverified: 0
 overrides_applied: 0
 re_verification: false
-behavior_unverified_items:
-  - truth: "Native per-line gitsigns are the only git indicator in the gutter — no far-left marker column, no divider glyph and no reserved-cell blank gap, with native diagnostic and gitsigns signs still rendering normally together (QOL-03 / G-07-4)"
-    test: "Open a git-tracked file with uncommitted changes in kitty and inspect the left gutter; then put a native diagnostic sign and a gitsigns sign on the same line and inspect again."
-    expected: "Only the native per-line gitsign column appears immediately before the line numbers in the default sign column — no separate far-left marker column, no thin divider glyph, and no wide empty cell gap. Native diagnostic signs and gitsigns still render normally, including on the same line."
-    why_human: "The config end state is proven (plugin spec/pin/module absent, plain default signcolumn), and the abandoned marker-and-divider layout is gone, but final pixel compositing in a real kitty TUI is not exercised by any headless test and no kitty binary exists here. The prior screen-dump gate verified the now-deleted layout, not this one."
-human_verification:
-  - test: "Open a git-tracked file with uncommitted changes in kitty and inspect the left gutter; then put a native diagnostic sign and a gitsigns sign on the same line and inspect again."
-    expected: "Only native per-line gitsigns appear in the default sign column immediately before the line numbers — no far-left marker column, no divider glyph, and no wide empty gap. Native diagnostic signs and gitsigns still render normally, including on the same line."
-    why_human: "G-07-4 abandoned the far-left marker + divider layout and 07-04 removed the plugin. Config gates prove the removal, but the rendered gutter is a visual outcome no headless probe asserts; no kitty binary exists in this environment. Per human_verify_mode = end-of-phase this is harvested by the orchestrator's UAT. (The other two human checks — diagnostic float and live kitty Alt buffer cycling — already recorded PASS as UAT tests 3 and 5 and are therefore not re-listed here.)"
+behavior_unverified_items: []
+human_verification: []
+owner_waiver:
+  item: "Native per-line gitsigns-only gutter visual check in kitty (QOL-03 / G-07-4)"
+  accepted_by: "project owner"
+  accepted_at: "2026-11-23"
+  note: "Owner directed completion of the phase without this visual TUI check. The config end state is fully verified by headless gates; no kitty binary exists in this environment. This is a recorded waiver, not an observed test result."
 ---
 
 # Phase 7: Neovim Editor QoL Fixes Verification Report
 
 **Phase Goal:** Daily editing gaps are closed: full diagnostics on demand, no dead keymaps, native per-line gitsigns as the only git indicator in the gutter (G-07-4 abandoned the far-left marker-and-divider layout and removed the gutter plugin), surround support, and buffer cycling on Alt+comma/Alt+period. Cursor-jump investigation is explicitly out of scope.
 **Verified:** 2026-11-23T16:06:20Z
-**Status:** human_needed — one end-of-phase human check remains (native-gitsigns-only gutter visual). All config, artifact, wiring, and behavioral checks pass; the two other human checks (diagnostic float, kitty Alt buffer cycling) already recorded PASS in 07-UAT.md.
+**Status:** passed — owner-directed completion. All config, artifact, wiring, and behavioral checks pass. The remaining end-of-phase human check (native-gitsigns-only gutter visual) was explicitly waived by the project owner on 2026-11-23; see the owner-waiver note in frontmatter and in 07-UAT.md test 6. The two other human checks (diagnostic float, kitty Alt buffer cycling) previously recorded PASS in 07-UAT.md.
 **Re-verification:** No — the previous report had no `gaps:` section, so this is a fresh initial verification. This report is a REGENERATION: the prior report's digest covered the now-deleted `scrollview.lua` and omitted plans 07-04, so its digest was stale. The digest here was recomputed through `verification.fingerprint` v4 and now covers all four PLAN/SUMMARY pairs plus the six shipped implementation files.
 
 ## Scope Notes (read before the tables)
@@ -52,7 +50,7 @@ human_verification:
 |---|---|---|---|
 | Open full diagnostics on demand | `<leader>vd` shows the full current-line message in a rounded float; virtual text unchanged | `keymaps.lua:25-27` + `VD-BEHAVIOR-OK`; UAT test 3 human PASS | ✓ VERIFIED |
 | Keep only keymaps that work | No bindings to uninstalled plugins; group label no longer "trouble/buffer" | `DEAD-MAPS-CLEAN`, `SURVIVORS-OK`, `WK-LABEL-OK`, `WK-SPEC-OK` | ✓ VERIFIED |
-| Native per-line gitsigns are the only git indicator | No gutter plugin, marker column, divider glyph or reserved-cell gap (G-07-4) | spec/pin/module absent, `opt.signcolumn = "yes"`, planning artifacts reframed; final visual pending | ⚠ PRESENT_BEHAVIOR_UNVERIFIED → human check |
+| Native per-line gitsigns are the only git indicator | No gutter plugin, marker column, divider glyph or reserved-cell gap (G-07-4) | spec/pin/module absent, `opt.signcolumn = "yes"`, planning artifacts reframed; final visual waived by owner | ✓ OWNER-ACCEPTED (config end state verified; no kitty TUI available) |
 | Wrap selections with surround | `S"` / `S)` wrap; plugin pinned with default keymaps | `SURROUND-SPEC-OK`, 40-hex pin = installed HEAD, `SURROUND-WRAP-OK` (real plugin) | ✓ VERIFIED |
 | Cycle buffers without sacrificing Tab | `<M-,>`/`<M-.>` (final) cycle buffers; Tab/S-Tab free | `BUFFER-ALT-OK`, `BUFFER-CMDS-INTACT`; UAT test 5 human PASS in kitty | ✓ VERIFIED |
 | Outcome: everyday editing gaps closed without changing the diagnostic model or touching unrelated config | No diagnostic wrapping, no new hover binding, no cursor-jump work, no collateral edits | `HOVER-UNCHANGED`; 11 task commits touch only intended files; working tree clean of source changes | ✓ VERIFIED |
@@ -70,18 +68,18 @@ Must-haves merged from the 6 ROADMAP success criteria (non-negotiable contract) 
 | 3 | Gutter plugin fully absent from shipped config: no lazy spec, no lockfile pin, no module reference — a fresh clone never installs it (07-04 truth / QOL-03) | ✓ VERIFIED | `nvim/.config/nvim/lua/plugins/scrollview.lua` does not exist. Repo-wide grep for `scrollview` across shipped `nvim/.config/nvim/**/*.lua|json|md` returned NONE. `lazy-lock.json` has `nvim-scrollview` count 0; file parses as valid JSON (39 keys); `nvim-surround` pin retained. |
 | 4 | signcolumn reverted to the plain default with no gutter-layout options or reserved cells added solely for the abandoned divider (07-04 truth / QOL-03) | ✓ VERIFIED | `options.lua:12` is exactly `opt.signcolumn = "yes"`; zero `yes:[0-9]` occurrences; no gutter-layout comment. Re-ran `SIGNCOLUMN-DEFAULT` and headless config-load `GUTTER-NATIVE-ONLY-OK` (`vim.o.signcolumn == "yes"`). No `smoothscroll` regression (see row 10). |
 | 5 | Phase artifacts record the G-07-4 supersession and no longer present the abandoned marker-and-divider layout as current (07-04 truth) | ✓ VERIFIED | `07-RESEARCH.md` (2 hits), `REQUIREMENTS.md` (1), `ROADMAP.md` (6), `STATE.md` (4) all cite G-07-4. Stale literals: RESEARCH `winblend_gui|yes:[24]`=0, REQUIREMENTS `winblend_gui`=0, ROADMAP `blank separator cell`=0, STATE `yes:[24]`=0. `07-UAT.md` preserved untouched (orchestrator merges human items). |
-| 6 | Native per-line gitsigns are the only git indicator in the gutter — no far-left marker column, no divider glyph, no reserved-cell blank gap; native diagnostic and gitsigns signs still render normally together (SC-3 / QOL-03 / G-07-4) | ⚠ PRESENT_BEHAVIOR_UNVERIFIED | Config end state (rows 3-4) is fully verified, but the rendered gutter is a visual outcome. No kitty binary exists and the only prior screen-dump gate verified the now-deleted marker/divider layout, so no test exercises this end state. Routed to Human Verification item 1; excluded from the verified score. |
+| 6 | Native per-line gitsigns are the only git indicator in the gutter — no far-left marker column, no divider glyph, no reserved-cell blank gap; native diagnostic and gitsigns signs still render normally together (SC-3 / QOL-03 / G-07-4) | ✓ OWNER-ACCEPTED | Config end state (rows 3-4) is fully verified. The rendered gutter is a visual outcome no headless test exercises and no kitty binary exists here; the project owner explicitly waived this check at phase completion (recorded in frontmatter `owner_waiver` and 07-UAT.md test 6). This is a recorded waiver, not an observed test result. |
 | 7 | nvim-surround installed with a genuine 40-hex pin and default `ys`/`ds`/`cs`/visual `S` wrap works (SC-4 / QOL-04) | ✓ VERIFIED | `surround.lua` is the exact locked spec (`kylechui/nvim-surround`, `version="*"`, `event="VeryLazy"`, `opts={}`), git-tracked — `SURROUND-SPEC-OK`. `lazy-lock.json:25` pins `2e93e154de9ff326def6480a4358bfc149d5da2c` (valid 40-hex) which equals the installed plugin HEAD. Re-ran the real-plugin `SURROUND-WRAP-OK` probe (`S"` wrapped `hello` → `"hello"`). |
 | 8 | Buffer next/prev bound to `<M-,>`/`<M-.>` with the original commands; Tab/S-Tab and old Ctrl lhs unbound — editor side (SC-5 editor / QOL-05 / G-07-2) | ✓ VERIFIED | `keymaps.lua:94-95` map `<M-,>`→`BufferLineCycleNext`, `<M-.>`→`BufferLineCyclePrev`, desc/order preserved. Re-ran headless `BUFFER-ALT-OK`: both mapargs resolve and `<Tab>`, `<S-Tab>`, `<C-,>`, `<C-.>` are all empty. Repo-wide scan finds no `<C-,>`/`<C-.>` in shipped config. `BUFFER-CMDS-INTACT`. |
 | 9 | Alt+comma / Alt+period actually cycle buffers in the user's live kitty terminal (07-03 truth / QOL-05) | ✓ VERIFIED | 07-UAT.md test 5 records a human PASS for Alt+comma/Alt+period in real kitty with ≥2 buffers (with the `--clean` delivery-probe note for WR-02). Combined with the headless editor-side proof (row 8), the transition is exercised; this human check is therefore closed and not re-listed in Human Verification. |
 | 10 | `smoothscroll` removed as cosmetic cleanup; no cursor-jump claims in any artifact (SC-6 / QOL-06) | ✓ VERIFIED | `SMOOTH-CLEAN`: zero active `smoothscroll` lines in `options.lua`; re-ran headless `VD-BEHAVIOR-OK` which asserts `vim.o.smoothscroll == false`. No cursor-jump claims in any phase artifact; `07-01-SUMMARY.md` records the removal as cosmetic only. |
 | 11 | Kitty-inclusive README caveat documents the final Alt binding, why Ctrl+punctuation alternatives fail, and the insert-mode delivery test (07-03 truth / QOL-05) | ✓ VERIFIED | `README.md:28-34` states `<M-,>`/`<M-.>` → BufferLineCycleNext/Prev, Tab/S-Tab stay with completion, kitty primary with legacy Ctrl+punctuation drop explained, Alacritty secondary, and the `<C-v>` delivery test. Re-ran `KITTY-DOC-OK`; `<C-,>` count in README = 0 (`STALE-CAVEAT-CLEAN`). |
 
-**Score:** 10/11 truths verified (1 present + behavior-unverified). `behavior_unverified: 1`.
+**Score:** 11/11 must-haves accepted — 10 verified by automated/headless gates, 1 owner-waived visual check. `behavior_unverified: 0`.
 
 ### Deferred Items
 
-None — there are no failed truths or missing artifacts to filter, and no later milestone phase is needed. The one open item is a human visual check, not a gap.
+None — there are no failed truths or missing artifacts to filter, and no later milestone phase is needed. The one human visual check was explicitly waived by the project owner at completion; it is not a gap.
 
 ### Advisory (New Scope, Unevidenced)
 
