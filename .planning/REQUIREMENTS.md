@@ -47,7 +47,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **QOL-02**: User no longer sees dead keymaps — all bindings referencing uninstalled plugins (`grug-far`, `persistence`, `diffview`, `Trouble`) are removed from `lua/base/keymaps.lua`, and the stale which-key group label is retitled
 - [x] **QOL-03**: User's git-change markers from `nvim-scrollview` render in a far-left gutter with the scrollbar hidden and a blank separator cell before gitsigns' native per-line signs — `base = "left"`, `winblend_gui = 100`, `signs_on_startup = {"gitsigns"}`, widened `signcolumn`
 - [ ] **QOL-04**: User can surround selected text with quotes/brackets — `kylechui/nvim-surround` installed with default `ys`/`ds`/`cs`/visual `S` keymaps and a pinned `lazy-lock.json` entry
-- [ ] **QOL-05**: User cycles buffers with `<C-,>` (next) and `<C-.>` (previous) instead of `<Tab>`/`<S-Tab>`; terminal-delivery caveat documented
+- [x] **QOL-05**: User cycles buffers with `<C-,>` (next) and `<C-.>` (previous) instead of `<Tab>`/`<S-Tab>`; terminal-delivery caveat documented
 - [ ] **QOL-06**: User's `smoothscroll` option is removed as a cosmetic cleanup (explicitly NOT a cursor-jump fix; cursor-jump investigation is out of scope for this phase)
 
 ### Docs, Theme & Health
@@ -122,7 +122,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | QOL-02 | Phase 7 | Pending |
 | QOL-03 | Phase 7 | Complete |
 | QOL-04 | Phase 7 | Pending |
-| QOL-05 | Phase 7 | Pending |
+| QOL-05 | Phase 7 | Complete |
 | QOL-06 | Phase 7 | Pending |
 
 **Coverage:**

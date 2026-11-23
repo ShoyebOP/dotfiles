@@ -3,17 +3,17 @@ gsd_state_version: "1.0"
 milestone: v1.0
 current_phase: 07
 current_phase_name: Neovim Editor QoL Fixes
-status: executing
-stopped_at: Completed 07-02-PLAN.md
-last_updated: "2026-11-23T14:01:47.570Z"
+status: verifying
+stopped_at: Completed 07-03-PLAN.md
+last_updated: "2026-11-23T14:06:36.067Z"
 last_activity: 2026-11-23
 last_activity_desc: Phase 07 execution started
-state_head: c399ace5cee522a942d8d9801b463e5b2a6d4d77
+state_head: f6358659d8d462f7d21e279dd7e8f8c02c162d9d
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 20
-  completed_plans: 19
+  completed_plans: 20
 milestone_name: milestone
 ---
 
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 
 Phase: 07 (Neovim Editor QoL Fixes) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-11-23 — Phase 07 execution started
 
 Progress: [████████░░] 83%
@@ -79,6 +79,7 @@ Progress: [████████░░] 83%
 | Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
 | Phase 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp P03 | 12 min | 3 tasks | 2 files |
 | Phase 07 P02 | 15 min | 3 tasks | 3 files |
+| Phase 07 P03 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -114,6 +115,8 @@ Recent decisions affecting current work:
 - [Phase 05-03]: Keep the one-shot precmd zasync hook as the shipped path while upstream PRs #903/#905 and issue #907 stay open; release-tag pin is fallback-only on observed live hook failure, never pre-pinned — a future upstream merge retires the hook via the manager update path per the README `Retire after` condition
 - [Phase 07]: G-07-1: far-left opaque scrollview markers via column=2 + signs_overflow=left; bar hidden by ScrollView->Normal highlight re-asserted after startup/colorscheme
 - [Phase 07]: G-07-1: separator is a dedicated │ float with signcolumn=yes:2; Neovim left-aligns signs so spare cells formed the empty gap
+- [Phase 07]: Buffer cycling rebound to <M-,>/<M-.> (Alt+comma/period): kitty legacy Alt ESC-prefix is the only user-offered pair delivered reliably; supersedes 07-CONTEXT.md scope item 5 per UAT acceptance
+- [Phase 07]: README now documents kitty as the primary terminal for key delivery, with Alacritty retained only as a secondary case
 
 ### Pending Todos
 
@@ -143,6 +146,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-11-23T14:01:47.489Z
-Stopped at: Completed 07-02-PLAN.md
+Last session: 2026-11-23T14:06:35.989Z
+Stopped at: Completed 07-03-PLAN.md
 Resume file: None

@@ -202,7 +202,7 @@ Plans:
   5. User presses `<C-,>` / `<C-.>` to move to next/previous buffer; `<Tab>`/`<S-Tab>` no longer cycle buffers; terminal-delivery caveat is documented
   6. User's Neovim config no longer sets `smoothscroll` (cosmetic cleanup only — no cursor-jump claims in any artifact)
 
-**Plans**: 2/3 plans executed (1 original + 2 gap closure)
+**Plans**: 3/3 plans executed (1 original + 2 gap closure)
 
 Plans:
 **Wave 1**
@@ -212,7 +212,7 @@ Plans:
 **Gap closure Wave 1** *(fixes 07-UAT.md gaps G-07-1 and G-07-2; independent plans, both wave 1)*
 
 - [x] 07-02-PLAN.md — Gap closure G-07-1: far-left opaque scrollview git markers, highlight-hidden bar, real thin solid separator, valid contrib options
-- [ ] 07-03-PLAN.md — Gap closure G-07-2: Alt+,/Alt+. buffer cycling that kitty delivers + kitty-inclusive README caveat
+- [x] 07-03-PLAN.md — Gap closure G-07-2: Alt+,/Alt+. buffer cycling that kitty delivers + kitty-inclusive README caveat
 
 ## Progress
 
@@ -227,4 +227,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp | 3/3 | Complete    | 2026-09-23 |
 | 5. Editor Autonomy & fzf-lua Migration | 0/2 | Not started | - |
 | 6. Verified Health & Self-Test Gates | 0/1 | Not started | - |
-| 7. Neovim Editor QoL Fixes | 2/3 | Ready to execute | - |
+| 7. Neovim Editor QoL Fixes | 3/3 | Ready to execute | - |
