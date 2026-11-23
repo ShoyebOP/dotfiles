@@ -1,9 +1,9 @@
 ---
-status: diagnosed
+status: complete
 phase: 07-neovim-editor-qol-fixes
 source: [07-VERIFICATION.md]
 started: 2026-11-23T12:49:44Z
-updated: 2026-11-23T14:25:00Z
+updated: 2026-11-23T15:26:41.439Z
 ---
 
 ## Current Test
@@ -29,19 +29,21 @@ expected: a rounded-border floating window shows the full current-line message; 
 result: pass
 
 ### 4. Open a git-tracked file with uncommitted changes in kitty and inspect the left gutter; then put a native diagnostic sign and a gitsigns sign on the same line and inspect again.
-expected: Left to right: far-left opaque git marker column (┃), a very thin solid line separator (│), the native per-line gitsigns, line numbers, then text — no large empty gap. The order is unchanged on a line carrying both a native diagnostic sign and a gitsigns sign.
-result: [pending]
+expected: The scrollview plugin and its separator line are removed entirely; the gutter shows only native per-line gitsigns (no far-left marker column, no separator, no large empty gap before line numbers).
+result: issue
+reported: "the separator is there spacing is correct, but git marker and native per-line gitsigns are in same column. User decision: impossible to fix the far-left marker + separator layout — remove the separator line and the whole scrollview plugin itself so only the per-line gitsign remains."
+severity: major
 
 ### 5. In real kitty with at least two buffers, press Alt+comma and Alt+period in normal mode; if nothing happens, run the insert-mode delivery test under `nvim --clean`.
 expected: Next/previous buffer switches. For the delivery probe, a literal ESC prefix is inserted after the Alt key; note that under this repo's normal config insert-mode <C-v> is remapped to clipboard paste (review WR-02), so the probe must run with `nvim --clean` or after `:iunmap <C-v>`.
-result: [pending]
+result: pass
 
 ## Summary
 
 total: 5
-passed: 1
-issues: 2
-pending: 2
+passed: 2
+issues: 3
+pending: 0
 skipped: 0
 blocked: 0
 
@@ -49,7 +51,9 @@ blocked: 0
 
 - gap_id: G-07-1
   truth: "scrollview git markers render in the far-left gutter (column 1), the scrollbar itself is invisible (winblend_gui=100), a blank separator cell sits before gitsigns' native per-line signs, and the separator survives on a line carrying both a native diagnostic sign and a gitsigns sign (signcolumn=yes:4)"
-  status: failed
+  status: resolved
+  resolved_by: 07-02-PLAN.md
+  resolved_at: 2026-11-23
   reason: "User reported: no the whole thing is wrong, first i don't see any git markers, the perline gitsigns is in the far left currently, after that there is a big empty space then line numbers and then text. what i wanted was git markers to the far left a very thin one pixel solid line separator, then perline gitsigns"
   severity: major
   test: 1
@@ -70,7 +74,9 @@ blocked: 0
 
 - gap_id: G-07-2
   truth: "next/previous buffer switches; if the sequence is swallowed, a literal control char fails to appear in insert mode, indicating the terminal needs a custom key_bindings entry for the buffer-switch keys"
-  status: failed
+  status: resolved
+  resolved_by: 07-03-PLAN.md
+  resolved_at: 2026-11-23
   reason: "User reported: nope this also not works, i am not using alacritty but kitty. even though the problem might be same, i'm open to change the bind with any of the following combinations- \"alt+,/alt+.\", \"ctrl+;/ctrl+'\" or \"ctrl+[/ctrl+]\" and btw i was talking about only the keys not the text itself"
   severity: major
   test: 2
@@ -84,3 +90,24 @@ blocked: 0
     - "Rebind to <M-,>/<M-.> (alt+, / alt+.) — the only user-suggested combo kitty delivers reliably; ctrl+;/' fails the same way and ctrl+[ collides with Escape"
     - "Update README caveat to cover kitty, not just Alacritty"
   debug_session: ".planning/debug/buffer-switch-keybindings-kitty.md"
+
+- gap_id: G-07-4
+  truth: "The scrollview plugin and its separator line are removed entirely; the gutter shows only native per-line gitsigns (no far-left marker column, no separator, no large empty gap before line numbers)"
+  status: failed
+  reason: "User reported: the separator is there spacing is correct, but git marker and native per-line gitsigns are in same column. User decision: impossible to fix the far-left marker + separator layout — remove the separator line and the whole scrollview plugin itself so only the per-line gitsign remains."
+  severity: major
+  test: 4
+  root_cause: "The far-left scrollview git-marker + 1px separator gutter design (QOL-03 / gap G-07-1) is not achievable with the pinned nvim-scrollview + Neovim signcolumn model; the user has decided to abandon that layout entirely and keep only native per-line gitsigns."
+  artifacts:
+    - path: "nvim/.config/nvim/lua/plugins/scrollview.lua"
+      issue: "scrollview plugin spec and separator/marker config added by 07-01/07-02 must be removed"
+    - path: "nvim/.config/nvim/lua/base/options.lua"
+      issue: "signcolumn=yes:4 added for the separator must be reverted"
+    - path: "nvim/.config/nvim/lazy-lock.json"
+      issue: "scrollview plugin pin must be removed if present"
+  missing:
+    - "Remove the scrollview plugin spec and its separator/marker configuration"
+    - "Revert signcolumn and any related gutter options added solely for the separator layout"
+    - "Remove the scrollview entry from lazy-lock.json"
+    - "Update docs/verification artifacts so they no longer claim a far-left marker/separator layout"
+  debug_session: ""
