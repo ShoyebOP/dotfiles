@@ -1,178 +1,203 @@
 ---
 phase: 07-neovim-editor-qol-fixes
-verified: 2026-11-23T12:48:51Z
+verified: 2026-11-23T14:22:33Z
 status: human_needed
-score: 6/6 must-haves verified (implementation + headless behavior)
+score: 8/10 must-haves verified
 covered_files:
-  - .planning/phases/07-neovim-editor-qol-fixes/07-01-PLAN.md
-  - .planning/phases/07-neovim-editor-qol-fixes/07-01-SUMMARY.md
-  - .planning/phases/07-neovim-editor-qol-fixes/07-CONTEXT.md
-  - .planning/phases/07-neovim-editor-qol-fixes/07-RESEARCH.md
-  - nvim/.config/nvim/lua/base/keymaps.lua
-  - nvim/.config/nvim/lua/base/options.lua
-  - nvim/.config/nvim/lua/plugins/scrollview.lua
-  - nvim/.config/nvim/lua/plugins/which-key.lua
-  - nvim/.config/nvim/lua/plugins/surround.lua
-  - nvim/.config/nvim/lazy-lock.json
-  - nvim/.config/nvim/README.md
-covered_digest: "unavailable — gsd_run tooling not installed in this environment; digest not fabricated"
-behavior_unverified: 0
+  - ".planning/phases/07-neovim-editor-qol-fixes/07-01-PLAN.md"
+  - ".planning/phases/07-neovim-editor-qol-fixes/07-01-SUMMARY.md"
+  - ".planning/phases/07-neovim-editor-qol-fixes/07-02-PLAN.md"
+  - ".planning/phases/07-neovim-editor-qol-fixes/07-02-SUMMARY.md"
+  - ".planning/phases/07-neovim-editor-qol-fixes/07-03-PLAN.md"
+  - ".planning/phases/07-neovim-editor-qol-fixes/07-03-SUMMARY.md"
+  - "nvim/.config/nvim/README.md"
+  - "nvim/.config/nvim/lazy-lock.json"
+  - "nvim/.config/nvim/lua/base/keymaps.lua"
+  - "nvim/.config/nvim/lua/base/options.lua"
+  - "nvim/.config/nvim/lua/plugins/scrollview.lua"
+  - "nvim/.config/nvim/lua/plugins/surround.lua"
+  - "nvim/.config/nvim/lua/plugins/which-key.lua"
+covered_digest: "v4:sha256:2d62f60e407e01fba503fd442a45fcc63f18c652722c7585fa5dd106ce6def20"
+behavior_unverified: 2
 overrides_applied: 0
 re_verification: false
-requirements_coverage:
-  QOL-01: SATISFIED
-  QOL-02: SATISFIED
-  QOL-03: SATISFIED
-  QOL-04: SATISFIED
-  QOL-05: SATISFIED
-  QOL-06: SATISFIED
+behavior_unverified_items:
+  - truth: "Marker / separator / gitsigns order is preserved on a line carrying both a native diagnostic sign and a gitsigns sign (QOL-03, G-07-1)"
+    test: "Open a git-tracked file with uncommitted changes in kitty, set a native diagnostic sign on a line that already has a gitsigns hunk, and inspect the gutter left to right."
+    expected: "The far-left opaque marker, the thin solid separator, and the native gitsigns all remain visible in that order, with no multi-cell blank gap; the separator float does not cover the second native sign slot."
+    why_human: "The headless screen dump exercises a single-sign changed line but never a two-sign line, and headless screenstring() cannot reliably composite the separator float over native signs. Code review IN-01 flagged exactly this unexercised case; this is the plan's deferred <human-check> for G-07-1."
+  - truth: "Alt+comma / Alt+period actually move to the next / previous buffer in the user's live kitty terminal (QOL-05, G-07-2)"
+    test: "In real kitty with at least two buffers open, press Alt+comma then Alt+period in normal mode."
+    expected: "Next buffer, then previous buffer, are selected."
+    why_human: "No kitty binary exists in this headless environment; the maparg probe proves only the editor-side binding, not terminal-to-Neovim delivery. Terminal delivery is an external-service behavior no headless test exercises."
 human_verification:
-  - test: "Open a git-tracked file with uncommitted changes in Alacritty and inspect the left gutter"
-    expected: "scrollview git markers render in the far-left gutter (column 1), the scrollbar itself is invisible (winblend_gui=100), a blank separator cell sits before gitsigns' native per-line signs, and the separator survives on a line carrying both a native diagnostic sign and a gitsigns sign (signcolumn=yes:4)"
-    why_human: "visual / window-layout rendering — headless probes prove the exact options passed to scrollview.setup() and signcolumn=yes:4, but cannot observe the rendered gutter"
-  - test: "In a real Alacritty terminal with nvim open on >=2 buffers, press <C-,> and <C-.> in normal mode; if nothing happens, press <C-v><C-,> in insert mode to test delivery"
-    expected: "next/previous buffer switches; if the sequence is swallowed, a literal control char fails to appear in insert mode, indicating Alacritty needs a custom key_bindings entry for Ctrl+comma/Ctrl+period"
-    why_human: "external terminal key delivery — Alacritty uses TERM=xterm-256color with no custom key_bindings; headless maparg proves the bindings exist but cannot prove the terminal emits the sequences"
-  - test: "Trigger <leader>vd on a line carrying a diagnostic"
-    expected: "a rounded-border floating window shows the full current-line message; virtual-text rendering is unchanged"
-    why_human: "visual confirmation — headless probe proved a float window opens with border=rounded configured and the diagnostic set, so this is a quick visual sanity check rather than a blocking unknown"
+  - test: "Open a git-tracked file with uncommitted changes in kitty and inspect the left gutter; then put a native diagnostic sign and a gitsigns sign on the same line and inspect again."
+    expected: "Left to right: far-left opaque git marker column (┃), a very thin solid line separator (│), the native per-line gitsigns, line numbers, then text — no large empty gap. The order is unchanged on a line carrying both a native diagnostic sign and a gitsigns sign."
+    why_human: "Final pixel compositing needs a real TUI; headless probes prove the option values and a marker→separator→number→text screen row but cannot composite the separator float over a two-sign line (review IN-01). This is the deferred <human-check> in 07-02-PLAN."
+  - test: "In real kitty with at least two buffers, press Alt+comma and Alt+period in normal mode; if nothing happens, run the insert-mode delivery test under `nvim --clean`."
+    expected: "Next/previous buffer switches. For the delivery probe, a literal ESC prefix is inserted after the Alt key; note that under this repo's normal config insert-mode <C-v> is remapped to clipboard paste (review WR-02), so the probe must run with `nvim --clean` or after `:iunmap <C-v>`."
+    why_human: "Live kitty key delivery is external to the codebase; headless maparg proves the editor side only. 07-03-SUMMARY explicitly defers this to end-of-phase UAT because no kitty binary is available here."
 ---
 
 # Phase 7: Neovim Editor QoL Fixes Verification Report
 
-**Phase Goal:** Daily editing gaps are closed: full diagnostics on demand, no dead keymaps, git markers in a far-left gutter with no scrollbar, surround support, and buffer cycling on `<C-,>`/`<C-.>`. Cursor-jump investigation is explicitly out of scope.
-**Verified:** 2026-11-23T12:48:51Z
-**Status:** human_needed (all implementation must-haves verified; 3 visual/live items require a human terminal)
-**Re-verification:** No — initial verification
-**Verification approach:** Goal-backward against the 6 PLAN frontmatter truths (one per QOL requirement), cross-referenced to the ROADMAP Phase 7 success criteria. `gsd_run` CLI tooling is not installed; all evidence was gathered by direct file reads, `git`, and re-running the plan's 13 headless gates with `nvim v0.12.2` + `jq 1.7`.
+**Phase Goal (ROADMAP, verbatim):** Daily editing gaps are closed: full diagnostics on demand, no dead keymaps, git markers in a far-left gutter with no scrollbar, surround support, and buffer cycling on `<C-,>`/`<C-.>`. Cursor-jump investigation is explicitly out of scope.
+**Verified:** 2026-11-23T14:22:33Z
+**Status:** human_needed — all implementation must-haves verified against final state; two end-of-phase human checks remain (both explicitly deferred by the gap-closure plans).
+**Re-verification:** No — initial verification of the final codebase. A stale `07-VERIFICATION.md` from 12:48:51Z existed but had no `gaps:` block and predated both gap-closure plans (07-02 / 07-03), so per Step 0 this is a fresh initial pass. It has been superseded by this report.
+
+## Scope Notes (read before the tables)
+
+1. **Stale goal strings superseded.** The ROADMAP/REQUIREMENTS literal `<C-,>`/`<C-.>` is stale: UAT gap **G-07-2** moved buffer cycling to `<M-,>`/`<M-.>` (Alt+comma/Alt+period) because kitty's legacy encoding drops Ctrl on punctuation. The ROADMAP SC-3 literal "blank separator cell" and `winblend_gui = 100` are also stale: gap **G-07-1** replaced the disproved spare-cell separator with a dedicated thin-solid-line float and changed `winblend_gui` to `0` with a `ScrollView → Normal` highlight link. Verification below follows the locked final end-state (gap-closure plans 07-02/07-03), as directed. REQUIREMENTS.md lines 48/50 still carry the old literals — documentation drift owned by the orchestrator, not a code defect.
+2. **MVP mode.** ROADMAP marks this phase `mode: mvp`, but the ROADMAP goal string is not a User Story (`user-story.validate` returned `valid: false`, missing the "As a … / I want to … / so that …" slots). The strict MVP guard would refuse to verify against it. To avoid blocking the orchestrator while staying honest, this report performs the full standard goal-backward verification and supplies the MVP User Flow Coverage table below using the **valid** User Story in `07-01-PLAN.md`'s `<objective>` (validated `valid: true`, role "daily Neovim user"). The discrepancy should be corrected by rewriting the ROADMAP goal as a proper User Story; it did not affect any implementation truth.
+3. **Digest.** `covered_digest` was produced by `gsd_run query verification.fingerprint` (v4), not hand-written. The verb auto-unioned the six phase PLAN/SUMMARY files with the seven declared implementation files.
+
+## User Flow Coverage (MVP mode — story taken from 07-01-PLAN.md `<objective>`)
+
+| Step (capability) | Expected | Evidence in codebase | Status |
+|---|---|---|---|
+| Open full diagnostics on demand | `<leader>vd` shows the full current-line message in a rounded float; virtual text unchanged | `keymaps.lua:25-27` + `VD-BEHAVIOR-OK`; UAT test 3 passed by human | ✓ VERIFIED |
+| Keep only keymaps that work | No bindings to uninstalled plugins; group label no longer "trouble/buffer" | `DEAD-MAPS-CLEAN`, `SURVIVORS-OK`, `WK-LABEL-OK`, `WK-SPEC-OK` | ✓ VERIFIED |
+| See git markers in a clean far-left gutter | Opaque far-left markers, hidden bar, thin solid separator, gitsigns intact | `GUTTER-SOURCE-OK`, `SCROLLVIEW-OPTS-FINAL-OK`, fresh `GUTTER-CONFIG-OK`, `SEPARATOR-LAYOUT-OK` | ✓ VERIFIED (2-sign line pending human) |
+| Wrap selections with surround | `S"` / `S)` wrap; plugin pinned with default keymaps | `SURROUND-PIN-OK`, `SURROUND-SPEC-OK`, `SURROUND-WRAP-OK` | ✓ VERIFIED |
+| Cycle buffers without sacrificing Tab | `<M-,>`/`<M-.>` (final) cycle buffers; Tab/S-Tab free | `BUFFER-ALT-SOURCE-OK`, `BUFFER-ALT-OK`, `BUFFER-CMDS-INTACT`, `STALE-CAVEAT-CLEAN` | ✓ VERIFIED (live kitty pending human) |
+| Outcome: everyday editing gaps closed without changing the diagnostic model or touching unrelated config | No diagnostic wrapping, no new hover binding, no cursor-jump work, no collateral edits | `HOVER-UNCHANGED`; commit file lists show only the 7 intended files touched | ✓ VERIFIED |
 
 ## Goal Achievement
 
 ### Observable Truths
 
+Must-haves merged from the 6 ROADMAP success criteria (non-negotiable contract) plus the per-plan frontmatter truths that add detail. Every row was checked against the final files, not SUMMARY claims.
+
 | # | Truth | Status | Evidence |
 |---|-------|--------|----------|
-| 1 | `<leader>vd` opens full rounded line-diagnostic float; virtual text untouched; no extra plugin (QOL-01) | ✓ VERIFIED | `keymaps.lua:25-27` holds exactly one active `vim.diagnostic.open_float(nil, {scope="line", border="rounded", focusable=true})` with desc `Show line diagnostic`, inserted immediately after the `<Esc>` noh map. Gate `VD-SOURCE-OK` passed. Headless `VD-BEHAVIOR-OK` loaded real keymaps/options, set a line diagnostic, invoked the callback and confirmed a float window opened. `HOVER-UNCHANGED` passed (`K`→`vim.lsp.buf.hover` still exactly once at `lspconfig.lua:103`). virtual_text config intact at `lspconfig.lua:38`. No `trouble` plugin anywhere. |
-| 2 | No dead keymaps; stale `<leader>x` group label retitled (QOL-02) | ✓ VERIFIED | Active-line greps for `grug-far`/`persistence`/`Diffview`/`Trouble` in `keymaps.lua` all return 0 (`DEAD-MAPS-CLEAN`). Survivors preserved (`SURVIVORS-OK`): `gs.preview_hunk`, `TodoFzfLua`, `Bdelete!`. `which-key.lua:19` is `{ "<leader>x", group = "buffer" }`, zero `trouble/buffer` (`WK-LABEL-OK`); headless `WK-SPEC-OK` confirms label `buffer` and table-form triggers. |
-| 3 | Scrollview git markers in far-left gutter, hidden scrollbar, blank separator via `signcolumn=yes:4` (QOL-03) | ✓ VERIFIED | `scrollview.lua:8-12` sets `base="left"`, `column=1`, `winblend_gui=100`, `signs_on_startup={"gitsigns"}`, `signs_scrollbar_overlap="off"`; gitsigns contrib block byte-intact. Headless `SCROLLVIEW-OPTS-OK` loaded the spec with a stubbed module and asserted every option plus `current_only=true`, contrib setup called, `excluded_filetypes[1]="nerdtree"`. `options.lua:12` sets `signcolumn="yes:4"` with the four-cell comment. Visual rendering itself remains a human item (below). |
-| 4 | Surround selected text with `S"`/`S)`; nvim-surround pinned (QOL-04) | ✓ VERIFIED | `surround.lua` is exactly the locked spec (`kylechui/nvim-surround`, `version="*"`, `event="VeryLazy"`, `opts={}`) — headless `SURROUND-SPEC-OK`. `git ls-files` confirms it is tracked; `lazy-lock.json:26` pins `2e93e154de9ff326def6480a4358bfc149d5da2c` (`SURROUND-PIN-OK`). Pin is genuine: installed plugin HEAD is that exact commit, tagged `v4.0.5`. All 40 lockfile pins match installed plugin HEADs (39 prior pins retained). Beyond the plan's gates, an extra headless probe loaded the real v4.0.5 plugin and confirmed default keymaps register (`ys`/`ds`/`cs`/visual `S`) and that visual `S"` actually wraps `hello` → `"hello"` (`SURROUND-WRAP-OK`). |
-| 5 | Buffer cycling on `<C-,>`/`<C-.>`, Tab freed, caveat documented (QOL-05) | ✓ VERIFIED | `keymaps.lua:94-95` map `<C-,>`→`BufferLineCycleNext`, `<C-.>`→`BufferLineCyclePrev`. Headless `BUFFER-MAPS-OK` confirmed maparg for both and that `<Tab>`/`<S-Tab>` maparg is empty; Tab/S-Tab remain only in `blink-cmp.lua` completion. `README.md:24-30` documents the insert-mode `<C-v><C-,>` delivery test and the Alacritty `key_bindings` caveat (`CAVEAT-DOC-OK`). Live terminal delivery remains a human item (below). |
-| 6 | `smoothscroll` removed as cosmetic cleanup (QOL-06) | ✓ VERIFIED | `SMOOTH-CLEAN` passed: zero active `smoothscroll` lines in `options.lua`; repo-wide scan of `*.lua` found no active assignment. No cursor-jump claims appear in any phase artifact. |
+| 1 | `<leader>vd` opens the full rounded line-diagnostic float; virtual text unchanged; no Trouble added (SC-1 / QOL-01) | ✓ VERIFIED | `keymaps.lua:25-27` holds exactly one active `vim.diagnostic.open_float(nil, { scope = "line", border = "rounded", focusable = true })` with desc `Show line diagnostic`, immediately after the `<Esc>` noh map. `VD-SOURCE-OK` + headless `VD-BEHAVIOR-OK` (float opened from loaded source). `HOVER-UNCHANGED`: exactly one `vim.lsp.buf.hover` binding remains in `lspconfig.lua`; no `trouble` plugin. UAT test 3 passed by a human. |
+| 2 | No dead keymaps to uninstalled plugins; `<leader>x` group retitled to `buffer` (SC-2 / QOL-02) | ✓ VERIFIED | `DEAD-MAPS-CLEAN`: active-line counts for grug-far/persistence/Diffview/Trouble all 0. `SURVIVORS-OK`: `gs.preview_hunk`, `TodoFzfLua`, `Bdelete!` intact. `which-key.lua:19` = `{ "<leader>x", group = "buffer" }`, zero `trouble/buffer`; `WK-SPEC-OK` confirmed headlessly. |
+| 3 | Scrollview git markers render opaque at the far-left gutter; scrollbar hidden (QOL-03 / G-07-1) | ✓ VERIFIED | `scrollview.lua:8-16`: `base=left`, `column=2`, `signs_overflow=left`, `winblend_gui=0`, `signs_show_in_folds=true`, `signs_on_startup={gitsigns}`, `signs_scrollbar_overlap=off`, no `winblend_gui=100`. `ScrollView→Normal` link at `:20` with `vim.schedule` + `ColorScheme` re-assert. Freshly re-ran the shipped gate: `sign_windows=1`, `min_sign_col=0`, `winblend=0`, `ScrollView_hl_link=Normal`, `bar_cell_row6=  blank=true` → `GUTTER-CONFIG-OK`. |
+| 4 | Thin solid separator before native gitsigns, no multi-cell blank gap (SC-3 / QOL-03 / G-07-1) | ✓ VERIFIED | `scrollview.lua:41-103`: one-column `│` (U+2502) float, `focusable=false`, `border=none`, `zindex=45`, dedicated dim `ScrollViewSeparator` highlight, autocmd recreate/cleanup. `options.lua:12` is `signcolumn="yes:2"` with the verified left-alignment comment (no `yes:4`). Fresh gate screen row: `marker=1 sep=3 number=7 text=9`, `marker->sep=2 sep->number=4` → `SEPARATOR-LAYOUT-OK`. |
+| 5 | Marker / separator / gitsigns order preserved on a line carrying BOTH a native diagnostic sign and a gitsigns sign (07-02 truth / QOL-03) | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | Source and headless geometry are present and wired, but no test exercises a two-sign line: the gate's screen dump used a single-gitsigns changed line, and headless `screenstring()` cannot reliably composite floats over native signs. Code review `IN-01` (open) flags that the separator float at `col=2` may overlap the second native sign slot. Routed to Human Verification item 1; excluded from the verified score. |
+| 6 | Gitsigns contrib uses only keys the pinned plugin reads; research corrected; prior deliverables untouched (07-02 truths) | ✓ VERIFIED | `CONTRIB-KEYS-OK`: only `enabled` + `add/change/delete_priority`; no bare `priority`/`show_in_folds`. `RESEARCH-CORRECTED`: no `right-align` claim, `left-align` present, cites G-07-1. Commit file lists for `35c7955`, `199e50f`, `c399ace` touch only `scrollview.lua`, `options.lua`, `07-RESEARCH.md`; `07-01-SUMMARY.md` is byte-unchanged. |
+| 7 | nvim-surround installed, pinned with a genuine 40-hex commit, default `ys`/`ds`/`cs`/visual `S` wrap works (SC-4 / QOL-04) | ✓ VERIFIED | `surround.lua` is the exact locked spec (`kylechui/nvim-surround`, `version="*"`, `event="VeryLazy"`, `opts={}`) — `SURROUND-SPEC-OK`, git-tracked. `lazy-lock.json:26` pins `2e93e154de9ff326def6480a4358bfc149d5da2c`, which equals the installed plugin HEAD (tag v4.0.5); 40 entries, prior pins retained. Extra probe loaded the real plugin and visually wrapped `hello` → `"hello"` (`SURROUND-WRAP-OK`). |
+| 8 | Buffer next/prev bound to `<M-,>`/`<M-.>` with the original commands; Tab/S-Tab and old Ctrl lhs unbound (SC-5 editor side / QOL-05 / G-07-2) | ✓ VERIFIED | `keymaps.lua:94-95` map `<M-,>`→`BufferLineCycleNext`, `<M-.>`→`BufferLineCyclePrev`, desc/order preserved. Headless `BUFFER-ALT-OK` confirmed both mapargs and empty maparg for `<Tab>`, `<S-Tab>`, `<C-,>`, `<C-.>`. Repo-wide scan finds no `<C-,>`/`<C-.>` in the shipped nvim config. `BUFFER-CMDS-INTACT`. |
+| 9 | Alt+comma / Alt+period actually cycle buffers in the user's live kitty terminal (07-03 truth / QOL-05) | ⚠️ PRESENT_BEHAVIOR_UNVERIFIED | The editor side is proven (row 8) and the README explains kitty's legacy Ctrl+punctuation drop, but no kitty binary exists here, so terminal-to-Neovim delivery has no behavioral test. Routed to Human Verification item 2; excluded from the verified score. |
+| 10 | `smoothscroll` removed as cosmetic cleanup; no cursor-jump claims (SC-6 / QOL-06) | ✓ VERIFIED | `SMOOTH-CLEAN`: zero active `smoothscroll` lines in `options.lua`; `vim.o.smoothscroll == false` asserted in `VD-BEHAVIOR-OK`. No cursor-jump claims in any phase artifact; `07-01-SUMMARY` records the removal as cosmetic only. |
 
-**Score:** 6/6 truths verified (0 present-but-behavior-unverified; 0 overrides). All 6 have behavioral/grep evidence from re-run gates, not just file existence.
+**Score:** 8/10 truths verified (2 present-but-behavior-unverified; 0 failed; 0 overrides). The 6 roadmap success criteria are all satisfied at the implementation level; the 2 unverified rows are plan-specific live/visual invariants deferred to end-of-phase UAT.
 
-### Probe Execution (13 plan gates + 2 extra behavioral checks)
+### Deferred Items
 
-All commands run from repo root with `nvim --headless --clean -u NONE` and rtp prepended to `nvim/.config/nvim` exactly as specified in the plan.
-
-| # | Gate marker | Command type | Result |
-|---|-------------|--------------|--------|
-| 1 | VD-SOURCE-OK | grep/test source assertions | PASS |
-| 2 | VD-BEHAVIOR-OK | headless float-open + options probe | PASS |
-| 3 | HOVER-UNCHANGED | grep/test source assertions | PASS |
-| 4 | SMOOTH-CLEAN | grep/test source assertions | PASS |
-| 5 | DEAD-MAPS-CLEAN | grep/test source assertions | PASS |
-| 6 | SURVIVORS-OK | grep source assertions | PASS |
-| 7 | WK-LABEL-OK | grep/test source assertions | PASS |
-| 8 | SCROLLVIEW-OPTS-OK | headless stubbed-module option probe | PASS |
-| 9 | WK-SPEC-OK | headless which-key spec load | PASS |
-| 10 | SURROUND-PIN-OK | file/git/grep lockfile pin | PASS |
-| 11 | SURROUND-SPEC-OK | headless surround spec load | PASS |
-| 12 | BUFFER-MAPS-OK | headless maparg probe | PASS |
-| 13 | CAVEAT-DOC-OK | grep README | PASS |
-| E1 | SURROUND-KEYMAPS-OK | extra: load real v4.0.5 plugin, assert default keymaps | PASS |
-| E2 | SURROUND-WRAP-OK | extra: visual `S"` actually wraps `hello` → `"hello"` | PASS |
-
-**Result: 15/15 PASS, 0 FAIL.**
+None — no failed truth or missing item was matched to a later milestone phase. Both open items are human checks, not gaps.
 
 ### Required Artifacts
 
 | Artifact | Expected | Status | Details |
-|----------|----------|--------|---------|
-| `nvim/.config/nvim/lua/base/keymaps.lua` | diag float mapping, 4 dead regions removed, buffer-cycle lhs changed | ✓ VERIFIED | 176 lines; all changes present, neighbors intact |
-| `nvim/.config/nvim/lua/base/options.lua` | `signcolumn=yes:4`, smoothscroll removed | ✓ VERIFIED | 76 lines; line 12 correct, no smoothscroll |
-| `nvim/.config/nvim/lua/plugins/scrollview.lua` | far-left gutter options, hidden bar, gitsigns-only signs | ✓ VERIFIED | 21 lines; all 5 options correct, contrib block intact |
+|---|---|---|---|
+| `nvim/.config/nvim/lua/base/keymaps.lua` | diag float; 4 dead regions removed; Alt buffer-cycle lhs | ✓ VERIFIED | 176 lines; all changes present, neighbors intact, no stale Ctrl lhs |
+| `nvim/.config/nvim/lua/base/options.lua` | `signcolumn="yes:2"`, left-align comment; no smoothscroll | ✓ VERIFIED | 76 lines; line 12 correct (final G-07-1 state), no smoothscroll |
+| `nvim/.config/nvim/lua/plugins/scrollview.lua` | far-left opaque markers, hidden bar, valid contrib keys, separator float | ✓ VERIFIED | 105 lines; final G-07-1 config, gate passed |
 | `nvim/.config/nvim/lua/plugins/which-key.lua` | `<leader>x` group = `buffer` | ✓ VERIFIED | 24 lines; line 19 correct |
 | `nvim/.config/nvim/lua/plugins/surround.lua` | nvim-surround lazy spec | ✓ VERIFIED | 6 lines; exact locked spec, git-tracked |
-| `nvim/.config/nvim/lazy-lock.json` | nvim-surround 40-hex pin, prior pins retained | ✓ VERIFIED | 40 entries, all match installed HEADs; pin genuine (v4.0.5) |
-| `nvim/.config/nvim/README.md` | buffer-cycle caveat | ✓ VERIFIED | 35 lines; `## Keymaps` subsection with both caveats |
+| `nvim/.config/nvim/lazy-lock.json` | nvim-surround 40-hex pin, prior pins retained | ✓ VERIFIED | 40 entries; pin matches installed HEAD (v4.0.5); forced-add documented in 07-01-SUMMARY and independently confirmed tracked |
+| `nvim/.config/nvim/README.md` | kitty-inclusive Alt buffer-cycling caveat | ✓ VERIFIED | 39 lines; kitty primary, Alacritty secondary, no `<C-,>` prose |
 
-**Artifacts:** 7/7 verified.
+**Artifacts:** 7/7 verified (all substantive, tracked, and wired).
 
 ### Key Link Verification
 
 | From | To | Via | Status | Details |
-|------|----|-----|--------|---------|
-| `<leader>vd` | `vim.diagnostic.open_float` | inline Lua callback in keymaps.lua | ✓ WIRED | VD-BEHAVIOR-OK opened a real float |
-| `signcolumn=yes:4` | scrollview gutter / gitsigns signs | four-cell layout | ✓ WIRED | options + scrollview options verified together |
-| `winblend_gui=100` | hidden scrollbar | scrollview.setup options | ✓ WIRED | SCROLLVIEW-OPTS-OK |
-| surround.lua spec | lockfile pin → installed plugin → visual `S` | lazy spec → pin → plugin keymaps | ✓ WIRED | pin genuine + SURROUND-WRAP-OK |
-| `<C-,>`/`<C-.>` lhs | BufferLine next/prev commands | normal-mode keymaps | ✓ WIRED | BUFFER-MAPS-OK |
+|---|---|---|---|---|
+| `<leader>vd` | `vim.diagnostic.open_float` | inline Lua callback in `keymaps.lua` | ✓ WIRED | `VD-BEHAVIOR-OK` opened a real float |
+| `signcolumn="yes:2"` + scrollview `column=2`/`signs_overflow=left` | far-left marker column + native sign slots | option geometry | ✓ WIRED | `SCROLLVIEW-OPTS-FINAL-OK`, `SIGNCOLUMN-OK`, fresh gate |
+| `ScrollView → Normal` highlight + `winblend_gui=0` | hidden bar, opaque signs | plugin highlight / winblend | ✓ WIRED | gate: `ScrollView_hl_link=Normal`, blank bar cell, `winblend=0` sign window |
+| separator float (`col=2`, `│`, zindex 45) | gap between marker and gitsigns | `nvim_open_win` + autocmds | ✓ WIRED | `SEPARATOR-SOURCE-OK`, `SEPARATOR-LAYOUT-OK` |
+| `surround.lua` spec | lockfile pin → installed plugin → visual `S` | lazy spec → pin → plugin keymaps | ✓ WIRED | genuine pin + `SURROUND-WRAP-OK` |
+| `<M-,>`/`<M-.>` lhs | `BufferLineCycleNext`/`BufferLineCyclePrev` | normal-mode keymaps | ✓ WIRED | `BUFFER-ALT-OK` |
+| kitty README caveat | final Alt binding | documentation | ✓ WIRED | `KITTY-DOC-OK`, no stale Ctrl lhs in prose |
 
-**Wiring:** 5/5 verified.
+**Wiring:** 7/7 verified.
 
 ### Data-Flow Trace (Level 4)
 
-Not applicable — this phase produces static Neovim configuration (keymaps/options/plugin specs), not dynamic data-rendering artifacts. The relevant runtime wiring is covered by the headless probes above.
+Not applicable — this phase produces static Neovim configuration (keymaps, options, plugin specs), not dynamic data-rendering artifacts. Runtime wiring is covered by the headless probes below.
+
+### Behavioral Spot-Checks
+
+| Behavior | Command | Result | Status |
+|---|---|---|---|
+| Diagnostic float opens from loaded source | `nvim --headless --clean -u NONE -c "luafile .../vd.lua"` | `VD-BEHAVIOR-OK` | ✓ PASS |
+| which-key spec label + table triggers | headless `wk.lua` | `WK-SPEC-OK` | ✓ PASS |
+| Scrollview final setup options | headless `scrollview-opts.lua` (stubbed plugin modules) | `SCROLLVIEW-OPTS-FINAL-OK` | ✓ PASS |
+| Surround spec shape | headless `surround-spec.lua` | `SURROUND-SPEC-OK` | ✓ PASS |
+| Real surround visual `S"` wraps | headless `surround_probe.lua` (installed v4.0.5) | `SURROUND-WRAP-OK` | ✓ PASS |
+| Alt buffer maparg / old keys unbound | headless `buffer-alt.lua` | `BUFFER-ALT-OK` | ✓ PASS |
+
+All checks completed in under 10 seconds, started no server, and mutated no repo state.
+
+### Probe Execution
+
+SUMMARY probe claims were not trusted; each probe was re-run in this verifier's own process.
+
+| Probe | Command | Result | Status |
+|---|---|---|---|
+| Gutter config + separator layout (shipped gate) | `cd /tmp/opencode/gutter-probe && PROBE_OUT=... nvim --headless sample.txt -c 'luafile /tmp/opencode/gutter-gap-gate.lua'` | Fresh result: `GUTTER-CONFIG-OK` and `SEPARATOR-LAYOUT-OK`; `sign_windows=1`, `marker=1 sep=3 number=7 text=9` | ✓ PASS (independent re-run) |
+| Source assertions (16 gates) | grep/test from repo root | all 16 PASS | ✓ PASS |
 
 ### Requirements Coverage
 
-| Requirement | Source | Description | Status | Evidence |
-|-------------|--------|-------------|--------|----------|
-| QOL-01 | REQUIREMENTS.md:46 | `<leader>vd` full diagnostic float, no wrapping/Trouble | ✓ SATISFIED | VD-SOURCE-OK, VD-BEHAVIOR-OK, HOVER-UNCHANGED, no trouble/wrapping changes |
-| QOL-02 | REQUIREMENTS.md:47 | dead keymaps removed, group label retitled | ✓ SATISFIED | DEAD-MAPS-CLEAN, SURVIVORS-OK, WK-LABEL-OK, WK-SPEC-OK |
-| QOL-03 | REQUIREMENTS.md:48 | scrollview far-left gutter, hidden bar, blank separator | ✓ SATISFIED | SCROLLVIEW-OPTS-OK, signcolumn=yes:4 (visual confirm delegated to human) |
-| QOL-04 | REQUIREMENTS.md:49 | nvim-surround installed, default keymaps, pinned | ✓ SATISFIED | SURROUND-PIN-OK, SURROUND-SPEC-OK, SURROUND-KEYMAPS-OK, SURROUND-WRAP-OK |
-| QOL-05 | REQUIREMENTS.md:50 | `<C-,>`/`<C-.>` cycle buffers, Tab freed, caveat documented | ✓ SATISFIED | BUFFER-MAPS-OK, CAVEAT-DOC-OK (live terminal delivery delegated to human) |
-| QOL-06 | REQUIREMENTS.md:51 | smoothscroll removed, no cursor-jump claims | ✓ SATISFIED | SMOOTH-CLEAN, repo-wide scan |
+| Requirement | Source Plans | Description | Status | Evidence |
+|---|---|---|---|---|
+| QOL-01 | 07-01 | `<leader>vd` full diagnostic float; no wrapping/Trouble | ✓ SATISFIED | `VD-SOURCE-OK`, `VD-BEHAVIOR-OK`, `HOVER-UNCHANGED`; UAT test 3 human-passed |
+| QOL-02 | 07-01 | dead keymaps removed; group label retitled | ✓ SATISFIED | `DEAD-MAPS-CLEAN`, `SURVIVORS-OK`, `WK-LABEL-OK`, `WK-SPEC-OK` |
+| QOL-03 | 07-01, 07-02 | far-left markers, hidden bar, thin solid separator, gitsigns intact | ✓ SATISFIED | `GUTTER-SOURCE-OK`, `SIGNCOLUMN-OK`, `SEPARATOR-SOURCE-OK`, fresh gutter gate; two-sign line → human |
+| QOL-04 | 07-01 | nvim-surround installed, pinned, default keymaps | ✓ SATISFIED | `SURROUND-PIN-OK`, `SURROUND-SPEC-OK`, `SURROUND-WRAP-OK` |
+| QOL-05 | 07-01, 07-03 | Alt buffer cycling (final); Tab/S-Tab free; kitty caveat documented | ✓ SATISFIED | `BUFFER-ALT-SOURCE-OK`, `BUFFER-ALT-OK`, `KITTY-DOC-OK`, `STALE-CAVEAT-CLEAN`; live kitty → human |
+| QOL-06 | 07-01 | smoothscroll removed, no cursor-jump claims | ✓ SATISFIED | `SMOOTH-CLEAN`, headless `vim.o.smoothscroll == false` |
 
-**Coverage:** 6/6 requirements satisfied. All 6 IDs declared in the PLAN frontmatter `requirements` field and all 6 mapped to Phase 7 in REQUIREMENTS.md traceability — no orphaned requirements.
+**Coverage:** 6/6 requirement IDs declared in the three PLAN frontmatter fields are accounted for. Cross-referenced against REQUIREMENTS.md — all six map to Phase 7; no orphaned requirements. (REQUIREMENTS.md checkboxes for QOL-01/02/04/06 remain unchecked and its QOL-03/05 wording is stale; traceability updates are orchestrator-owned.)
 
 ### Decision Coverage
 
-CONTEXT.md locked decisions D-1..D-6 (diagnostics built-in/no Trouble; stale keymap removal; scrollview far-left + signcolumn; nvim-surround install+pin; buffer rebind; smoothscroll removal cosmetic-only) all appear in the SUMMARY `key-decisions` and are reflected verbatim in the shipped files. Cursor-jump investigation remained out of scope in every artifact. Coverage: 6/6 honored. (Warning-only gate; CONTEXT.md `<decisions>` block checked manually since `gsd_run` is unavailable.)
+`check.decision-coverage-verify` returned `skipped: true` — "No trackable decisions in CONTEXT.md" (0 total, 0 honored). Warning-only gate; no status impact. The six locked scope decisions from 07-CONTEXT.md are nonetheless reflected verbatim in the shipped files and SUMMARY key-decisions, with the two UAT-superseded choices (gutter design, buffer keys) explicitly recorded in 07-RESEARCH.md / 07-03-SUMMARY.
+
+### Test Quality Audit
+
+No committed test files are linked to requirements in this phase — verification uses disposable headless probes (`/tmp/opencode/...`, never committed). Disabled-test, circular-fixture, and expected-value-provenance checks are therefore N/A; assertion-strength is behavioral where runtime behavior is claimed (float opens, maparg resolves, real plugin wraps, screen row order). No circular expected values: probes assert against API state and installed plugin behavior, not values generated by the system under test.
 
 ### Anti-Patterns Found
 
 | File | Line | Pattern | Severity | Impact |
-|------|------|---------|----------|--------|
-| — | — | none | — | Debt-marker scan found no TBD/FIXME/XXX/TODO/HACK/PLACEHOLDER in changed files (the sole `TODO` hit at `keymaps.lua:145` is a legitimate `TodoFzfLua keywords=TODO,FIX,FIXME` keymap, not a marker). No stub/empty implementations. Working tree clean. |
+|---|---|---|---|---|
+| `keymaps.lua` | 145 | `TODO,FIX,FIXME` in `TodoFzfLua keywords=...` | ℹ️ Info | Legitimate keymap keyword list, not an unresolved debt marker |
+| `scrollview.lua` | 58 | `local lines = {}` | ℹ️ Info | Populated immediately by the loop at `:59-61`; not a stub |
+| `surround.lua` | 5 | `opts = {}` | ℹ️ Info | Required empty-opts lazy spec shape; plugin defaults supply keymaps |
 
-**Anti-patterns:** 0 blockers, 0 warnings.
+Debt-marker gate: the only `TODO`/`FIXME` hit is the legitimate keymap above and is not an unresolved marker — no blocker. No placeholder prose, empty implementations, hollow props, or console-log-only stubs. All 8 task commits exist and each touches only its intended files; working tree has only pre-existing `.planning/state.json` (M) and `.planning/milestone.lock` (untracked), untouched by this phase.
 
-### Documented Deviation — Lockfile Force-Add
+### Informational Notes (non-blocking)
 
-The SUMMARY records that `lazy-lock.json` is gitignored (`.gitignore:5` and `:22`) and was force-added (`git add -f`) so the required committed pin would land — committed in `a986fca`. Independently verified:
-- `git ls-files` lists `nvim/.config/nvim/lazy-lock.json` — it is tracked.
-- Pin at line 26 is `2e93e154de9ff326def6480a4358bfc149d5da2c`, which equals the installed plugin's HEAD (tag `v4.0.5`) — genuine, not fabricated.
-- The lockfile has 40 entries (39 prior + nvim-surround); **every** entry's commit matches its installed plugin HEAD, confirming all prior pins were retained. Deployed `~/.config/nvim/lazy-lock.json` is byte-identical in keys to the repo copy.
-- All three task commits (`5e4f704`, `68514df`, `a986fca`) exist and are reachable; working tree is clean.
-
-Deviation is acceptable and necessary to satisfy the plan's explicit "committed 40-hex pin" requirement. No override needed.
+- **Code review WR-01 (open):** `scrollview.lua:86-92` registers a `User ScrollViewRefresh` autocmd, but the pinned plugin fires a `:ScrollViewRefresh` command, not a `User` event — the callback never runs. Inert: separator redraw is already covered by `BufEnter`/`WinEnter`/`VimResized`/`WinScrolled`/`WinClosed`. Removal is a small follow-up, not a goal blocker.
+- **Code review WR-02 (open):** the README insert-mode `<C-v>` delivery test is defeated by `keymaps.lua:174`'s `map("i", "<C-v>", "<C-r>+")`. Folded into Human Verification item 2 (`nvim --clean` or `:iunmap <C-v>`).
+- **Code review IN-01 (open):** potential separator/native-sign overlap on a two-sign line — folded into Human Verification item 1.
+- **Stale planning literals:** ROADMAP goal SC-3/SC-5 and REQUIREMENTS.md lines 48/50 still name `winblend_gui=100`, `yes:4`, `<C-,>`/`<C-.>`. Orchestrator-owned docs; final code is the locked gap-closure end-state.
 
 ### Human Verification Required
 
-All implementation and headless-behavior checks pass. Three items are visual/live and genuinely require a human terminal:
+Automated checks pass. Two end-of-phase human checks remain — both explicitly deferred by the gap-closure plans (`human_verify_mode = end-of-phase`), not implementation defects.
 
-**1. Scrollview gutter rendering (QOL-03)**
-- **Test:** Open a git-tracked file with uncommitted changes in Alacritty and inspect the left gutter.
-- **Expected:** git markers in the far-left gutter (col 1), invisible scrollbar, blank separator before gitsigns' native per-line signs, separator intact even when a native diagnostic sign and a gitsigns sign share a line.
-- **Why human:** visual/window-layout rendering — headless proves the options passed to `scrollview.setup()` and `signcolumn=yes:4`, not the rendered pixels.
+**1. Gutter visual order in kitty (QOL-03 / G-07-1)**
+- **Test:** Open a git-tracked file with uncommitted changes in kitty and inspect the left gutter; then put a native diagnostic sign and a gitsigns sign on the same line and inspect again.
+- **Expected:** Left to right — far-left opaque marker (┃), thin solid line separator (│), native per-line gitsigns, line numbers, text; no large empty gap; order unchanged on the two-sign line.
+- **Why human:** Final pixel compositing needs a real TUI; headless proves option values and a marker→separator→number→text screen row but cannot composite the float over a two-sign line (IN-01).
 
-**2. Terminal delivery of `<C-,>`/`<C-.>` in Alacritty (QOL-05)**
-- **Test:** With ≥2 buffers open in a real Alacritty terminal, press `<C-,>`/`<C-.>` in normal mode; if nothing happens, test `<C-v><C-,>` in insert mode.
-- **Expected:** next/previous buffer switch; if the sequence is swallowed, add an Alacritty `key_bindings` entry for Ctrl+comma/Ctrl+period.
-- **Why human:** external terminal key delivery — Alacritty uses `TERM=xterm-256color` with no custom `key_bindings`; headless `maparg` proves the bindings exist but cannot prove the terminal emits the sequences. This is the caveat the plan itself flagged.
-
-**3. Diagnostic float visual (QOL-01) — confirmatory**
-- **Test:** Trigger `<leader>vd` on a line carrying a diagnostic.
-- **Expected:** rounded-border float shows the full current-line message; virtual text unchanged.
-- **Why human:** visual appearance; headless already proved a float opens with `border=rounded` configured, so this is a quick sanity check, not a blocking unknown.
+**2. Live kitty Alt buffer cycling (QOL-05 / G-07-2)**
+- **Test:** In real kitty with ≥2 buffers, press Alt+comma and Alt+period in normal mode; run the insert-mode delivery probe under `nvim --clean` if needed.
+- **Expected:** Next/previous buffer switches; literal ESC prefix appears in the clean-config delivery probe.
+- **Why human:** No kitty binary here; maparg proves only the editor side. README's `<C-v>` probe is remapped under this config (WR-02), so use `--clean` or `:iunmap <C-v>`.
 
 ### Gaps Summary
 
-**No gaps found.** All 6 must-haves, 7 artifacts, 5 key links, and 6 requirements are satisfied by direct codebase evidence and re-run behavioral probes. The only outstanding work is human confirmation of three visual/live items, which are inherent to a terminal-config phase and were explicitly called out by the plan (not defects). Status `human_needed` reflects that, not an implementation shortfall.
+**No gaps found.** All 6 roadmap success criteria, 10 merged must-have truths (8 fully verified, 2 present-but-behavior-unverified), 7 artifacts, 7 key links, and 6 requirement IDs are satisfied or explicitly routed to human verification. Both remaining items are the plans' own deferred end-of-phase human checks. G-07-1 and G-07-2 are closed at the automated level by 07-02 and 07-03 respectively, with each change re-verified from the final codebase in this pass.
 
 ---
-*Verified: 2026-11-23T12:48:51Z*
-*Verifier: the agent (gsd-verifier subagent)*
+_Verified: 2026-11-23T14:22:33Z_
+_Verifier: the agent (gsd-verifier subagent)_

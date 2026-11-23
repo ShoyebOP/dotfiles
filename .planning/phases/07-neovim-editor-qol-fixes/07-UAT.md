@@ -3,7 +3,7 @@ status: diagnosed
 phase: 07-neovim-editor-qol-fixes
 source: [07-VERIFICATION.md]
 started: 2026-11-23T12:49:44Z
-updated: 2026-11-23T13:15:00Z
+updated: 2026-11-23T14:25:00Z
 ---
 
 ## Current Test
@@ -28,12 +28,20 @@ severity: major
 expected: a rounded-border floating window shows the full current-line message; virtual-text rendering is unchanged (confirmatory only — headless already proved the float opens)
 result: pass
 
+### 4. Open a git-tracked file with uncommitted changes in kitty and inspect the left gutter; then put a native diagnostic sign and a gitsigns sign on the same line and inspect again.
+expected: Left to right: far-left opaque git marker column (┃), a very thin solid line separator (│), the native per-line gitsigns, line numbers, then text — no large empty gap. The order is unchanged on a line carrying both a native diagnostic sign and a gitsigns sign.
+result: [pending]
+
+### 5. In real kitty with at least two buffers, press Alt+comma and Alt+period in normal mode; if nothing happens, run the insert-mode delivery test under `nvim --clean`.
+expected: Next/previous buffer switches. For the delivery probe, a literal ESC prefix is inserted after the Alt key; note that under this repo's normal config insert-mode <C-v> is remapped to clipboard paste (review WR-02), so the probe must run with `nvim --clean` or after `:iunmap <C-v>`.
+result: [pending]
+
 ## Summary
 
-total: 3
+total: 5
 passed: 1
 issues: 2
-pending: 0
+pending: 2
 skipped: 0
 blocked: 0
 
