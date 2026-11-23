@@ -202,7 +202,7 @@ Plans:
   5. User presses `<C-,>` / `<C-.>` to move to next/previous buffer; `<Tab>`/`<S-Tab>` no longer cycle buffers; terminal-delivery caveat is documented
   6. User's Neovim config no longer sets `smoothscroll` (cosmetic cleanup only — no cursor-jump claims in any artifact)
 
-**Plans**: 3/3 plans executed (1 original + 2 gap closure)
+**Plans**: 3/4 plans executed (1 original + 2 gap closure; 1 gap-closure plan pending)
 
 Plans:
 **Wave 1**
@@ -213,6 +213,10 @@ Plans:
 
 - [x] 07-02-PLAN.md — Gap closure G-07-1: far-left opaque scrollview git markers, highlight-hidden bar, real thin solid separator, valid contrib options
 - [x] 07-03-PLAN.md — Gap closure G-07-2: Alt+,/Alt+. buffer cycling that kitty delivers + kitty-inclusive README caveat
+
+**Gap closure Wave 1 (additional plan)** *(depends_on: [] — fixes 07-UAT.md gap G-07-4; supersedes the 07-01/07-02 gutter layout per the user's decision)*
+
+- [ ] 07-04-PLAN.md — Gap closure G-07-4: remove the scrollview plugin and divider layout entirely so only native per-line gitsigns remain; reframe the related docs
 
 ## Progress
 
