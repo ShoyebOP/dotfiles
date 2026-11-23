@@ -3,16 +3,16 @@ gsd_state_version: "1.0"
 milestone: v1.0
 current_phase: 07
 current_phase_name: Neovim Editor QoL Fixes
-status: verifying
+status: executing
 stopped_at: Completed 07-03-PLAN.md
-last_updated: "2026-11-23T14:06:36.067Z"
+last_updated: "2026-11-23T15:49:46.257Z"
 last_activity: 2026-11-23
 last_activity_desc: Phase 07 execution started
-state_head: f6358659d8d462f7d21e279dd7e8f8c02c162d9d
+state_head: 5ca15964334f05fa730773572c835df34786c4db
 progress:
   total_phases: 8
   completed_phases: 5
-  total_plans: 20
+  total_plans: 21
   completed_plans: 20
 milestone_name: milestone
 ---
@@ -29,8 +29,8 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 ## Current Position
 
 Phase: 07 (Neovim Editor QoL Fixes) — EXECUTING
-Plan: 3 of 3
-Status: Phase complete — ready for verification
+Plan: 4 of 4
+Status: Executing Phase 07
 Last activity: 2026-11-23 — Phase 07 execution started
 
 Progress: [████████░░] 83%
@@ -113,10 +113,11 @@ Recent decisions affecting current work:
 - [Phase 03-polished-shell-theme-local-overrides]: Debian legacy fzf rung added: doc/examples key-bindings path is the only legacy location for distro fzf 0.44.1 — Without it Ctrl+R warns despite fzf installed; plan single legacy path absent on Debian-family
 - [Phase 03-polished-shell-theme-local-overrides]: Check-1 typing auto-show failure deferred to a separate future phase per user directive; phase 03 completes with the partial human verdict recorded verbatim (1 failed/deferred, 1 passed, 1 untested) — Human verdict was partial-fail; fixing the typing auto-show failure here would violate MVP_MODE no-scope-expansion, so it is deferred to a user-owned future phase
 - [Phase 05-03]: Keep the one-shot precmd zasync hook as the shipped path while upstream PRs #903/#905 and issue #907 stay open; release-tag pin is fallback-only on observed live hook failure, never pre-pinned — a future upstream merge retires the hook via the manager update path per the README `Retire after` condition
-- [Phase 07]: G-07-1: far-left opaque scrollview markers via column=2 + signs_overflow=left; bar hidden by ScrollView->Normal highlight re-asserted after startup/colorscheme
-- [Phase 07]: G-07-1: separator is a dedicated │ float with signcolumn=yes:2; Neovim left-aligns signs so spare cells formed the empty gap
+- [Phase 07 — SUPERSEDED by G-07-4]: G-07-1: far-left opaque scrollview markers with the bar hidden by a ScrollView->Normal highlight link — layout abandoned, plugin removed by 07-04
+- [Phase 07 — SUPERSEDED by G-07-4]: G-07-1: dedicated │ separator float with a widened signcolumn — Neovim left-aligns signs so spare cells formed the empty gap; abandoned, native per-line gitsigns are now the only git indicator
 - [Phase 07]: Buffer cycling rebound to <M-,>/<M-.> (Alt+comma/period): kitty legacy Alt ESC-prefix is the only user-offered pair delivered reliably; supersedes 07-CONTEXT.md scope item 5 per UAT acceptance
 - [Phase 07]: README now documents kitty as the primary terminal for key delivery, with Alacritty retained only as a secondary case
+- [Phase 07-04]: G-07-4 abandoned the far-left marker + divider gutter entirely as unachievable with the pinned nvim-scrollview and Neovim signcolumn model; removed the scrollview spec, its lazy-lock pin and the widened signcolumn so native per-line gitsigns are the only git indicator (supersedes both G-07-1 decisions above)
 
 ### Pending Todos
 
@@ -129,7 +130,7 @@ None yet.
 
 ### Roadmap Evolution
 
-- Phase 7 added: Neovim Editor QoL Fixes (diagnostic float keybind, stale keymap removal, scrollview git markers to far left with transparent bar + separator, nvim-surround install, `<C-,>`/`<C-.>` buffer cycling; smoothscroll option removal noted as cosmetic; cursor-jump investigation explicitly out of scope)
+- Phase 7 added: Neovim Editor QoL Fixes (diagnostic float keybind, stale keymap removal, native per-line gitsigns only after G-07-4 abandoned the far-left marker + separator layout and removed the scrollview plugin, nvim-surround install, Alt+comma/Alt+period buffer cycling; smoothscroll option removal noted as cosmetic; cursor-jump investigation explicitly out of scope)
 - Phase 2.1 inserted after Phase 2: remove hyperland and hyperland related configs and make sure anything related to hyperland is not installed in local installation (URGENT)
 - Phase 5 added: fix marlonrichert/zsh-autocomplete Real-time type-ahead completion for Zsh doesn't work and needs to press tab to show.
 - Phase 5 planned 2026-09-22: 2 plans (tracer 04-01 + expansion 04-02 (renumbered from 05)), plan-checker passed with 0 blockers/0 warnings. Decision-coverage gate override: 30/33 decisions cited in must_haves; D-08 (SUPERSEDED by D-27/D-28), D-18 (EXPANDED by D-33), D-23 (research directive, executed via Context7-first) intentionally uncited — verify-phase may re-surface. RESEARCH.md INFO: three "seven" shorthands vs nine measured stow sites — plans target nine; optional word fix alongside execution.

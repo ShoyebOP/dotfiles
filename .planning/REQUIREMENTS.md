@@ -45,7 +45,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **QOL-01**: User presses `<leader>vd` in normal mode and a floating window shows the full diagnostic message for the current line — `vim.diagnostic.open_float` with `scope = "line"`, rounded border; no diagnostic wrapping changes and no Trouble install
 - [ ] **QOL-02**: User no longer sees dead keymaps — all bindings referencing uninstalled plugins (`grug-far`, `persistence`, `diffview`, `Trouble`) are removed from `lua/base/keymaps.lua`, and the stale which-key group label is retitled
-- [x] **QOL-03**: User's git-change markers from `nvim-scrollview` render in a far-left gutter with the scrollbar hidden and a blank separator cell before gitsigns' native per-line signs — `base = "left"`, `winblend_gui = 100`, `signs_on_startup = {"gitsigns"}`, widened `signcolumn`
+- [x] **QOL-03**: User's git changes appear as native per-line gitsigns only — no gutter plugin, no separate far-left marker column, no divider glyph, and no reserved-cell blank gap before the line numbers (G-07-4 superseded the original far-left marker-and-divider requirement after the user ruled that layout unachievable with the pinned plugin and Neovim signcolumn model)
 - [ ] **QOL-04**: User can surround selected text with quotes/brackets — `kylechui/nvim-surround` installed with default `ys`/`ds`/`cs`/visual `S` keymaps and a pinned `lazy-lock.json` entry
 - [x] **QOL-05**: User cycles buffers with `<C-,>` (next) and `<C-.>` (previous) instead of `<Tab>`/`<S-Tab>`; terminal-delivery caveat documented
 - [ ] **QOL-06**: User's `smoothscroll` option is removed as a cosmetic cleanup (explicitly NOT a cursor-jump fix; cursor-jump investigation is out of scope for this phase)

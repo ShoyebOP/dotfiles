@@ -190,14 +190,14 @@ Plans:
 ### Phase 7: Neovim Editor QoL Fixes
 
 **Mode:** mvp
-**Goal**: Daily editing gaps are closed: full diagnostics on demand, no dead keymaps, git markers in a far-left gutter with no scrollbar, surround support, and buffer cycling on `<C-,>`/`<C-.>`. Cursor-jump investigation is explicitly out of scope.
+**Goal**: Daily editing gaps are closed: full diagnostics on demand, no dead keymaps, native per-line gitsigns as the only git indicator in the gutter (G-07-4 abandoned the far-left marker-and-divider layout and removed the gutter plugin), surround support, and buffer cycling on Alt+comma/Alt+period. Cursor-jump investigation is explicitly out of scope.
 **Depends on**: Phase 5
 **Requirements**: QOL-01, QOL-02, QOL-03, QOL-04, QOL-05, QOL-06
 **Success Criteria** (what must be TRUE):
 
   1. User presses `<leader>vd` on a line with a diagnostic and sees the full message in a rounded floating window; virtual-text rendering is unchanged and no Trouble plugin is added
   2. User scans `lua/base/keymaps.lua` and finds no bindings to uninstalled plugins (`grug-far`, `persistence`, `diffview`, `Trouble`); the which-key group label no longer says "trouble/buffer"
-  3. User opens a tracked file with git changes and sees scrollview git markers in the far-left gutter, no visible scrollbar, a blank separator cell, and gitsigns' native per-line signs intact
+  3. User opens a tracked file with git changes and sees native per-line gitsigns as the only git indicator in the gutter — no far-left marker column, no divider glyph, no reserved-cell blank gap, and no gutter plugin (G-07-4 superseded the abandoned marker-and-divider layout)
   4. User selects text and presses `S"` / `S)` to wrap it, and `nvim-surround` is pinned in `lazy-lock.json`
   5. User presses `<C-,>` / `<C-.>` to move to next/previous buffer; `<Tab>`/`<S-Tab>` no longer cycle buffers; terminal-delivery caveat is documented
   6. User's Neovim config no longer sets `smoothscroll` (cosmetic cleanup only — no cursor-jump claims in any artifact)
@@ -211,8 +211,8 @@ Plans:
 
 **Gap closure Wave 1** *(fixes 07-UAT.md gaps G-07-1 and G-07-2; independent plans, both wave 1)*
 
-- [x] 07-02-PLAN.md — Gap closure G-07-1: far-left opaque scrollview git markers, highlight-hidden bar, real thin solid separator, valid contrib options
-- [x] 07-03-PLAN.md — Gap closure G-07-2: Alt+,/Alt+. buffer cycling that kitty delivers + kitty-inclusive README caveat
+- [x] 07-02-PLAN.md — Gap closure G-07-1 (SUPERSEDED by G-07-4): formerly far-left opaque scrollview git markers, highlight-hidden bar, real thin solid separator, valid contrib options — that layout was abandoned and the plugin removed by 07-04
+- [x] 07-03-PLAN.md — Gap closure G-07-2: Alt+,/Alt+. buffer cycling that kitty delivers + kitty-inclusive README caveat (unaffected by G-07-4; still current)
 
 **Gap closure Wave 1 (additional plan)** *(depends_on: [] — fixes 07-UAT.md gap G-07-4; supersedes the 07-01/07-02 gutter layout per the user's decision)*
 
