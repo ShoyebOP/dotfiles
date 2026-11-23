@@ -32,12 +32,17 @@
       "number": "6",
       "name": "Verified Health & Self-Test Gates",
       "status": "pending"
+    },
+    {
+      "number": "7",
+      "name": "Neovim Editor QoL Fixes",
+      "status": "pending"
     }
   ],
   "next": {
     "command": "/gsd-progress --next",
-    "label": "Advance to the next step",
-    "reason": "Phase 6 of 8 · executing"
+    "label": "Advance to the next step (verify)",
+    "reason": "Phase 8 of 8 · ready to verify"
   },
-  "updated_at": "2026-11-23T12:22:20.895Z"
+  "updated_at": "2026-11-23T15:57:31.887Z"
 }
