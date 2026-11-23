@@ -1,85 +1,80 @@
 ---
 phase: 07-neovim-editor-qol-fixes
-reviewed: 2026-11-23T12:49:18Z
-depth: deep
-files_reviewed: 7
+reviewed: 2026-11-23T14:15:12Z
+depth: standard
+files_reviewed: 4
 files_reviewed_list:
+  - nvim/.config/nvim/README.md
   - nvim/.config/nvim/lua/base/keymaps.lua
   - nvim/.config/nvim/lua/base/options.lua
   - nvim/.config/nvim/lua/plugins/scrollview.lua
-  - nvim/.config/nvim/lua/plugins/which-key.lua
-  - nvim/.config/nvim/lua/plugins/surround.lua
-  - nvim/.config/nvim/lazy-lock.json
-  - nvim/.config/nvim/README.md
 findings:
   critical: 0
-  high: 0
-  medium: 0
-  low: 2
-  warning: 0
-  info: 2
-  total: 2
+  warning: 2
+  info: 1
+  total: 3
   necessity: 0
 status: issues_found
-severity_scheme: CRITICAL/HIGH/MEDIUM/LOW
 ---
 
-# Phase 07: Code Review Report — Neovim Editor QoL Fixes
+# Phase 07: Code Review Report — Gap-Closure Changes (G-07-1 / G-07-2)
 
-**Reviewed:** 2026-11-23T12:49:18Z
-**Depth:** deep
-**Files Reviewed:** 7
-**Status:** issues_found (2 LOW — maintenance/dead-config only; no functional or security defects)
-**Severity scheme:** CRITICAL / HIGH / MEDIUM / LOW (LOW is mapped to the GSD INFO tier in the `findings` counts above.)
+**Reviewed:** 2026-11-23T14:15:12Z
+**Depth:** standard
+**Files Reviewed:** 4
+**Status:** issues_found (2 Warning, 1 Info — no critical defects)
 
 ## Summary
 
-Reviewed the three production commits (`5e4f704`, `68514df`, `a986fca`) covering QOL-01 … QOL-06 at deep depth: read every changed file in full, inspected each commit diff, cross-referenced the rest of the Neovim config, read the installed plugin source/docs for nvim-scrollview, which-key.nvim and lazy.nvim, and re-ran the plan's headless behavior probes in this environment.
+Incremental review of the four gap-closure files against base `11b9a081b1e0fd067395a4f563ea3a16d1c52bb1`: the scrollview git-marker/separator rework (options.lua + scrollview.lua, G-07-1) and the Alt+comma/Alt+period buffer-cycle rebind plus kitty documentation (keymaps.lua + README.md, G-07-2).
 
-**No correctness, security, or data-loss defects were found.** All six locked requirements are implemented as specified. Every area the dispatcher called out was independently verified and came back clean:
+I read every changed file in full, examined the exact diff, and verified claims against the installed pinned plugin (`nvim-scrollview` @ `b9e6ee00`, matching `lazy-lock.json`), Neovim's own help, and headless behavior probes. Two of the three findings are on the documentation/refresh side; the third is a geometry concern on the separator float that I could only verify analytically (reported as Info).
 
-- `<leader>vd` float: exactly one `vim.diagnostic.open_float` call in the whole config with `scope="line"`, `border="rounded"`, `focusable=true`; exactly one `K → vim.lsp.buf.hover` binding remains in `lspconfig.lua:103` — no duplicate, no conflict (different lhs, different purpose). Headless probe opened a real rounded float (`floats=1`).
-- Dead keymap removal: all four regions (`<leader>sr`/grug-far, `<leader>ql`/persistence, `dv`/`<leader>dq`/`dh` Diffview, `<leader>xt`/`<leader>xT` Trouble) are gone; the gitsigns `pcall` block (`keymaps.lua:105-109`), TodoFzfLua maps (`:144-145`) and `<leader>x` Bdelete map (`:96`) all survive. None of the four plugins exist in any spec or in `lazy-lock.json`, so nothing still-needed was removed. (One benign pre-existing `grug-far` filetype string survives in `autocmds.lua:55` as a "close with q" pattern — harmless, not a keymap, not introduced by this phase.)
-- Scrollview: diff confirms only `base`, `signs_on_startup`, and the two added lines changed; `excluded_filetypes` and the entire `scrollview.contrib.gitsigns` block are byte-identical to HEAD. `signs_scrollbar_overlap="off"` and `winblend_gui=100` are valid values per the installed scrollview docs.
-- nvim-surround pin: `2e93e154de9ff326def6480a4358bfc149d5da2c` is a genuine 40-hex commit, resolves to tag `v4.0.5`, and matches the installed plugin HEAD; spec shape (`version="*"`, `event="VeryLazy"`, `opts={}`) is exact and lazy.nvim's own lockfile writer only records `branch`+`commit`, so `branch: "main"` is normal, not a mismatch. All 40 lockfile pins match installed HEADs.
-- `<C-,>` / `<C-.>`: only these two normal-mode bindings exist; no shadowing of any n/i/v/x/t binding; `<Tab>`/`<S-Tab>` remain solely with blink.cmp. Terminal-delivery and Alacritty caveats are documented.
-- Smoothscroll removal: `vim.o.smoothscroll == false` verified.
+Verified clean (no finding):
+- **G-07-2 keybinds** (`keymaps.lua:94-95`): `<M-,>` / `<M-.>` correctly bound to `BufferLineCycleNext` / `BufferLineCyclePrev`; rhs, `desc`, order, and the adjacent `<leader>x` Bdelete map are untouched. No stale `<C-,>` / `<C-.>` literals remain. Per `:help map-alt-keys`, kitty's ESC-prefixed Alt bytes decode as `<M-,>` / `<M-.>` within `ttimeoutlen`, and the pre-existing `<Esc>` → `noh` map does not block that (no `timeoutlen` override is present). Tab/Shift-Tab remain with completion.
+- **gitsigns contrib options** (`scrollview.lua:34-39`): `enabled`, `add_priority`, `change_priority`, `delete_priority` are all real keys in the installed `scrollview/contrib/gitsigns.lua`; the previously ignored `show_in_folds`/`current_only`/`priority` are correctly removed. `signs_show_in_folds`, `signs_overflow`, `winblend_gui`, `diagnostics_severities` are valid setup keys.
+- **Bar hiding** (`scrollview.lua:20-33`): linking `ScrollView`→`Normal` to hide only the scrollbar while `winblend_gui=0` keeps sign windows opaque matches the pinned plugin's source (`winblend_gui` is read for both bar and sign windows on this build); the `vim.schedule` + `ColorScheme` re-assert correctly handles the plugin's `highlight default link ScrollView Visual` and later theme loads.
+- **No security surface**: no eval, shell exec, untrusted input, or secrets in any changed file.
 
-The two findings below are LOW-severity quality/maintenance observations, not behavior bugs.
+## Warnings
 
-## Findings
+### WR-01: Dead `User ScrollViewRefresh` autocmd — event is never fired
 
-### LOW-01 — Force-added lockfile leaves contradictory `.gitignore` rules and freezes all 40 plugins
+**File:** `nvim/.config/nvim/lua/plugins/scrollview.lua:86-92`
+**Issue:** The config registers `vim.api.nvim_create_autocmd("User", { pattern = "ScrollViewRefresh", ... })` expecting it to redraw the separator when scrollview refreshes. The pinned plugin never fires that event: `ScrollViewRefresh` is only a **command** (`autoload/scrollview.vim:510-511`: `command -bar ScrollViewRefresh lua require('scrollview').refresh()`). A full scan of the installed plugin (`lua/`, `autoload/`, `plugin/`) finds **no** `doautocmd` / `nvim_exec_autocmds` for any `User` event — the gitsigns contrib uses `User GitSignsUpdate` plus the `:ScrollViewRefresh` command (`contrib/gitsigns.lua:151,237`) — and a repo-wide scan finds no code firing `User ScrollViewRefresh` either. `nvim_create_autocmd("User", …)` does not hook into a command of the same name. The callback therefore never executes: the intended refresh-time resync is silently absent and the block is dead code built on a false API assumption. Practical impact is limited (the separator is a static full-height line already redrawn by `BufEnter`/`WinEnter`/`VimResized`/`WinScrolled`), which is why this is a Warning rather than a Critical.
+**Fix:** Remove the dead block:
+```lua
+-- DELETE lines 86-92 in full:
+-- vim.api.nvim_create_autocmd("User", {
+--     group = sep_group,
+--     pattern = "ScrollViewRefresh",
+--     callback = function() vim.schedule(draw_separator) end,
+-- })
+```
+If refresh-time resync is genuinely required, wire `draw_separator()` into a wrapper around the actual `:ScrollViewRefresh` command rather than a non-existent `User` event; otherwise rely on the four geometry autocmds already registered at lines 82-85.
 
-**File:** `.gitignore:5` and `.gitignore:22`; `nvim/.config/nvim/lazy-lock.json` (tracked as of `a986fca`)
-**Severity:** LOW (maintenance)
+### WR-02: README delivery test is broken by this config's own insert-mode `<C-v>` remap
 
-**Issue:** `lazy-lock.json` was force-added because `.gitignore:5` and `.gitignore:22` ignore it. The file is now tracked, so the ignore rules are inert, but they were left in place — the repo now simultaneously ignores and tracks the same path, which is misleading to future maintainers (the file reads as a generated/ephemeral artifact while actually being a committed source of truth). Separately, committing the whole lockfile — not just the nvim-surround pin — changes the project's reproducibility policy for all 40 third-party plugins as a side effect of QOL-04. This is sound in isolation (all 40 pins were verified to match installed, working plugin HEADs) but is a broader change than "pin nvim-surround" and should be an explicit, documented policy rather than an incidental consequence of `git add -f`.
+**File:** `nvim/.config/nvim/README.md:32` (and the pointer to it at `:34`); cross-reference `nvim/.config/nvim/lua/base/keymaps.lua:174`
+**Issue:** The rewritten delivery test instructs: "enter insert mode, press `<C-v>` followed by the key … and confirm a literal `^[` (ESC) prefix is inserted". But `keymaps.lua:174` maps `map("i", "<C-v>", "<C-r>+", { noremap = true, desc = "Paste clipboard" })`, so in insert mode `<C-v>` pastes the clipboard instead of inserting the next typed character literally. Anyone following the documented test will never see `^[` and can wrongly conclude the terminal swallows Alt+comma / Alt+period — precisely the failure mode the G-07-2 documentation exists to diagnose. This invalidates both the primary kitty test (line 32) and the Alacritty note that reuses it (line 34).
+**Fix:** Run the probe under a config that does not install the remap, e.g.:
+```markdown
+Delivery test (any terminal): run `nvim --clean`, enter insert mode, press `<C-v>`
+followed by the key (for example `<C-v>` then Alt+comma) and confirm a literal `^[`
+(ESC) prefix is inserted rather than nothing. (`--clean` is required because this
+repo remaps insert-mode `<C-v>` to paste from the clipboard.)
+```
 
-**Fix:** Remove the two now-obsolete `nvim/.config/nvim/lazy-lock.json` lines from `.gitignore` (lines 5 and 22) so the tracked file is not falsely marked ignored, and add a short note to `nvim/.config/nvim/README.md` that the lockfile is committed and regenerated on `Lazy update`. If pinning *only* nvim-surround was intended, use a narrower mechanism instead of force-tracking the entire lockfile.
+## Info
 
-### LOW-02 — `<leader>x` which-key group spec is now inert (dead config)
+### IN-01: Separator float at `col = 2` sits on the second native sign slot — verify visually
 
-**File:** `nvim/.config/nvim/lua/plugins/which-key.lua:19`
-**Severity:** LOW (dead configuration / cosmetic-only change)
-
-**Issue:** QOL-02 removed the only child maps of the `<leader>x` prefix (`<leader>xt`/`<leader>xT`). The only remaining `<leader>x*` entry anywhere in the config is the `<leader>x` Bdelete leaf mapping (`keymaps.lua:96`); the group spec at `which-key.lua:19` now has zero children. In which-key v3, `Node:is_group()` returns `can_expand() or count() > 0` (installed `which-key/node.lua:97-99`), and `view.lua:192` uses `is_group()` to decide whether to render a group label. With no children and no `expand`/`proxy`, `is_group()` is false, so the retitled `"buffer"` label is never displayed — the change from `"trouble/buffer"` to `"buffer"` has no runtime effect. It is harmless (the `<leader>x` Bdelete mapping still fires as a plain leaf, verified via source), but it is dead config left behind by a "clean the keymap surface" task.
-
-**Fix:** Either delete the now-inert group spec from `which-key.lua`, or make `<leader>x` a genuine prefix again (e.g., move close-buffer to `<leader>xb` with a real `desc`, so the `"buffer"` group label is actually shown). If the label was intentionally kept purely as documentation, remove it to avoid misleading future readers.
-
-## Verification Notes (checks performed, no findings)
-
-- `grep` over all of `nvim/.config/nvim/lua/`: one `<leader>vd`, one `vim.diagnostic.open_float`, one `vim.lsp.buf.hover` (on `K`).
-- `git show` for all three production commits: confirmed exactly four keymap regions removed, survivors intact, scrollview `excluded_filetypes` and gitsigns contrib block unchanged byte-for-byte.
-- Installed scrollview docs: `signs_scrollbar_overlap` values `off/over/under` valid; `winblend_gui` 0–100 valid; `base=left`/`column>=1` valid.
-- Installed nvim-surround: `git describe --tags` at locked commit = `v4.0.5`; all 40 lockfile commits match installed plugin HEADs.
-- lazy.nvim `manage/lock.lua`: lockfile writer stores only `branch` + `commit`; no `version` field expected even with `version="*"`.
-- which-key source (`node.lua`, `tree.lua`, `view.lua`): a group with no children is not rendered as a group; no `<leader>x` shadowing of the Bdelete mapping.
-- Re-ran headless probes: `VD-BEHAVIOR-OK floats=1`, `BUFFER-MAPS-OK`, `SCROLLVIEW-OPTS-OK`, `SURROUND-SPEC-OK` all passed.
-- No security surface introduced: no eval, no shell exec, no secrets, no untrusted input paths in any changed file.
+**File:** `nvim/.config/nvim/lua/plugins/scrollview.lua:68`; cross-reference `nvim/.config/nvim/lua/base/options.lua:12`
+**Issue:** Headless geometry probes show `signcolumn="yes:2"` reserves **four** cells (Neovim doubles the `:N` count: `getwininfo().textoff = 4` with `nonumber`), i.e. two 2-cell native sign slots at window offsets 0 and 2. `nvim_open_win({ relative = "win", col = 2 })` maps to screen offset 2 (`win_screenpos` confirmed float `col=0→+0`, `col=1→+1`, `col=2→+2` from the window's left edge) — i.e. exactly the second native sign slot. `options.lua:12` states `yes:2` was chosen specifically to hold both a native diagnostic sign and a gitsigns sign on one line, so on such lines the opaque full-height `│` float (zindex 45) will overlap the second native sign; the scrollview marker float at offset 0 likewise overlays the first. This could leave the "native per-line gitsigns" the change aims to preserve visually hidden. I could not composite the final pixels without a real terminal UI (`screenstring()` under headless is unreliable for floats), so this is Info, not a Warning — please confirm on a line carrying both a diagnostic and a gitsigns sign.
+**Fix:** Verify with a real TUI screenshot. If the second sign is covered, move the separator to a genuinely free cell (e.g. `col = 3`, the padding cell) or reconsider the `yes:2` + overlay combination so the second native sign slot is not occupied by an opaque float.
 
 ---
 
-_Reviewed: 2026-11-23T12:49:18Z_
+_Reviewed: 2026-11-23T14:15:12Z_
 _Reviewer: the agent (gsd-code-reviewer)_
-_Depth: deep_
+_Depth: standard_
