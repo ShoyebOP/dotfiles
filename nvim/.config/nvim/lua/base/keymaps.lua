@@ -25,16 +25,6 @@ map("n", "<Esc>", "<cmd>noh<CR>", { desc = "Clear search highlights" })
 map("n", "<leader>vd", function()
     vim.diagnostic.open_float(nil, { scope = "line", border = "rounded", focusable = true })
 end, { desc = "Show line diagnostic" })
-map({ "n", "v" }, "<leader>sr", function()
-    local grug = require("grug-far")
-    local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
-    grug.open({
-        transient = true,
-        prefills = {
-            filesFilter = ext and ext ~= "" and "*." .. ext or nil,
-        },
-    })
-end, { desc = "Search and Replace (grug-far)" })
 
 -- ============  Line Number Toggle =============
 -- map("n", "<leader>r", "<cmd>set rnu!<CR>", { desc = "Toggle relative number" })
@@ -81,9 +71,6 @@ end
 map("n", "<leader>lz", "<cmd>Lazy<CR>", { desc = "Open Lazy plugin manager" })
 
 -- ============  Session & Notifications =============
-map("n", "<leader>ql", function()
-    require("persistence").load({ last = true })
-end, { desc = "Restore last session" })
 map("n", "<leader>n", "<cmd>NoiceDismiss<CR>", { noremap = true, desc = "Dismiss notifications" })
 map("n", "<leader>N", "<cmd>Noice pick<CR>", { noremap = true, desc = "Noice history" })
 
@@ -115,9 +102,6 @@ map("n", "<C-Left>", ":vertical resize -2<CR>", { desc = "Decrease window width"
 map("n", "<C-Right>", ":vertical resize +2<CR>", { desc = "Increase window width" })
 
 -- ============  Git Integration =============
-map("n", "dv", ":DiffviewOpen<CR>", { desc = "Open Git diff view" })
-map("n", "<leader>dq", "DiffviewClose<CR>", { noremap = true, silent = true, desc = "Close Git diff view" })
-map("n", "dh", ":DiffviewFileHistory %<CR>", { noremap = true, silent = true, desc = "File Git history" })
 local ok, gs = pcall(require, "gitsigns")
 if ok then
     map("n", "hp", gs.preview_hunk, { noremap = true, silent = true, desc = "Preview Git hunk" })
@@ -157,13 +141,6 @@ end, { desc = "Next Todo Comment" })
 map("n", "[t", function()
     require("todo-comments").jump_prev()
 end, { desc = "Previous Todo Comment" })
-map("n", "<leader>xt", "<cmd>Trouble todo toggle<cr>", { desc = "Todo (Trouble)" })
-map(
-    "n",
-    "<leader>xT",
-    "<cmd>Trouble todo toggle filter = {tag = {TODO,FIX,FIXME}}<cr>",
-    { desc = "Todo/Fix/Fixme (Trouble)" }
-)
 map("n", "<leader>st", "<cmd>TodoFzfLua<cr>", { desc = "Todo" })
 map("n", "<leader>sT", "<cmd>TodoFzfLua keywords=TODO,FIX,FIXME<cr>", { desc = "Todo/Fix/Fixme" })
 

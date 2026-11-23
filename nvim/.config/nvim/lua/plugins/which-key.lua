@@ -16,7 +16,7 @@ return {
             { "<leader>e", group = "run" },
             { "<leader>m", group = "markdown/marks" },
             { "<leader>t", group = "toggle/theme" },
-            { "<leader>x", group = "trouble/buffer" },
+            { "<leader>x", group = "buffer" },
             { "<leader>g", group = "git" },
             { "<leader>c", group = "git-commits" },
         },

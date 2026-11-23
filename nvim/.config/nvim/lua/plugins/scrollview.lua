@@ -5,9 +5,11 @@ return {
         require("scrollview").setup({
             excluded_filetypes = { "nerdtree", "NvimTree" },
             current_only = true,
-            base = "right",
+            base = "left",
             column = 1,
-            signs_on_startup = { "diagnostics", "search", "gitsigns" },
+            winblend_gui = 100,
+            signs_on_startup = { "gitsigns" },
+            signs_scrollbar_overlap = "off",
             diagnostics_severities = { vim.diagnostic.severity.ERROR },
         })
         require("scrollview.contrib.gitsigns").setup({
