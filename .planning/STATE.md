@@ -1,20 +1,20 @@
 ---
-gsd_state_version: 1.0
+gsd_state_version: "1.0"
 milestone: v1.0
-milestone_name: milestone
-current_phase: 5
-current_phase_name: Editor Autonomy & fzf-lua Migration
+current_phase: 07
+current_phase_name: Neovim Editor QoL Fixes
 status: executing
-stopped_at: Phase 04 complete (renumbered from 05), ready to plan Phase 5
-last_updated: "2026-10-03T14:44:00.264Z"
-last_activity: 2026-10-01
-last_activity_desc: Roadmap reswap 4<->5 + new Phase 6, ready to plan Phase 5
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-11-23T14:01:47.570Z"
+last_activity: 2026-11-23
+last_activity_desc: Phase 07 execution started
+state_head: c399ace5cee522a942d8d9801b463e5b2a6d4d77
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 5
-  total_plans: 18
-  completed_plans: 15
-state_head: 87093793d60c149cf88546c98a1c0090136710bd
+  total_plans: 20
+  completed_plans: 19
+milestone_name: milestone
 ---
 
 # Project State
@@ -24,14 +24,14 @@ state_head: 87093793d60c149cf88546c98a1c0090136710bd
 See: .planning/PROJECT.md (updated 2026-09-23)
 
 **Core value:** A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop environment on any supported distro/derivative with one interactive run, and cleanly reverse itself — no manual `stow` or `MasonInstallAll` required.
-**Current focus:** Phase 05 — Editor Autonomy & fzf-lua Migration (SHEL-02/STOW-01 closed by Phase 04 gap closure, live PASS)
+**Current focus:** Phase 07 — Neovim Editor QoL Fixes
 
 ## Current Position
 
-Phase: 5 — Editor Autonomy & fzf-lua Migration
-Plan: Not started
+Phase: 07 (Neovim Editor QoL Fixes) — EXECUTING
+Plan: 3 of 3
 Status: Ready to execute
-Last activity: 2026-10-01 — Roadmap reswap 4<->5 + new Phase 6, ready to plan Phase 5
+Last activity: 2026-11-23 — Phase 07 execution started
 
 Progress: [████████░░] 83%
 
@@ -78,6 +78,7 @@ Progress: [████████░░] 83%
 | Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
 | Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
 | Phase 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp P03 | 12 min | 3 tasks | 2 files |
+| Phase 07 P02 | 15 min | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -111,6 +112,8 @@ Recent decisions affecting current work:
 - [Phase 03-polished-shell-theme-local-overrides]: Debian legacy fzf rung added: doc/examples key-bindings path is the only legacy location for distro fzf 0.44.1 — Without it Ctrl+R warns despite fzf installed; plan single legacy path absent on Debian-family
 - [Phase 03-polished-shell-theme-local-overrides]: Check-1 typing auto-show failure deferred to a separate future phase per user directive; phase 03 completes with the partial human verdict recorded verbatim (1 failed/deferred, 1 passed, 1 untested) — Human verdict was partial-fail; fixing the typing auto-show failure here would violate MVP_MODE no-scope-expansion, so it is deferred to a user-owned future phase
 - [Phase 05-03]: Keep the one-shot precmd zasync hook as the shipped path while upstream PRs #903/#905 and issue #907 stay open; release-tag pin is fallback-only on observed live hook failure, never pre-pinned — a future upstream merge retires the hook via the manager update path per the README `Retire after` condition
+- [Phase 07]: G-07-1: far-left opaque scrollview markers via column=2 + signs_overflow=left; bar hidden by ScrollView->Normal highlight re-asserted after startup/colorscheme
+- [Phase 07]: G-07-1: separator is a dedicated │ float with signcolumn=yes:2; Neovim left-aligns signs so spare cells formed the empty gap
 
 ### Pending Todos
 
@@ -140,6 +143,6 @@ Items acknowledged and carried forward from previous milestone close:
 
 ## Session Continuity
 
-Last session: 2026-10-01T00:00:00Z
-Stopped at: Roadmap reswap 4<->5 + new Phase 6, ready to plan Phase 5
+Last session: 2026-11-23T14:01:47.489Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
