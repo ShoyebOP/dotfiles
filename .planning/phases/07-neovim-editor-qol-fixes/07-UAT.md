@@ -3,7 +3,7 @@ status: complete
 phase: 07-neovim-editor-qol-fixes
 source: [07-VERIFICATION.md]
 started: 2026-11-23T12:49:44Z
-updated: 2026-11-23T15:26:41.439Z
+updated: 2026-11-23T16:08:00.000Z
 ---
 
 ## Current Test
@@ -38,12 +38,16 @@ severity: major
 expected: Next/previous buffer switches. For the delivery probe, a literal ESC prefix is inserted after the Alt key; note that under this repo's normal config insert-mode <C-v> is remapped to clipboard paste (review WR-02), so the probe must run with `nvim --clean` or after `:iunmap <C-v>`.
 result: pass
 
+### 6. Open a git-tracked file with uncommitted changes in kitty and inspect the left gutter; then put a native diagnostic sign and a gitsigns sign on the same line and inspect again.
+expected: Only native per-line gitsigns appear in the default sign column immediately before the line numbers — no far-left marker column, no divider glyph, and no wide empty gap. Native diagnostic signs and gitsigns still render normally, including on the same line.
+result: [pending]
+
 ## Summary
 
-total: 5
+total: 6
 passed: 2
 issues: 3
-pending: 0
+pending: 1
 skipped: 0
 blocked: 0
 
