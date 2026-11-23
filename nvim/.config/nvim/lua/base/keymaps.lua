@@ -91,8 +91,8 @@ map("n", "<leader>tc", function()
 end, { desc = "Toggle Treesitter Context" })
 
 -- ============ 󰓩 Buffers & Tabs =============
-map("n", "<C-,>", "<Cmd>BufferLineCycleNext<CR>", { desc = "Next buffer" })
-map("n", "<C-.>", "<Cmd>BufferLineCyclePrev<CR>", { desc = "Previous buffer" })
+map("n", "<M-,>", "<Cmd>BufferLineCycleNext<CR>", { desc = "Next buffer" })
+map("n", "<M-.>", "<Cmd>BufferLineCyclePrev<CR>", { desc = "Previous buffer" })
 map("n", "<leader>x", "<cmd>Bdelete!<CR>", { desc = "Close buffer", noremap = true, silent = true })
 
 -- ============  Splits =============
