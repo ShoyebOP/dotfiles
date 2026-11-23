@@ -12,7 +12,7 @@ From a broken set of mirrored Nushell/Zsh bootstrappers that crash on derivative
 - [x] **Phase 4: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp** - Real-time type-ahead completion auto-show, deterministic Tab ownership, stow containment (completed 2026-09-23; renumbered 2026-10-01 from old Phase 5)
 - [ ] **Phase 5: Editor Autonomy & fzf-lua Migration** - Mason auto-install/cleanup, which-key popup, fzf-lua replaces telescope, make/gcc removed from picker path
 - [ ] **Phase 6: Verified Health & Self-Test Gates** - Headless `--self-test` TAP harness (moved out of old Phase 4 HLTH-01)
-- [ ] **Phase 7: Neovim Editor QoL Fixes**
+- [x] **Phase 7: Neovim Editor QoL Fixes** (completed 2026-11-23)
 
 ## Phase Details
 
@@ -202,7 +202,7 @@ Plans:
   5. User presses `<C-,>` / `<C-.>` to move to next/previous buffer; `<Tab>`/`<S-Tab>` no longer cycle buffers; terminal-delivery caveat is documented
   6. User's Neovim config no longer sets `smoothscroll` (cosmetic cleanup only — no cursor-jump claims in any artifact)
 
-**Plans**: 4/4 plans executed (1 original + 3 gap closure)
+**Plans**: 4/4 plans complete (1 original + 3 gap closure)
 
 Plans:
 **Wave 1**
@@ -231,4 +231,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp | 3/3 | Complete    | 2026-09-23 |
 | 5. Editor Autonomy & fzf-lua Migration | 0/2 | Not started | - |
 | 6. Verified Health & Self-Test Gates | 0/1 | Not started | - |
-| 7. Neovim Editor QoL Fixes | 4/4 | Ready to execute | - |
+| 7. Neovim Editor QoL Fixes | 4/4 | Complete    | 2026-11-23 |
