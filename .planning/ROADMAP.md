@@ -202,12 +202,17 @@ Plans:
   5. User presses `<C-,>` / `<C-.>` to move to next/previous buffer; `<Tab>`/`<S-Tab>` no longer cycle buffers; terminal-delivery caveat is documented
   6. User's Neovim config no longer sets `smoothscroll` (cosmetic cleanup only — no cursor-jump claims in any artifact)
 
-**Plans**: 1 plan
+**Plans**: 3 plans (1 original + 2 gap closure)
 
 Plans:
 **Wave 1**
 
 - [ ] 07-01-PLAN.md — diagnostic float keybind + gutter options + dead-key removal + scrollview left + surround + buffer keys (QOL-01…QOL-06)
+
+**Gap closure Wave 1** *(fixes 07-UAT.md gaps G-07-1 and G-07-2; independent plans, both wave 1)*
+
+- [ ] 07-02-PLAN.md — Gap closure G-07-1: far-left opaque scrollview git markers, highlight-hidden bar, real thin solid separator, valid contrib options
+- [ ] 07-03-PLAN.md — Gap closure G-07-2: Alt+,/Alt+. buffer cycling that kitty delivers + kitty-inclusive README caveat
 
 ## Progress
 
