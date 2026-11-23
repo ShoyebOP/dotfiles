@@ -36,13 +36,13 @@
     {
       "number": "7",
       "name": "Neovim Editor QoL Fixes",
-      "status": "pending"
+      "status": "complete"
     }
   ],
   "next": {
     "command": "/gsd-progress --next",
     "label": "Advance to the next step (verify)",
-    "reason": "Phase 8 of 8 · ready to verify"
+    "reason": "Phase 6 of 8 · 63% · ready to verify"
   },
-  "updated_at": "2026-11-23T15:57:31.887Z"
+  "updated_at": "2026-11-23T16:13:13.266Z"
 }
