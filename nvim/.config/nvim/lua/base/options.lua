@@ -9,7 +9,7 @@ opt.termguicolors = true
 opt.cursorline = true
 o.cursorlineopt = "both"
 opt.fillchars = { eob = " " }
-opt.signcolumn = "yes"
+opt.signcolumn = "yes:4" -- 4 cells: scrollview git gutter, blank separator, native diagnostic + gitsigns signs right-aligned; guarantees a blank cell when both signs share a line
 o.ruler = false
 opt.number = true
 opt.numberwidth = 2
@@ -67,7 +67,6 @@ opt.showmatch = true -- Highlight matching brackets
 opt.confirm = true -- Ask before closing unsaved files
 opt.virtualedit = "block"
 opt.wildmode = "longest:full,full"
-opt.smoothscroll = true
 opt.spelllang = { "en" }
 opt.shortmess:append({ s = true, I = true, W = true, c = true, C = true })
 

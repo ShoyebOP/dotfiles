@@ -22,6 +22,9 @@ map("n", "<C-c>", "<cmd>%y+<CR>", { desc = "Copy whole file to clipboard" })
 
 -- ============ 󰛔 Search, Replace & Highlight =============
 map("n", "<Esc>", "<cmd>noh<CR>", { desc = "Clear search highlights" })
+map("n", "<leader>vd", function()
+    vim.diagnostic.open_float(nil, { scope = "line", border = "rounded", focusable = true })
+end, { desc = "Show line diagnostic" })
 map({ "n", "v" }, "<leader>sr", function()
     local grug = require("grug-far")
     local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
