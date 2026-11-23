@@ -12,6 +12,7 @@ From a broken set of mirrored Nushell/Zsh bootstrappers that crash on derivative
 - [x] **Phase 4: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp** - Real-time type-ahead completion auto-show, deterministic Tab ownership, stow containment (completed 2026-09-23; renumbered 2026-10-01 from old Phase 5)
 - [ ] **Phase 5: Editor Autonomy & fzf-lua Migration** - Mason auto-install/cleanup, which-key popup, fzf-lua replaces telescope, make/gcc removed from picker path
 - [ ] **Phase 6: Verified Health & Self-Test Gates** - Headless `--self-test` TAP harness (moved out of old Phase 4 HLTH-01)
+- [ ] **Phase 7: Neovim Editor QoL Fixes**
 
 ## Phase Details
 
@@ -186,10 +187,32 @@ Plans:
 
 - [ ] 06-01: Self-test / health gates TAP harness (headless, VM-less)
 
+### Phase 7: Neovim Editor QoL Fixes
+
+**Mode:** mvp
+**Goal**: Daily editing gaps are closed: full diagnostics on demand, no dead keymaps, git markers in a far-left gutter with no scrollbar, surround support, and buffer cycling on `<C-,>`/`<C-.>`. Cursor-jump investigation is explicitly out of scope.
+**Depends on**: Phase 5
+**Requirements**: QOL-01, QOL-02, QOL-03, QOL-04, QOL-05, QOL-06
+**Success Criteria** (what must be TRUE):
+
+  1. User presses `<leader>vd` on a line with a diagnostic and sees the full message in a rounded floating window; virtual-text rendering is unchanged and no Trouble plugin is added
+  2. User scans `lua/base/keymaps.lua` and finds no bindings to uninstalled plugins (`grug-far`, `persistence`, `diffview`, `Trouble`); the which-key group label no longer says "trouble/buffer"
+  3. User opens a tracked file with git changes and sees scrollview git markers in the far-left gutter, no visible scrollbar, a blank separator cell, and gitsigns' native per-line signs intact
+  4. User selects text and presses `S"` / `S)` to wrap it, and `nvim-surround` is pinned in `lazy-lock.json`
+  5. User presses `<C-,>` / `<C-.>` to move to next/previous buffer; `<Tab>`/`<S-Tab>` no longer cycle buffers; terminal-delivery caveat is documented
+  6. User's Neovim config no longer sets `smoothscroll` (cosmetic cleanup only — no cursor-jump claims in any artifact)
+
+**Plans**: 1 plan
+
+Plans:
+**Wave 1**
+
+- [ ] 07-01-PLAN.md — diagnostic float keybind + gutter options + dead-key removal + scrollview left + surround + buffer keys (QOL-01…QOL-06)
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -199,3 +222,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 4. fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp | 3/3 | Complete    | 2026-09-23 |
 | 5. Editor Autonomy & fzf-lua Migration | 0/2 | Not started | - |
 | 6. Verified Health & Self-Test Gates | 0/1 | Not started | - |
+| 7. Neovim Editor QoL Fixes | 0/1 | Ready to execute | - |

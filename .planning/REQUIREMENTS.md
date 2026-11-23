@@ -41,6 +41,15 @@ Requirements for initial release. Each maps to roadmap phases.
 - [ ] **EDIT-03**: User's picker is `ibhagwan/fzf-lua` — `telescope` + `telescope-fzf-native` and all related config removed; `fzf-lua` provides files/grep/buffers/help with the fzf sorter built in (no `make`/`gcc` build step); installer removes `make`+`gcc` from the picker path (dropped from `common` deps or demoted to optional for remaining consumers); no silent fallback path
 - [x] **EDIT-04**: User can add machine-local Neovim overrides via gitignored `nvim/.config/nvim/lua/local.lua` (`pcall(require,"local")` at end of `init.lua`) without dirtying git
 
+### Editor — Neovim QoL (Phase 7)
+
+- [ ] **QOL-01**: User presses `<leader>vd` in normal mode and a floating window shows the full diagnostic message for the current line — `vim.diagnostic.open_float` with `scope = "line"`, rounded border; no diagnostic wrapping changes and no Trouble install
+- [ ] **QOL-02**: User no longer sees dead keymaps — all bindings referencing uninstalled plugins (`grug-far`, `persistence`, `diffview`, `Trouble`) are removed from `lua/base/keymaps.lua`, and the stale which-key group label is retitled
+- [ ] **QOL-03**: User's git-change markers from `nvim-scrollview` render in a far-left gutter with the scrollbar hidden and a blank separator cell before gitsigns' native per-line signs — `base = "left"`, `winblend_gui = 100`, `signs_on_startup = {"gitsigns"}`, widened `signcolumn`
+- [ ] **QOL-04**: User can surround selected text with quotes/brackets — `kylechui/nvim-surround` installed with default `ys`/`ds`/`cs`/visual `S` keymaps and a pinned `lazy-lock.json` entry
+- [ ] **QOL-05**: User cycles buffers with `<C-,>` (next) and `<C-.>` (previous) instead of `<Tab>`/`<S-Tab>`; terminal-delivery caveat documented
+- [ ] **QOL-06**: User's `smoothscroll` option is removed as a cosmetic cleanup (explicitly NOT a cursor-jump fix; cursor-jump investigation is out of scope for this phase)
+
 ### Docs, Theme & Health
 
 - [x] **THEM-01**: User's theme is consistent — single `THEME` token (e.g., `theme.toml`/`THEME` env) and `setup.sh apply_theme()` validates `alacritty catppuccin-mocha` vs `starship catppuccin_latte` vs `nvim` mismatch warns instead of silent 4-file drift
@@ -109,11 +118,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | THEM-01 | Phase 3 | Complete |
 | DOCS-01 | Phase 2 | Complete |
 | HLTH-01 | Phase 6 | Pending |
+| QOL-01 | Phase 7 | Pending |
+| QOL-02 | Phase 7 | Pending |
+| QOL-03 | Phase 7 | Pending |
+| QOL-04 | Phase 7 | Pending |
+| QOL-05 | Phase 7 | Pending |
+| QOL-06 | Phase 7 | Pending |
 
 **Coverage:**
 
-- v1 requirements: 22 total
-- Mapped to phases: 22
+- v1 requirements: 28 total
+- Mapped to phases: 28
 - Unmapped: 0 ✓
 
 ---

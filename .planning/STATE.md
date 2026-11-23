@@ -10,9 +10,9 @@ last_updated: "2026-10-03T14:44:00.264Z"
 last_activity: 2026-10-01
 last_activity_desc: Roadmap reswap 4<->5 + new Phase 6, ready to plan Phase 5
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 5
-  total_plans: 17
+  total_plans: 18
   completed_plans: 15
 state_head: 87093793d60c149cf88546c98a1c0090136710bd
 ---
@@ -123,6 +123,7 @@ None yet.
 
 ### Roadmap Evolution
 
+- Phase 7 added: Neovim Editor QoL Fixes (diagnostic float keybind, stale keymap removal, scrollview git markers to far left with transparent bar + separator, nvim-surround install, `<C-,>`/`<C-.>` buffer cycling; smoothscroll option removal noted as cosmetic; cursor-jump investigation explicitly out of scope)
 - Phase 2.1 inserted after Phase 2: remove hyperland and hyperland related configs and make sure anything related to hyperland is not installed in local installation (URGENT)
 - Phase 5 added: fix marlonrichert/zsh-autocomplete Real-time type-ahead completion for Zsh doesn't work and needs to press tab to show.
 - Phase 5 planned 2026-09-22: 2 plans (tracer 04-01 + expansion 04-02 (renumbered from 05)), plan-checker passed with 0 blockers/0 warnings. Decision-coverage gate override: 30/33 decisions cited in must_haves; D-08 (SUPERSEDED by D-27/D-28), D-18 (EXPANDED by D-33), D-23 (research directive, executed via Context7-first) intentionally uncited — verify-phase may re-surface. RESEARCH.md INFO: three "seven" shorthands vs nine measured stow sites — plans target nine; optional word fix alongside execution.
