@@ -10,9 +10,8 @@ From a broken set of mirrored Nushell/Zsh bootstrappers that crash on derivative
 - [x] **Phase 2: Safe, Reversible & Server-Safe Deployment** - Uninstall/clean, privileged keyd gate, Hyprland guard, Zsh provisioned, docs flipped to Zsh default (completed 2026-09-11)
 - [x] **Phase 3: Polished Shell, Theme & Local Overrides** - Ctrl+R fzf conflict-free, PATH dedup, machine-local gitignored, theme token consistent (completed 2026-09-17; 1 item deferred — typing auto-show → dedicated future phase, see STATE.md Deferred Items)
 - [x] **Phase 4: fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp** - Real-time type-ahead completion auto-show, deterministic Tab ownership, stow containment (completed 2026-09-23; renumbered 2026-10-01 from old Phase 5)
-- [ ] **Phase 5: Editor Autonomy & fzf-lua Migration** - Mason auto-install/cleanup, which-key popup, fzf-lua replaces telescope, make/gcc removed from picker path
-- [ ] **Phase 6: Verified Health & Self-Test Gates** - Headless `--self-test` TAP harness (moved out of old Phase 4 HLTH-01)
-- [x] **Phase 7: Neovim Editor QoL Fixes** (completed 2026-11-23)
+- [x] **Phase 5: Editor Autonomy & fzf-lua Migration** - Mason auto-install/cleanup, which-key popup, fzf-lua replaces telescope, make/gcc removed from picker path (completed 2026-11-23)
+- [x] **Phase 6: Neovim Editor QoL Fixes** (completed 2026-11-23)
 
 ## Phase Details
 
@@ -160,34 +159,18 @@ Plans:
   2. User presses `<Space>` (leader) and sees which-key popup `folke/which-key.nvim` v3 `preset=modern delay=200 triggers={"<auto>"}` showing available combos with nested hints for subsequent keys (LazyVim-like)
   3. User's picker is `ibhagwan/fzf-lua` — `telescope` + `telescope-fzf-native` and all related config removed; `fzf-lua` provides files/grep/buffers/help with the fzf sorter built in; no `make`/`gcc` build step for the picker, `make`+`gcc` removed from installer `common` deps (or demoted to optional for remaining consumers); no silent fallback path; `nvim --headless -c "checkhealth"` reports picker healthy
 
-**Plans**: 2 plans
+**Plans**: 2/2 plans executed (both SUMMARY.md records present; roadmap status flipped 2026-11-23 at user direction — see STATE.md Roadmap Evolution)
 
 Plans:
 **Wave 1**
 
-- [ ] 05-01-PLAN.md — Mason headless trigger (sync refresh) + widened wipe + which-key popup (EDIT-01, EDIT-02)
+- [x] 05-01-PLAN.md — Mason headless trigger (sync refresh) + widened wipe + which-key popup (EDIT-01, EDIT-02)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 05-02-PLAN.md — fzf-lua migration (18-item map, zero legacy refs) + make/gcc demotion + compiler-free treesitter/blink (EDIT-03)
+- [x] 05-02-PLAN.md — fzf-lua migration (18-item map, zero legacy refs) + make/gcc demotion + compiler-free treesitter/blink (EDIT-03)
 
-### Phase 6: Verified Health & Self-Test Gates
-
-**Mode:** mvp
-**Goal**: The whole system can be proven without a VM via a headless self-test
-**Depends on**: Phase 5
-**Requirements**: HLTH-01
-**Success Criteria** (what must be TRUE):
-
-  1. User or agent runs `bash setup.sh --self-test` / `--verify` headless and gets TAP `ok/not ok` for: `test -L` + `readlink -f` stow symlinks (`~/.config/nvim` + `starship.toml` folding), `z`/`zi`/`zoxide`/`starship`/`fzf`/`stow ≥2.4.1` versions, `nvim --headless -c "checkhealth"` zero errors (incl. fzf-lua), Mason packages list, `bindkey '^R'` and `zle -l | grep fzf`, `PATH` dedup, and `stow --no --verbose` preview including privileged `keyd`
-
-**Plans**: TBD
-
-Plans:
-
-- [ ] 06-01: Self-test / health gates TAP harness (headless, VM-less)
-
-### Phase 7: Neovim Editor QoL Fixes
+### Phase 6: Neovim Editor QoL Fixes
 
 **Mode:** mvp
 **Goal**: Daily editing gaps are closed: full diagnostics on demand, no dead keymaps, native per-line gitsigns as the only git indicator in the gutter (G-07-4 abandoned the far-left marker-and-divider layout and removed the gutter plugin), surround support, and buffer cycling on Alt+comma/Alt+period. Cursor-jump investigation is explicitly out of scope.
@@ -207,21 +190,21 @@ Plans:
 Plans:
 **Wave 1**
 
-- [x] 07-01-PLAN.md — diagnostic float keybind + gutter options + dead-key removal + scrollview left + surround + buffer keys (QOL-01…QOL-06)
+- [x] 06-01-PLAN.md — diagnostic float keybind + gutter options + dead-key removal + scrollview left + surround + buffer keys (QOL-01…QOL-06)
 
-**Gap closure Wave 1** *(fixes 07-UAT.md gaps G-07-1 and G-07-2; independent plans, both wave 1)*
+**Gap closure Wave 1** *(fixes 06-UAT.md gaps G-07-1 and G-07-2; independent plans, both wave 1)*
 
-- [x] 07-02-PLAN.md — Gap closure G-07-1 (SUPERSEDED by G-07-4): formerly far-left opaque scrollview git markers, highlight-hidden bar, real thin solid separator, valid contrib options — that layout was abandoned and the plugin removed by 07-04
-- [x] 07-03-PLAN.md — Gap closure G-07-2: Alt+,/Alt+. buffer cycling that kitty delivers + kitty-inclusive README caveat (unaffected by G-07-4; still current)
+- [x] 06-02-PLAN.md — Gap closure G-07-1 (SUPERSEDED by G-07-4): formerly far-left opaque scrollview git markers, highlight-hidden bar, real thin solid separator, valid contrib options — that layout was abandoned and the plugin removed by 06-04
+- [x] 06-03-PLAN.md — Gap closure G-07-2: Alt+,/Alt+. buffer cycling that kitty delivers + kitty-inclusive README caveat (unaffected by G-07-4; still current)
 
-**Gap closure Wave 1 (additional plan)** *(depends_on: [] — fixes 07-UAT.md gap G-07-4; supersedes the 07-01/07-02 gutter layout per the user's decision)*
+**Gap closure Wave 1 (additional plan)** *(depends_on: [] — fixes 06-UAT.md gap G-07-4; supersedes the 06-01/06-02 gutter layout per the user's decision)*
 
-- [x] 07-04-PLAN.md — Gap closure G-07-4: remove the scrollview plugin and divider layout entirely so only native per-line gitsigns remain; reframe the related docs
+- [x] 06-04-PLAN.md — Gap closure G-07-4: remove the scrollview plugin and divider layout entirely so only native per-line gitsigns remain; reframe the related docs
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
+Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 (Phase 6 self-test removed 2026-11-23; former Phase 7 renumbered to 6)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -229,6 +212,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 2. Safe, Reversible & Server-Safe Deployment | 2/2 | Complete    | 2026-09-11 |
 | 3. Polished Shell, Theme & Local Overrides | 2/2 | Complete    | 2026-09-17 |
 | 4. fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp | 3/3 | Complete    | 2026-09-23 |
-| 5. Editor Autonomy & fzf-lua Migration | 0/2 | Not started | - |
-| 6. Verified Health & Self-Test Gates | 0/1 | Not started | - |
-| 7. Neovim Editor QoL Fixes | 4/4 | Complete    | 2026-11-23 |
+| 5. Editor Autonomy & fzf-lua Migration | 2/2 | Complete    | 2026-11-23 |
+| 6. Neovim Editor QoL Fixes | 4/4 | Complete    | 2026-11-23 |

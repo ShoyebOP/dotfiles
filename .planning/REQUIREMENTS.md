@@ -36,12 +36,12 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Editor — Neovim
 
-- [ ] **EDIT-01**: User's Neovim LSPs/formatters work after setup without manual `:MasonInstallAll` — installer triggers `nvim --headless -c "MasonInstallAll"` post-stow and `mason-tool-installer` deferred `ensure_installed = require("lang").mason_packages` (`run_on_start`/`start_delay`) ensures `pyright`/`ruff`/`typescript-language-server` etc. present; uninstall removes Mason artefacts when nvim deselected
-- [ ] **EDIT-02**: User sees which-key popup on `<Space>` (leader) showing available combos with nested hints for subsequent keys (LazyVim-like) via `folke/which-key.nvim` v3 `preset=modern delay=200 spec`
-- [ ] **EDIT-03**: User's picker is `ibhagwan/fzf-lua` — `telescope` + `telescope-fzf-native` and all related config removed; `fzf-lua` provides files/grep/buffers/help with the fzf sorter built in (no `make`/`gcc` build step); installer removes `make`+`gcc` from the picker path (dropped from `common` deps or demoted to optional for remaining consumers); no silent fallback path
+- [x] **EDIT-01**: User's Neovim LSPs/formatters work after setup without manual `:MasonInstallAll` — installer triggers `nvim --headless -c "MasonInstallAll"` post-stow and `mason-tool-installer` deferred `ensure_installed = require("lang").mason_packages` (`run_on_start`/`start_delay`) ensures `pyright`/`ruff`/`typescript-language-server` etc. present; uninstall removes Mason artefacts when nvim deselected
+- [x] **EDIT-02**: User sees which-key popup on `<Space>` (leader) showing available combos with nested hints for subsequent keys (LazyVim-like) via `folke/which-key.nvim` v3 `preset=modern delay=200 spec`
+- [x] **EDIT-03**: User's picker is `ibhagwan/fzf-lua` — `telescope` + `telescope-fzf-native` and all related config removed; `fzf-lua` provides files/grep/buffers/help with the fzf sorter built in (no `make`/`gcc` build step); installer removes `make`+`gcc` from the picker path (dropped from `common` deps or demoted to optional for remaining consumers); no silent fallback path
 - [x] **EDIT-04**: User can add machine-local Neovim overrides via gitignored `nvim/.config/nvim/lua/local.lua` (`pcall(require,"local")` at end of `init.lua`) without dirtying git
 
-### Editor — Neovim QoL (Phase 7)
+### Editor — Neovim QoL (Phase 6)
 
 - [x] **QOL-01**: User presses `<leader>vd` in normal mode and a floating window shows the full diagnostic message for the current line — `vim.diagnostic.open_float` with `scope = "line"`, rounded border; no diagnostic wrapping changes and no Trouble install
 - [x] **QOL-02**: User no longer sees dead keymaps — all bindings referencing uninstalled plugins (`grug-far`, `persistence`, `diffview`, `Trouble`) are removed from `lua/base/keymaps.lua`, and the stale which-key group label is retitled
@@ -111,19 +111,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SHEL-02 | Phase 3 | Complete |
 | SHEL-03 | Phase 3 | Complete |
 | SHEL-04 | Phase 3 | Complete |
-| EDIT-01 | Phase 5 | Pending |
-| EDIT-02 | Phase 5 | Pending |
-| EDIT-03 | Phase 5 | Pending |
+| EDIT-01 | Phase 5 | Complete |
+| EDIT-02 | Phase 5 | Complete |
+| EDIT-03 | Phase 5 | Complete |
 | EDIT-04 | Phase 3 | Complete |
 | THEM-01 | Phase 3 | Complete |
 | DOCS-01 | Phase 2 | Complete |
-| HLTH-01 | Phase 6 | Pending |
-| QOL-01 | Phase 7 | Complete |
-| QOL-02 | Phase 7 | Complete |
-| QOL-03 | Phase 7 | Complete |
-| QOL-04 | Phase 7 | Complete |
-| QOL-05 | Phase 7 | Complete |
-| QOL-06 | Phase 7 | Complete |
+| HLTH-01 | — (Phase 6 self-test removed 2026-11-23) | Deferred |
+| QOL-01 | Phase 6 | Complete |
+| QOL-02 | Phase 6 | Complete |
+| QOL-03 | Phase 6 | Complete |
+| QOL-04 | Phase 6 | Complete |
+| QOL-05 | Phase 6 | Complete |
+| QOL-06 | Phase 6 | Complete |
 
 **Coverage:**
 
@@ -133,4 +133,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-09-10*
-*Last updated: 2026-09-10 after roadmap (4 phases, Termux families mapped)*
+*Last updated: 2026-11-23 after Phase 6 self-test removal (former Phase 7 → Phase 6) and Phase 5 marked complete*

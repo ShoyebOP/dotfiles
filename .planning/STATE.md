@@ -1,20 +1,20 @@
 ---
 gsd_state_version: "1.0"
 milestone: v1.0
-current_phase: 5
-current_phase_name: Editor Autonomy & fzf-lua Migration
-status: verifying
-stopped_at: Phase 07 complete, ready to verify Phase 5
-last_updated: "2026-11-23T16:13:13.254Z"
+current_phase: 6
+current_phase_name: Neovim Editor QoL Fixes
+status: complete
+stopped_at: All phases complete — Phase 5 marked complete; former Phase 7 renumbered to Phase 6
+last_updated: "2026-11-23T16:54:08.000Z"
 last_activity: 2026-11-23
-last_activity_desc: Phase 07 complete, transitioned to Phase 5
+last_activity_desc: Phase 5 marked complete; Phase 6 self-test removed and former Phase 7 renumbered to 6
 state_head: 5db534050a60351ea14041fe5f86bfedf64c21e3
 progress:
-  total_phases: 8
-  completed_phases: 5
+  total_phases: 7
+  completed_phases: 6
   total_plans: 21
   completed_plans: 21
-  percent: 63
+  percent: 100
 milestone_name: milestone
 ---
 
@@ -25,22 +25,22 @@ milestone_name: milestone
 See: .planning/PROJECT.md (updated 2026-09-23)
 
 **Core value:** A fresh clone can go from `bash setup.sh` → working Zsh + Neovim + desktop environment on any supported distro/derivative with one interactive run, and cleanly reverse itself — no manual `stow` or `MasonInstallAll` required.
-**Current focus:** Phase 07 — Neovim Editor QoL Fixes
+**Current focus:** All phases complete — v1.0 milestone ready to close
 
 ## Current Position
 
-Phase: 5 — Editor Autonomy & fzf-lua Migration
-Plan: 2
-Status: Phase complete — ready for verification
-Last activity: 2026-11-23 — Phase 07 complete, transitioned to Phase 5
+Phase: 6 — Neovim Editor QoL Fixes (final phase)
+Plan: 4/4
+Status: Complete — Phase 5 marked complete at user direction; all phases done
+Last activity: 2026-11-23 — Phase 5 marked complete; self-test phase removed, former Phase 7 renumbered to 6
 
-Progress: [██████░░░░] 63%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 17
+- Total plans completed: 21
 - Average duration: -
 - Total execution time: 0.0 hours
 
@@ -51,13 +51,12 @@ Progress: [██████░░░░] 63%
 | 1. Universal Installer + Platform Foundations | 0/2 | - | - |
 | 2. Safe, Reversible & Server-Safe Deployment | 0/2 | - | - |
 | 3. Polished Shell, Theme & Local Overrides | 2/2 | - | - |
-| 5. Editor Autonomy & fzf-lua Migration | 0/2 | - | - |
-| 6. Verified Health & Self-Test Gates | 0/1 | - | - |
+| 5. Editor Autonomy & fzf-lua Migration | 2/2 | - | - |
 | 01 | 5 | - | - |
 | 02 | 2 | - | - |
 | 02.1 | 3 | - | - |
 | 04 (old 05) | 3 | - | - |
-| 07 | 4 | - | - |
+| 06 | 4 | - | - |
 
 **Recent Trend:**
 
@@ -80,9 +79,9 @@ Progress: [██████░░░░] 63%
 | Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
 | Phase 03-polished-shell-theme-local-overrides P02 | 5 min | 2 tasks | 1 files |
 | Phase 05-fix-marlonrichert-zsh-autocomplete-real-time-type-ahead-comp P03 | 12 min | 3 tasks | 2 files |
-| Phase 07 P02 | 15 min | 3 tasks | 3 files |
-| Phase 07 P03 | 2min | 2 tasks | 2 files |
-| Phase 07 P04 | 5min | 3 tasks | 8 files |
+| Phase 06 P02 | 15 min | 3 tasks | 3 files |
+| Phase 06 P03 | 2min | 2 tasks | 2 files |
+| Phase 06 P04 | 5min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -116,11 +115,11 @@ Recent decisions affecting current work:
 - [Phase 03-polished-shell-theme-local-overrides]: Debian legacy fzf rung added: doc/examples key-bindings path is the only legacy location for distro fzf 0.44.1 — Without it Ctrl+R warns despite fzf installed; plan single legacy path absent on Debian-family
 - [Phase 03-polished-shell-theme-local-overrides]: Check-1 typing auto-show failure deferred to a separate future phase per user directive; phase 03 completes with the partial human verdict recorded verbatim (1 failed/deferred, 1 passed, 1 untested) — Human verdict was partial-fail; fixing the typing auto-show failure here would violate MVP_MODE no-scope-expansion, so it is deferred to a user-owned future phase
 - [Phase 05-03]: Keep the one-shot precmd zasync hook as the shipped path while upstream PRs #903/#905 and issue #907 stay open; release-tag pin is fallback-only on observed live hook failure, never pre-pinned — a future upstream merge retires the hook via the manager update path per the README `Retire after` condition
-- [Phase 07 — SUPERSEDED by G-07-4]: G-07-1: far-left opaque scrollview markers with the bar hidden by a ScrollView->Normal highlight link — layout abandoned, plugin removed by 07-04
-- [Phase 07 — SUPERSEDED by G-07-4]: G-07-1: dedicated │ separator float with a widened signcolumn — Neovim left-aligns signs so spare cells formed the empty gap; abandoned, native per-line gitsigns are now the only git indicator
-- [Phase 07]: Buffer cycling rebound to <M-,>/<M-.> (Alt+comma/period): kitty legacy Alt ESC-prefix is the only user-offered pair delivered reliably; supersedes 07-CONTEXT.md scope item 5 per UAT acceptance
-- [Phase 07]: README now documents kitty as the primary terminal for key delivery, with Alacritty retained only as a secondary case
-- [Phase 07-04]: G-07-4 abandoned the far-left marker + divider gutter entirely as unachievable with the pinned nvim-scrollview and Neovim signcolumn model; removed the scrollview spec, its lazy-lock pin and the widened signcolumn so native per-line gitsigns are the only git indicator (supersedes both G-07-1 decisions above)
+- [Phase 06 — SUPERSEDED by G-07-4]: G-07-1: far-left opaque scrollview markers with the bar hidden by a ScrollView->Normal highlight link — layout abandoned, plugin removed by 07-04
+- [Phase 06 — SUPERSEDED by G-07-4]: G-07-1: dedicated │ separator float with a widened signcolumn — Neovim left-aligns signs so spare cells formed the empty gap; abandoned, native per-line gitsigns are now the only git indicator
+- [Phase 06]: Buffer cycling rebound to <M-,>/<M-.> (Alt+comma/period): kitty legacy Alt ESC-prefix is the only user-offered pair delivered reliably; supersedes 06-CONTEXT.md scope item 5 per UAT acceptance
+- [Phase 06]: README now documents kitty as the primary terminal for key delivery, with Alacritty retained only as a secondary case
+- [Phase 06-04]: G-07-4 abandoned the far-left marker + divider gutter entirely as unachievable with the pinned nvim-scrollview and Neovim signcolumn model; removed the scrollview spec, its lazy-lock pin and the widened signcolumn so native per-line gitsigns are the only git indicator (supersedes both G-07-1 decisions above)
 
 ### Pending Todos
 
@@ -133,11 +132,13 @@ None yet.
 
 ### Roadmap Evolution
 
-- Phase 7 added: Neovim Editor QoL Fixes (diagnostic float keybind, stale keymap removal, native per-line gitsigns only after G-07-4 abandoned the far-left marker + separator layout and removed the scrollview plugin, nvim-surround install, Alt+comma/Alt+period buffer cycling; smoothscroll option removal noted as cosmetic; cursor-jump investigation explicitly out of scope)
+- Phase 6 added (formerly Phase 7, renumbered 2026-11-23 after the self-test phase was removed): Neovim Editor QoL Fixes (diagnostic float keybind, stale keymap removal, native per-line gitsigns only after G-07-4 abandoned the far-left marker + separator layout and removed the scrollview plugin, nvim-surround install, Alt+comma/Alt+period buffer cycling; smoothscroll option removal noted as cosmetic; cursor-jump investigation explicitly out of scope)
 - Phase 2.1 inserted after Phase 2: remove hyperland and hyperland related configs and make sure anything related to hyperland is not installed in local installation (URGENT)
 - Phase 5 added: fix marlonrichert/zsh-autocomplete Real-time type-ahead completion for Zsh doesn't work and needs to press tab to show.
 - Phase 5 planned 2026-09-22: 2 plans (tracer 04-01 + expansion 04-02 (renumbered from 05)), plan-checker passed with 0 blockers/0 warnings. Decision-coverage gate override: 30/33 decisions cited in must_haves; D-08 (SUPERSEDED by D-27/D-28), D-18 (EXPANDED by D-33), D-23 (research directive, executed via Context7-first) intentionally uncited — verify-phase may re-surface. RESEARCH.md INFO: three "seven" shorthands vs nine measured stow sites — plans target nine; optional word fix alongside execution.
 - Phase reswap 2026-10-01: old Phase 5 (autocomplete, complete) → new Phase 4 (dir + 12 files 05-* → 04-*); old Phase 4 (Editor+Health, pending) split into new Phase 5 Editor Autonomy & fzf-lua Migration (EDIT-01/02 unchanged, EDIT-03 = telescope* removal + fzf-lua + make/gcc dep removal, Depends on Phase 4) and new Phase 6 Verified Health & Self-Test Gates (HLTH-01 moved, Depends on Phase 5).
+- Phase 6 (Verified Health & Self-Test Gates) removed 2026-11-23: unstarted phase (no directory, 0 plans); former Phase 7 (Neovim Editor QoL Fixes) renumbered to Phase 6 — dir + 14 files 07-* → 06-*, ROADMAP/state.json updated via `phase remove`.
+- Phase 5 marked complete 2026-11-23 at user direction: both plans have SUMMARY.md records (2/2 executed) but 05-VERIFICATION.md remains `human_needed` (12/13 must-haves, 1 behavior unverified; 05-UAT.md 3 pending). Status flipped without fabricating verification/UAT results; `phase complete` was gated by the non-PASSED verification status.
 
 ## Deferred Items
 
@@ -151,5 +152,5 @@ Items acknowledged and carried forward from previous milestone close:
 ## Session Continuity
 
 Last session: 2026-11-23T15:57:32.288Z
-Stopped at: Phase 07 complete, ready to verify Phase 5
+Stopped at: All phases complete — Phase 5 marked complete; former Phase 7 renumbered to Phase 6 (self-test phase removed)
 Resume file: None
