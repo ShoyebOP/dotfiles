@@ -1,9 +1,9 @@
 ---
-status: complete
+status: diagnosed
 phase: 07-neovim-editor-qol-fixes
 source: [07-VERIFICATION.md]
 started: 2026-11-23T12:49:44Z
-updated: 2026-11-23T13:10:08.872Z
+updated: 2026-11-23T13:15:00Z
 ---
 
 ## Current Test
@@ -45,8 +45,20 @@ blocked: 0
   reason: "User reported: no the whole thing is wrong, first i don't see any git markers, the perline gitsigns is in the far left currently, after that there is a big empty space then line numbers and then text. what i wanted was git markers to the far left a very thin one pixel solid line separator, then perline gitsigns"
   severity: major
   test: 1
-  artifacts: []
-  missing: []
+  root_cause: "Phase-07 gutter was built on unverified plugin assumptions: (1) base=left + column=1 with default signs_overflow=left makes the marker column compute to 0 (invalid), so zero sign windows are ever drawn; (2) winblend_gui=100 is read by both bar and sign windows on pinned nvim-scrollview b9e6ee00 / Neovim 0.12.2, so markers would be invisible even if drawn; (3) signcolumn=yes:4 rests on a false 'Neovim right-aligns signs' assumption — Neovim left-aligns, producing the reported empty gap, and a true 1px solid line cannot be made from whole-cell signcolumn."
+  artifacts:
+    - path: "nvim/.config/nvim/lua/plugins/scrollview.lua"
+      issue: "base=left/column=1 + default signs_overflow=left → marker column 0; winblend_gui=100 blanks sign windows; contrib.gitsigns setup uses invalid option names"
+    - path: "nvim/.config/nvim/lua/base/options.lua"
+      issue: "signcolumn=yes:4 creates a trailing blank gap before line numbers, not a leading 1px separator"
+    - path: ".planning/phases/07-neovim-editor-qol-fixes/07-RESEARCH.md"
+      issue: "false right-alignment assumption baked into the locked design (also propagated to 07-01-SUMMARY.md)"
+  missing:
+    - "Choose column geometry that places scrollview git markers at far left (e.g. column=2 with default signs_overflow=left)"
+    - "Stop using winblend_gui=100 to hide the bar — it also hides signs; hide the bar by a bar-specific mechanism and keep sign windows opaque"
+    - "Implement the separator as an actual 1px solid line (dedicated float/highlight) rather than spare signcolumn cells"
+    - "Replace invalid contrib.gitsigns option names with supported ones"
+  debug_session: ".planning/debug/gutter-git-marker-separator-layout.md"
 
 - gap_id: G-07-2
   truth: "next/previous buffer switches; if the sequence is swallowed, a literal control char fails to appear in insert mode, indicating the terminal needs a custom key_bindings entry for the buffer-switch keys"
@@ -54,5 +66,13 @@ blocked: 0
   reason: "User reported: nope this also not works, i am not using alacritty but kitty. even though the problem might be same, i'm open to change the bind with any of the following combinations- \"alt+,/alt+.\", \"ctrl+;/ctrl+'\" or \"ctrl+[/ctrl+]\" and btw i was talking about only the keys not the text itself"
   severity: major
   test: 2
-  artifacts: []
-  missing: []
+  root_cause: "QOL-05 rebound buffer cycling to <C-,>/<C-.>, Ctrl+punctuation combos legacy terminal encoding cannot represent. In kitty's default legacy keyboard mode its ctrled_key() has no entry for ',' or '.', so it sends a bare , / . and drops Ctrl; nvim never receives the mapped sequence (the bare keys instead run builtin repeat motions, which reads as 'nothing happens'). Headless maparg confirms the nvim-side mappings are correct — the fault is entirely terminal→nvim delivery. Only an Alacritty-specific key_bindings caveat was documented; no kitty handling was shipped."
+  artifacts:
+    - path: "nvim/.config/nvim/lua/base/keymaps.lua"
+      issue: "lines 94-95 bind <C-,>/<C-.>, undeliverable in kitty legacy mode"
+    - path: "nvim/.config/nvim/README.md"
+      issue: "key-delivery caveat is Alacritty-only; kitty is not covered"
+  missing:
+    - "Rebind to <M-,>/<M-.> (alt+, / alt+.) — the only user-suggested combo kitty delivers reliably; ctrl+;/' fails the same way and ctrl+[ collides with Escape"
+    - "Update README caveat to cover kitty, not just Alacritty"
+  debug_session: ".planning/debug/buffer-switch-keybindings-kitty.md"
