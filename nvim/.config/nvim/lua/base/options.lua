@@ -9,7 +9,7 @@ opt.termguicolors = true
 opt.cursorline = true
 o.cursorlineopt = "both"
 opt.fillchars = { eob = " " }
-opt.signcolumn = "yes:4" -- 4 cells: scrollview git gutter, blank separator, native diagnostic + gitsigns signs right-aligned; guarantees a blank cell when both signs share a line
+opt.signcolumn = "yes:2" -- Narrowest width that still holds a native diagnostic sign and a gitsigns sign on one line. Neovim left-aligns native signs, so extra reserved cells appear to the right of the signs (the reported empty gap) and cannot form a left-side separator; the separator is a dedicated float in plugins/scrollview.lua.
 o.ruler = false
 opt.number = true
 opt.numberwidth = 2
