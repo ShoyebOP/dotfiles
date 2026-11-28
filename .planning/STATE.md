@@ -5,10 +5,10 @@ current_phase: 6
 current_phase_name: Neovim Editor QoL Fixes
 status: complete
 stopped_at: All phases complete — Phase 5 marked complete; former Phase 7 renumbered to Phase 6
-last_updated: "2026-11-23T16:54:08.000Z"
+last_updated: "2026-11-28T08:59:37.656Z"
 last_activity: 2026-11-23
 last_activity_desc: Phase 5 marked complete; Phase 6 self-test removed and former Phase 7 renumbered to 6
-state_head: 5db534050a60351ea14041fe5f86bfedf64c21e3
+state_head: 139fd8b8799bf818f90cd6d585c48f9d55cfa44f
 progress:
   total_phases: 7
   completed_phases: 6
@@ -32,7 +32,7 @@ See: .planning/PROJECT.md (updated 2026-09-23)
 Phase: 6 — Neovim Editor QoL Fixes (final phase)
 Plan: 4/4
 Status: Complete — Phase 5 marked complete at user direction; all phases done
-Last activity: 2026-11-23 — Phase 5 marked complete; self-test phase removed, former Phase 7 renumbered to 6
+Last activity: 2026-11-28 - Completed quick task 261128-khe: Restore tight left gutter: pack gitsigns sign against line number via statuscolumn (remove 2+ column blank gap)
 
 Progress: [██████████] 100%
 
@@ -129,6 +129,12 @@ None yet.
 
 - [Phase 05 RESOLVED 2026-09-23]: SHEL-02 auto-show half + D-29 Tab-vs-ghost ownership closed by 04-03 gap-closure (renumbered from 05) slice (R-3 one-shot precmd hook + R-7 menuselect Tab line) with an overall-PASS blocking-human live verdict ("perfect fully fixed and everything is working as intended"). Upstream re-check: PR #903 open, PR #905 open, issue #907 open — hook kept as shipped path, release-tag pin fallback-only. Static gates all green. See 04-03-SUMMARY.md (renumbered from 05).
 - Follow-up (out of scope, routed): setup.sh post_verify will report `~/.config/nvim/.gitignore` MISSING on next live run (Stow default-ignores `.gitignore`, 65/66 leaf links) — owner: setup.sh follow-up or Phase 6 self-test scope.
+
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 261128-khe | Restore tight left gutter: pack gitsigns sign against line number via statuscolumn (remove 2+ column blank gap) | 2026-11-28 | 139fd8b | [261128-khe-there-is-a-gap-between-the-gitsigns-colu](./quick/261128-khe-there-is-a-gap-between-the-gitsigns-colu/) |
 
 ### Roadmap Evolution
 
