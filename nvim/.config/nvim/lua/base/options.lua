@@ -10,6 +10,8 @@ opt.cursorline = true
 o.cursorlineopt = "both"
 opt.fillchars = { eob = " " }
 opt.signcolumn = "yes"
+-- Native sign slot kept; raw number removes reserved right-aligned padding, virtnum guard avoids repeating on wrapped rows
+opt.statuscolumn = "%s%{v:virtnum>0 ? '' : v:lnum}"
 o.ruler = false
 opt.number = true
 opt.numberwidth = 2
